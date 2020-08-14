@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
+
+	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
-	"github.com/liserjrqlxue/goUtil/xlsxUtil"
 )
 
 // os
@@ -50,17 +52,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	var templateXlsx = xlsxUtil.OpenFile(*template)
-	var excel = xlsxUtil.NewFile()
-	for _, sheet := range templateXlsx.File.Sheets {
-		excel.AppendSheet(*sheet, sheet.Name)
-	}
-
-	var sheet = excel.File.Sheet[*avdSheetName]
-	var avdTitle = xlsxUtil.GetRowArray(0, sheet)
-	fmt.Printf("%+v\n", avdTitle)
+	var excel, err1 = excelize.OpenFile(*template)
+	simpleUtil.CheckErr(err1)
+	var rows, err2 = excel.GetRows(*avdSheetName)
+	simpleUtil.CheckErr(err2)
+	var avdTitle = rows[0]
+	var offset = len(rows)
 	var avd, _ = textUtil.Files2MapArray(strings.Split(*avdDataFiles, ","), "\t", nil)
-	for _, item := range avd {
-		xlsxUtil.AddMap2Row(item, avdTitle, sheet.AddRow())
+	for i, item := range avd {
+		for j, k := range avdTitle {
+			var axis, err = excelize.CoordinatesToCellName(j+1, i+1+offset)
+			simpleUtil.CheckErr(err)
+			simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+		}
 	}
+	fmt.Printf("excel.SaveAs(\"%s\")\n", *output)
+	simpleUtil.CheckErr(excel.SaveAs(*output))
 }
