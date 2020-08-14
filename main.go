@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
+	"github.com/liserjrqlxue/version"
 )
 
 // os
@@ -45,27 +46,28 @@ var (
 )
 
 func main() {
+	version.LogVersion()
 	flag.Parse()
 	if *output == "" || *avdDataFiles == "" {
 		flag.Usage()
-		fmt.Println("-avd is required!")
+		log.Println("-output and -avd are required!")
 		os.Exit(1)
 	}
 
-	var excel, err1 = excelize.OpenFile(*template)
-	simpleUtil.CheckErr(err1)
-	var rows, err2 = excel.GetRows(*avdSheetName)
-	simpleUtil.CheckErr(err2)
+	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
+	var rows = simpleUtil.HandleError(excel.GetRows(*avdSheetName)).([][]string)
 	var avdTitle = rows[0]
-	var offset = len(rows)
-	var avd, _ = textUtil.Files2MapArray(strings.Split(*avdDataFiles, ","), "\t", nil)
-	for i, item := range avd {
-		for j, k := range avdTitle {
-			var axis, err = excelize.CoordinatesToCellName(j+1, i+1+offset)
-			simpleUtil.CheckErr(err)
-			simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+	var rIdx = len(rows)
+	for _, fileName := range strings.Split(*avdDataFiles, ",") {
+		var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
+		for _, item := range avd {
+			rIdx++
+			for j, k := range avdTitle {
+				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+				simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+			}
 		}
 	}
-	fmt.Printf("excel.SaveAs(\"%s\")\n", *output)
+	log.Printf("excel.SaveAs(\"%s\")\n", *output)
 	simpleUtil.CheckErr(excel.SaveAs(*output))
 }
