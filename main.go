@@ -52,7 +52,7 @@ var (
 )
 
 var (
-	geneListMap map[string]bool
+	geneListMap = make(map[string]bool)
 )
 
 func main() {
