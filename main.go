@@ -18,7 +18,7 @@ import (
 var (
 	ex, _        = os.Executable()
 	exPath       = filepath.Dir(ex)
-	etcPath      = filepath.Join(exPath, "template")
+	etcPath      = filepath.Join(exPath, "etc")
 	templatePath = filepath.Join(exPath, "template")
 )
 
