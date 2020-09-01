@@ -49,10 +49,16 @@ var (
 		filepath.Join(etcPath, "gene.list.txt"),
 		"gene list to filter",
 	)
+	functionExclude = flag.String(
+		"functionExclude",
+		filepath.Join(etcPath, "function.exclude.txt"),
+		"function list to exclude",
+	)
 )
 
 var (
-	geneListMap = make(map[string]bool)
+	geneListMap        = make(map[string]bool)
+	functionExcludeMap = make(map[string]bool)
 )
 
 func main() {
@@ -67,6 +73,11 @@ func main() {
 	// load gene list
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
+	}
+
+	// load function exclude list
+	for _, key := range textUtil.File2Array(*functionExclude) {
+		functionExcludeMap[key] = true
 	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
@@ -91,5 +102,6 @@ func main() {
 
 func filterAvd(item map[string]string) bool {
 	var gene = item["Gene Symbol"]
-	return geneListMap[gene]
+	var function = item["Function"]
+	return geneListMap[gene] && functionExcludeMap[function]
 }

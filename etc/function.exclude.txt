@@ -1,0 +1,5 @@
+intron
+promoter
+no-change
+utr-3
+utr-5
