@@ -46,6 +46,16 @@ var (
 		"All variants data",
 		"All variants data sheet name",
 	)
+	diseaseExcel = flag.String(
+		"disease",
+		filepath.Join(etcPath, "疾病简介和治疗-20200825.xlsx"),
+		"disease database excel",
+	)
+	diseaseSheetName = flag.String(
+		"diseaseSheetName",
+		"Sheet2",
+		"sheet name of disease database excel",
+	)
 	dmdFiles = flag.String(
 		"dmd",
 		"",
@@ -86,6 +96,7 @@ var (
 var (
 	geneListMap        = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
+	diseaseDb          = make(map[string]map[string]string)
 )
 
 func main() {
@@ -107,6 +118,11 @@ func main() {
 		functionExcludeMap[key] = true
 	}
 
+	// load disease database
+	var diseaseExcel = simpleUtil.HandleError(excelize.OpenFile(*diseaseExcel)).(*excelize.File)
+	var diseaseSlice = simpleUtil.HandleError(diseaseExcel.GetRows(*diseaseSheetName)).([][]string)
+	diseaseDb = simpleUtil.Slice2MapMapArray(diseaseSlice, "基因")
+
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	// All variant data
@@ -119,6 +135,7 @@ func main() {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range avd {
 				if filterAvd(item) {
+					updateAvd(item)
 					rIdx++
 					for j, k := range title {
 						var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
@@ -256,4 +273,13 @@ func filterAvd(item map[string]string) bool {
 		return false
 	}
 	return true
+}
+
+func updateAvd(item map[string]string) {
+	var gene = item["Gene Symbol"]
+	var db, ok = diseaseDb[gene]
+	if ok {
+		item["疾病中文名"] = db["疾病"]
+		item["遗传模式"] = db["遗传模式"]
+	}
 }
