@@ -60,6 +60,11 @@ var (
 		"",
 		"dipin result file",
 	)
+	smaResult = flag.String(
+		"sma",
+		"",
+		"sma result file",
+	)
 	aeSheetName = flag.String(
 		"aeSheetName",
 		"补充实验",
@@ -156,6 +161,42 @@ func main() {
 			info["β地贫_chr11"] = item["chr11"]
 			info["α地贫_chr16"] = item["chr16"]
 			db[sampleID] = info
+		}
+	}
+	if *smaResult != "" {
+		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
+		for _, item := range sma {
+			var sampleID = item["SampleID"]
+			var info, ok = db[sampleID]
+			if !ok {
+				info = item
+			}
+			var result, qc, qc_result string
+			var Categorization = item["SMN1_ex7_cn"]
+			var QC = item["qc"]
+			if Categorization == "1.5" || Categorization == "1" || QC != "1" {
+				qc_result = "_等验证"
+			}
+			switch Categorization {
+			case "0":
+				result = "纯阳性"
+			case "0.5":
+				result = "纯合灰区"
+			case "1":
+				result = "杂合阳性"
+			case "1.5":
+				result = "杂合灰区"
+			default:
+				result = "阴性"
+			}
+			if QC == "1" {
+				qc = "Pass"
+			} else {
+				qc = "Fail"
+			}
+			info["SMN1_检测结果"] = result
+			info["SMN1_质控结果"] = qc
+			info["SMN1 EX7 del最终结果"] = result + qc_result
 		}
 	}
 	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
