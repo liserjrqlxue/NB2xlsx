@@ -156,10 +156,26 @@ func main() {
 			if !ok {
 				info = item
 			}
+			var qc, a_result, b_result string
+			if item["QC"] != "pass" {
+				qc = "_等验证"
+			}
+			if item["chr11"] == "N" {
+				b_result = "阴性"
+			} else {
+				b_result = item["chr11"]
+			}
+			if item["chr16"] == "N" {
+				a_result = "阴性"
+			} else {
+				a_result = item["chr16"]
+			}
 			info["SampleID"] = sampleID
 			info["地贫_QC"] = item["QC"]
 			info["β地贫_chr11"] = item["chr11"]
 			info["α地贫_chr16"] = item["chr16"]
+			info["β地贫_最终结果"] = b_result + qc
+			info["α地贫_最终结果"] = a_result + qc
 			db[sampleID] = info
 		}
 	}
