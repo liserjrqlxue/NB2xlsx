@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
@@ -244,7 +245,15 @@ var formulaTitle = map[string]bool{
 }
 
 func filterAvd(item map[string]string) bool {
-	var gene = item["Gene Symbol"]
-	var function = item["Function"]
-	return geneListMap[gene] && functionExcludeMap[function]
+	if !geneListMap[item["Gene Symbol"]] {
+		return false
+	}
+	if functionExcludeMap[item["Function"]] {
+		return false
+	}
+	var af, err = strconv.ParseFloat(item["GnomAD AF"], 64)
+	if err == nil && af > 0.01 {
+		return false
+	}
+	return true
 }
