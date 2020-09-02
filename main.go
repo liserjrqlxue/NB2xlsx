@@ -44,6 +44,26 @@ var (
 		"All variants data",
 		"All variants data sheet name",
 	)
+	dmdFiles = flag.String(
+		"dmd",
+		"",
+		"DMD result file list, comma as sep",
+	)
+	dmdSheetName = flag.String(
+		"dmdSheetName",
+		"CNV",
+		"DMD result sheet name",
+	)
+	dipinResult = flag.String(
+		"dipin",
+		"",
+		"dipin result file",
+	)
+	aeSheetName = flag.String(
+		"aeSheetName",
+		"补充实验",
+		"Additional Experiments sheet name",
+	)
 	geneList = flag.String(
 		"geneList",
 		filepath.Join(etcPath, "gene.list.txt"),
@@ -81,21 +101,73 @@ func main() {
 	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-	var rows = simpleUtil.HandleError(excel.GetRows(*avdSheetName)).([][]string)
-	var avdTitle = rows[0]
-	var rIdx = len(rows)
-	for _, fileName := range strings.Split(*avdDataFiles, ",") {
-		var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-		for _, item := range avd {
-			if filterAvd(item) {
-				rIdx++
-				for j, k := range avdTitle {
-					var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
-					simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+
+	// All variant data
+	if *avdDataFiles != "" {
+		var sheetName = *avdSheetName
+		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+		var title = rows[0]
+		var rIdx = len(rows)
+		for _, fileName := range strings.Split(*avdDataFiles, ",") {
+			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
+			for _, item := range avd {
+				if filterAvd(item) {
+					rIdx++
+					for j, k := range title {
+						var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+						simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+					}
 				}
 			}
 		}
 	}
+
+	// CNV
+	if *dmdFiles != "" {
+		var sheetName = *dmdSheetName
+		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+		var title = rows[0]
+		var rIdx = len(rows)
+		for _, fileName := range strings.Split(*dmdFiles, ",") {
+			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
+			for _, item := range dmd {
+				rIdx++
+				for j, k := range title {
+					var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+					simpleUtil.CheckErr(excel.SetCellValue(*dmdSheetName, axis, item[k]))
+				}
+			}
+		}
+	}
+
+	// 补充实验
+	var db = make(map[string]map[string]string)
+	if *dipinResult != "" {
+		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
+		for _, item := range dipin {
+			var sampleID = item["sample"]
+			var info, ok = db[sampleID]
+			if !ok {
+				info = item
+			}
+			info["SampleID"] = sampleID
+			info["地贫_QC"] = item["QC"]
+			info["β地贫_chr11"] = item["chr11"]
+			info["α地贫_chr16"] = item["chr16"]
+			db[sampleID] = info
+		}
+	}
+	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	for _, item := range db {
+		rIdx++
+		for j, k := range title {
+			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+			simpleUtil.CheckErr(excel.SetCellValue(*aeSheetName, axis, item[k]))
+		}
+	}
+
 	log.Printf("excel.SaveAs(\"%s\")\n", *output)
 	simpleUtil.CheckErr(excel.SaveAs(*output))
 }
