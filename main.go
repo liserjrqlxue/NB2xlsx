@@ -164,6 +164,7 @@ func main() {
 			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range dmd {
 				rIdx++
+				updateDmd(item, rIdx)
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
 		}
@@ -276,6 +277,50 @@ func updateAvd(item map[string]string, rIdx int) {
 	if ok {
 		item["疾病中文名"] = db["疾病"]
 		item["遗传模式"] = db["遗传模式"]
+	}
+	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+}
+
+func updateDmd(item map[string]string, rIdx int) {
+	item["#sample"] = item["#Sample"]
+	item["OMIM"] = item["Disease"]
+	if item["Significant"] != "YES" {
+		item["Significant"] = "NO"
+	}
+	/*
+		item["depth_rate"]=item["batch_control"]
+		item["others_rate"]=item["all_control"]
+		item["G/H"]=item["Mean_Ratio"]
+		item["Zscore"]=item["Median_Ratio"]
+		var omimWebsite="http://omim.org/search/?index=entry&start=1&limit=10&sort=score+desc%2C+prefix_sort+desc&search="+item["gene"]
+		item["omimWebsite"]=omimWebsite
+	*/
+	// primerDesign
+	var exId = item["exon"]
+	var cdsId = item["exon"]
+	var ratioVal, err = strconv.ParseFloat(item["Mean_Ratio"], 64)
+	if err != nil {
+		ratioVal = 0
+	}
+	if ratioVal >= 1.3 && ratioVal < 1.8 {
+		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Het"
+	} else if ratioVal >= 1.8 {
+		if item["chr"] == "chrX" {
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Hemi"
+		} else {
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Hom"
+		}
+	} else if ratioVal >= 0.2 && ratioVal <= 0.75 {
+		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Het"
+	} else if ratioVal < 0.2 {
+		if item["chr"] == "chrX" {
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Hemi"
+		} else {
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Hom"
+		}
+	} else {
+		item["primerDesign"] = "-"
 	}
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
