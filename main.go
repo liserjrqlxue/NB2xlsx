@@ -36,6 +36,11 @@ var (
 		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
 		"template to be used",
 	)
+	dropList = flag.String(
+		"dropList",
+		filepath.Join(etcPath, "drop.list.txt"),
+		"drop list for excel",
+	)
 	avdDataFiles = flag.String(
 		"avd",
 		"",
@@ -97,6 +102,7 @@ var (
 	geneListMap        = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
+	dropListMap        = make(map[string][]string)
 )
 
 func main() {
@@ -122,6 +128,11 @@ func main() {
 	var diseaseExcel = simpleUtil.HandleError(excelize.OpenFile(*diseaseExcel)).(*excelize.File)
 	var diseaseSlice = simpleUtil.HandleError(diseaseExcel.GetRows(*diseaseSheetName)).([][]string)
 	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(diseaseSlice, "基因", "/")
+
+	// load drop list
+	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
+		dropListMap[k] = strings.Split(v, ",")
+	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
@@ -250,17 +261,13 @@ func main() {
 			} else {
 				simpleUtil.CheckErr(excel.SetCellValue(*aeSheetName, axis, item[k]))
 			}
-			var dvRange = excelize.NewDataValidation(true)
-			dvRange.Sqref = axis
-			switch k {
-			case "β地贫_最终结果":
-				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,SEA-HPFH,Chinese,SEA-HPFH;SEA-HPFH,Chinese;Chinese,SEA-HPFH;Chinese", ",")))
-			case "α地贫_最终结果":
-				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,3.7,SEA,4.2,THAI,FIL,3.7;3.7,4.2;4.2,SEA;SEA,3.7;4.2,3.7;SEA,3.7;THAI,3.7;FIL,4.2;SEA,4.2;THAI,4.2;FIL,SEA;THAI,SEA;FIL,THAI;THAI,THAI;FIL,FIL;FIL", ",")))
-			case "SMN1 EX7 del最终结果":
-				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,杂合阳性,纯合阳性,杂合灰区,纯合灰区", ",")))
+			var list, ok = dropListMap[k]
+			if ok {
+				var dvRange = excelize.NewDataValidation(true)
+				dvRange.Sqref = axis
+				simpleUtil.CheckErr(dvRange.SetDropList(list))
+				simpleUtil.CheckErr(excel.AddDataValidation(*aeSheetName, dvRange))
 			}
-			simpleUtil.CheckErr(excel.AddDataValidation(*aeSheetName, dvRange))
 		}
 	}
 
