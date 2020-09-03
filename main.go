@@ -121,7 +121,7 @@ func main() {
 	// load disease database
 	var diseaseExcel = simpleUtil.HandleError(excelize.OpenFile(*diseaseExcel)).(*excelize.File)
 	var diseaseSlice = simpleUtil.HandleError(diseaseExcel.GetRows(*diseaseSheetName)).([][]string)
-	diseaseDb = simpleUtil.Slice2MapMapArray(diseaseSlice, "基因")
+	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(diseaseSlice, "基因", "/")
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
