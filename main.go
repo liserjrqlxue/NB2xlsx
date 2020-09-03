@@ -148,14 +148,7 @@ func main() {
 				if filterAvd(item) {
 					rIdx++
 					updateAvd(item, rIdx)
-					for j, k := range title {
-						var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
-						if formulaTitle[k] {
-							simpleUtil.CheckErr(excel.SetCellFormula(*avdSheetName, axis, item[k]))
-						} else {
-							simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
-						}
-					}
+					writeRow(excel, sheetName, item, title, rIdx)
 				}
 			}
 		}
@@ -171,10 +164,7 @@ func main() {
 			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range dmd {
 				rIdx++
-				for j, k := range title {
-					var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
-					simpleUtil.CheckErr(excel.SetCellValue(*dmdSheetName, axis, item[k]))
-				}
+				writeRow(excel, sheetName, item, title, rIdx)
 			}
 		}
 	}
@@ -254,21 +244,7 @@ func main() {
 	for _, item := range db {
 		rIdx++
 		updateAe(item, rIdx)
-		for j, k := range title {
-			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
-			if formulaTitle[k] {
-				simpleUtil.CheckErr(excel.SetCellFormula(*aeSheetName, axis, item[k]))
-			} else {
-				simpleUtil.CheckErr(excel.SetCellValue(*aeSheetName, axis, item[k]))
-			}
-			var list, ok = dropListMap[k]
-			if ok {
-				var dvRange = excelize.NewDataValidation(true)
-				dvRange.Sqref = axis
-				simpleUtil.CheckErr(dvRange.SetDropList(list))
-				simpleUtil.CheckErr(excel.AddDataValidation(*aeSheetName, dvRange))
-			}
-		}
+		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *output)
@@ -310,4 +286,22 @@ func updateAe(item map[string]string, rIdx int) {
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+}
+
+func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
+	for j, k := range title {
+		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+		if formulaTitle[k] {
+			simpleUtil.CheckErr(excel.SetCellFormula(sheetName, axis, item[k]))
+		} else {
+			simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, item[k]))
+		}
+		var list, ok = dropListMap[k]
+		if ok {
+			var dvRange = excelize.NewDataValidation(true)
+			dvRange.Sqref = axis
+			simpleUtil.CheckErr(dvRange.SetDropList(list))
+			simpleUtil.CheckErr(excel.AddDataValidation(sheetName, dvRange))
+		}
+	}
 }
