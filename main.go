@@ -135,11 +135,15 @@ func main() {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range avd {
 				if filterAvd(item) {
-					updateAvd(item)
 					rIdx++
+					updateAvd(item, rIdx)
 					for j, k := range title {
 						var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
-						simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+						if formulaTitle[k] {
+							simpleUtil.CheckErr(excel.SetCellFormula(*avdSheetName, axis, item[k]))
+						} else {
+							simpleUtil.CheckErr(excel.SetCellValue(*avdSheetName, axis, item[k]))
+						}
 					}
 				}
 			}
@@ -238,10 +242,7 @@ func main() {
 	var rIdx = len(rows)
 	for _, item := range db {
 		rIdx++
-		item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
-		item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
-		item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-		item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+		updateAe(item, rIdx)
 		for j, k := range title {
 			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 			if formulaTitle[k] {
@@ -275,11 +276,20 @@ func filterAvd(item map[string]string) bool {
 	return true
 }
 
-func updateAvd(item map[string]string) {
+func updateAvd(item map[string]string, rIdx int) {
 	var gene = item["Gene Symbol"]
 	var db, ok = diseaseDb[gene]
 	if ok {
 		item["疾病中文名"] = db["疾病"]
 		item["遗传模式"] = db["遗传模式"]
 	}
+	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+}
+
+func updateAe(item map[string]string, rIdx int) {
+	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
+	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
+	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
