@@ -250,6 +250,17 @@ func main() {
 			} else {
 				simpleUtil.CheckErr(excel.SetCellValue(*aeSheetName, axis, item[k]))
 			}
+			var dvRange = excelize.NewDataValidation(true)
+			dvRange.Sqref = axis
+			switch k {
+			case "β地贫_最终结果":
+				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,SEA-HPFH,Chinese,SEA-HPFH;SEA-HPFH,Chinese;Chinese,SEA-HPFH;Chinese", ",")))
+			case "α地贫_最终结果":
+				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,3.7,SEA,4.2,THAI,FIL,3.7;3.7,4.2;4.2,SEA;SEA,3.7;4.2,3.7;SEA,3.7;THAI,3.7;FIL,4.2;SEA,4.2;THAI,4.2;FIL,SEA;THAI,SEA;FIL,THAI;THAI,THAI;FIL,FIL;FIL", ",")))
+			case "SMN1 EX7 del最终结果":
+				simpleUtil.CheckErr(dvRange.SetDropList(strings.Split("阴性,杂合阳性,纯合阳性,杂合灰区,纯合灰区", ",")))
+			}
+			simpleUtil.CheckErr(excel.AddDataValidation(*aeSheetName, dvRange))
 		}
 	}
 
