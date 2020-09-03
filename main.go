@@ -26,10 +26,10 @@ var (
 
 // flag
 var (
-	output = flag.String(
-		"output",
+	perfix = flag.String(
+		"perfix",
 		"",
-		"output file path",
+		"output to -prefix.xlsx",
 	)
 	template = flag.String(
 		"template",
@@ -40,6 +40,11 @@ var (
 		"dropList",
 		filepath.Join(etcPath, "drop.list.txt"),
 		"drop list for excel",
+	)
+	avdList = flag.String(
+		"avdList",
+		"",
+		"All variants data file list, one path per line",
 	)
 	avdDataFiles = flag.String(
 		"avd",
@@ -108,9 +113,9 @@ var (
 func main() {
 	version.LogVersion()
 	flag.Parse()
-	if *output == "" || *avdDataFiles == "" {
+	if *perfix == "" {
 		flag.Usage()
-		log.Println("-output and -avd are required!")
+		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
 
@@ -137,12 +142,19 @@ func main() {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	// All variant data
+	var avdFiles []string
 	if *avdDataFiles != "" {
+		avdFiles = strings.Split(*avdDataFiles, ",")
+	}
+	if *avdList != "" {
+		avdFiles = append(avdFiles, textUtil.File2Array(*avdList)...)
+	}
+	if len(avdFiles) > 0 {
 		var sheetName = *avdSheetName
 		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		var title = rows[0]
 		var rIdx = len(rows)
-		for _, fileName := range strings.Split(*avdDataFiles, ",") {
+		for _, fileName := range avdFiles {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range avd {
 				if filterAvd(item) {
@@ -248,8 +260,8 @@ func main() {
 		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
 
-	log.Printf("excel.SaveAs(\"%s\")\n", *output)
-	simpleUtil.CheckErr(excel.SaveAs(*output))
+	log.Printf("excel.SaveAs(\"%s\")\n", *perfix+".xlsx")
+	simpleUtil.CheckErr(excel.SaveAs(*perfix + ".xlsx"))
 }
 
 var formulaTitle = map[string]bool{
