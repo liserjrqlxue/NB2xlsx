@@ -46,7 +46,7 @@ var (
 		"",
 		"All variants data file list, one path per line",
 	)
-	avdDataFiles = flag.String(
+	avdFiles = flag.String(
 		"avd",
 		"",
 		"All variants data file list, comma as sep",
@@ -70,6 +70,11 @@ var (
 		"dmd",
 		"",
 		"DMD result file list, comma as sep",
+	)
+	dmdList = flag.String(
+		"dmdList",
+		"",
+		"DMD result file list, one path per line",
 	)
 	dmdSheetName = flag.String(
 		"dmdSheetName",
@@ -142,19 +147,19 @@ func main() {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	// All variant data
-	var avdFiles []string
-	if *avdDataFiles != "" {
-		avdFiles = strings.Split(*avdDataFiles, ",")
+	var avdArray []string
+	if *avdFiles != "" {
+		avdArray = strings.Split(*avdFiles, ",")
 	}
 	if *avdList != "" {
-		avdFiles = append(avdFiles, textUtil.File2Array(*avdList)...)
+		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
 	}
-	if len(avdFiles) > 0 {
+	if len(avdArray) > 0 {
 		var sheetName = *avdSheetName
 		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		var title = rows[0]
 		var rIdx = len(rows)
-		for _, fileName := range avdFiles {
+		for _, fileName := range avdArray {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range avd {
 				if filterAvd(item) {
@@ -167,12 +172,19 @@ func main() {
 	}
 
 	// CNV
+	var dmdArray []string
 	if *dmdFiles != "" {
+		dmdArray = strings.Split(*dmdFiles, ",")
+	}
+	if *dmdList != "" {
+		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
+	}
+	if len(dmdArray) > 0 {
 		var sheetName = *dmdSheetName
 		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		var title = rows[0]
 		var rIdx = len(rows)
-		for _, fileName := range strings.Split(*dmdFiles, ",") {
+		for _, fileName := range dmdArray {
 			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range dmd {
 				rIdx++
