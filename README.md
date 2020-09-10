@@ -13,6 +13,7 @@
 4.     已解读数据库内位点
 
 ```
+1. 保留已解读数据库内位点
 1. 过滤 etc/gene.list.txt 之外的基因
 2. "ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
 3. "HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
