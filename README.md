@@ -24,7 +24,6 @@
 临床新生儿注释表shee1的Q列“Gene Symbol”与疾病库的C列“基因”相匹配，
 匹配上的在sheet1表的BQ列“疾病中文名”输出疾病库的D列“疾病”，sheet1表的BR列“遗传模式”输出疾病库的E列“遗传模式”
 ```
-
 key1|key2|note
 -|-|-
 Gene Symbol|基因|main key
@@ -51,14 +50,14 @@ Definition|Definition|
 参考文献|Reference|
 Database||NBS-in\|NBS-out\|.
 报告类别||正式报告\|补充报告
-|是否是包装位点|
+||是否是包装位点|
 
 ### other
 #### LOF
 ```
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
 ```
-`updateLOF`
+[`updateLOF`](blob/367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
 key|value
 -|-
 LOF|YES\|NO
