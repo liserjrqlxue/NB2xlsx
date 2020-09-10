@@ -1,15 +1,15 @@
 # NB2xlsx
 安馨可生信注释格式
 
-- [All variants data](#all-variants-data)
-  * [过滤](#过滤)
-  * [疾病数据库](#疾病数据库)
-  * [已解读数据库](#已解读数据库)
+- [ ] [All variants data](#all-variants-data)
+  * [x] [过滤](#过滤)
+  * [x] [疾病数据库](#疾病数据库)
+  * [x] [已解读数据库](#已解读数据库)
   * [Other Columns](#other-columns)
-    * [LOF](#lof)
-    * [遗传模式判读](#遗传模式判读)
-- [excel 格式](#excel-格式)
-  * [DataValidation](#datavalidation)
+    - [x] [LOF](#lof)
+    - [ ] [遗传模式判读](#遗传模式判读)
+- [ ] [excel 格式](#excel-格式)
+  * [x] [DataValidation](#datavalidation)
 
 ## All variants data
 
