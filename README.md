@@ -63,6 +63,9 @@ Database||NBS-in\|NBS-out\|.
 ||是否是包装位点|
 
 ### Other Columns
+key1|key2|note
+1000Gp3 AF|1000G AF|
+1000Gp3 EAS AF|1000G EAS AF|
 #### LOF
 ```
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。

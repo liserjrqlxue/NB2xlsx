@@ -11,6 +11,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 
+	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/liserjrqlxue/version"
@@ -375,6 +376,9 @@ func updateDisease(item map[string]string) {
 }
 
 func updateAvd(item map[string]string, rIdx int) {
+	item["1000Gp3 AF"] = item["1000G AF"]
+	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
+	anno.Score2Pred(item)
 	updateLOF(item)
 	updateDisease(item)
 	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
