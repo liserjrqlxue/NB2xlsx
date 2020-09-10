@@ -10,6 +10,7 @@
 etc/drop.list.txt 包含对应列的下拉表
 
 ## 过滤
-1. 保留 etc/gene.list.txt 中的基因
-2. 过滤 etc/function.exclude.txt 中的 Function
-3. 过滤 GnomAD AF > 0.01
+1. 过滤 etc/gene.list.txt 之外的基因
+2. "ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
+3. "HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
+2. "Function" 在 etc/function.exclude.txt 中，且 "GnomAD AF" <= 0.01 的保留
