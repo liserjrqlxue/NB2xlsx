@@ -26,8 +26,8 @@ var (
 
 // flag
 var (
-	perfix = flag.String(
-		"perfix",
+	prefix = flag.String(
+		"prefix",
 		"",
 		"output to -prefix.xlsx",
 	)
@@ -129,7 +129,7 @@ var (
 func main() {
 	version.LogVersion()
 	flag.Parse()
-	if *perfix == "" {
+	if *prefix == "" {
 		flag.Usage()
 		log.Println("-prefix are required!")
 		os.Exit(1)
@@ -233,26 +233,26 @@ func main() {
 			if !ok {
 				info = item
 			}
-			var qc, a_result, b_result string
+			var qc, aResult, bResult string
 			if item["QC"] != "pass" {
 				qc = "_等验证"
 			}
 			if item["chr11"] == "N" {
-				b_result = "阴性"
+				bResult = "阴性"
 			} else {
-				b_result = item["chr11"]
+				bResult = item["chr11"]
 			}
 			if item["chr16"] == "N" {
-				a_result = "阴性"
+				aResult = "阴性"
 			} else {
-				a_result = item["chr16"]
+				aResult = item["chr16"]
 			}
 			info["SampleID"] = sampleID
 			info["地贫_QC"] = item["QC"]
 			info["β地贫_chr11"] = item["chr11"]
 			info["α地贫_chr16"] = item["chr16"]
-			info["β地贫_最终结果"] = b_result + qc
-			info["α地贫_最终结果"] = a_result + qc
+			info["β地贫_最终结果"] = bResult + qc
+			info["α地贫_最终结果"] = aResult + qc
 			db[sampleID] = info
 		}
 	}
@@ -264,11 +264,11 @@ func main() {
 			if !ok {
 				info = item
 			}
-			var result, qc, qc_result string
+			var result, qc, qcResult string
 			var Categorization = item["SMN1_ex7_cn"]
 			var QC = item["qc"]
 			if Categorization == "1.5" || Categorization == "1" || QC != "1" {
-				qc_result = "_等验证"
+				qcResult = "_等验证"
 			}
 			switch Categorization {
 			case "0":
@@ -289,7 +289,7 @@ func main() {
 			}
 			info["SMN1_检测结果"] = result
 			info["SMN1_质控结果"] = qc
-			info["SMN1 EX7 del最终结果"] = result + qc_result
+			info["SMN1 EX7 del最终结果"] = result + qcResult
 		}
 	}
 	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
@@ -301,8 +301,8 @@ func main() {
 		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
 
-	log.Printf("excel.SaveAs(\"%s\")\n", *perfix+".xlsx")
-	simpleUtil.CheckErr(excel.SaveAs(*perfix + ".xlsx"))
+	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
+	simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
 }
 
 var formulaTitle = map[string]bool{
@@ -332,6 +332,10 @@ func gt(s string, tv float64) bool {
 }
 
 func filterAvd(item map[string]string) bool {
+	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
+	if _, ok := localDb[mainKey]; ok {
+		return true
+	}
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
 	}
