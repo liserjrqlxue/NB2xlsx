@@ -1,6 +1,16 @@
 # NB2xlsx
 安馨可生信注释格式
 
+- [All variants data](#all-variants-data)
+  * [过滤](#过滤)
+  * [疾病数据库](#疾病数据库)
+  * [已解读数据库](#已解读数据库)
+  * [Other Columns](#other-columns)
+    * [LOF](#lof)
+    * [遗传模式判读](#遗传模式判读)
+- [excel 格式](#excel-格式)
+  * [DataValidation](#datavalidation)
+
 ## All variants data
 
 ### 过滤
@@ -52,12 +62,12 @@ Database||NBS-in\|NBS-out\|.
 报告类别||正式报告\|补充报告
 ||是否是包装位点|
 
-### other
+### Other Columns
 #### LOF
 ```
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
 ```
-[`updateLOF`](blob/367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
+[`updateLOF`](../367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
 key|value
 -|-
 LOF|YES\|NO
