@@ -14,10 +14,10 @@
 
 ```
 1. 保留已解读数据库内位点
-1. 过滤 etc/gene.list.txt 之外的基因
-2. "ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
-3. "HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
-2. "Function" 不在 etc/function.exclude.txt 中，且 "GnomAD AF" <= 0.01 的保留
+2. 过滤 etc/gene.list.txt 之外的基因
+3. "ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
+4. "HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
+5. "Function" 不在 etc/function.exclude.txt 中，且 "GnomAD AF" <= 0.01 的保留
 
 ### 疾病数据库
 ```
@@ -49,12 +49,42 @@ Transcript|Transcript|main key 1
 cHGVS|cHGVS|main key 2
 Definition|Definition|
 参考文献|Reference|
+Database||NBS-in\|NBS-out\|.
+报告类别||正式报告\|补充报告
+|是否是包装位点|
 
 ### other
+#### LOF
 ```
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
 ```
-
+`updateLOF`
+key|value
+-|-
+LOF|YES\|NO
+#### 遗传模式判读
+```
+ 遗传模式判读列输出两种：携带者和可能患病
+1、输出“可能患病”有以下情况：
+1) 基因与疾病遗传方式AR/AR;AR，检出单个基因1个致病变异纯合突变。
+“遗传方式”列为AR/AR;AR，“基因”列检出1个致病变异，“杂合性”列为hom。
+(备注：AR;AR是指一个基因对应两种疾病，两种疾病遗传方式均为AR)
+2) 基因与疾病遗传方式AR，检出单个基因≥2个致病变异杂合突变。
+“遗传方式”列为AR，“基因”列检出≥2个致病变异，“杂合性”列为het。
+3) 基因与疾病遗传方式AD或者AD,AR，检出单个基因1个致病变异纯合突变或者杂合突变。
+“遗传方式”列为AD或者AD,AR，“基因”列检出1个致病变异，“杂合性”列为hom或het。
+4) 基因与疾病遗传方式XL，男性检出单个基因1个致病变异半合突变；女性检出单个基因1个致病变异纯合突变或者杂合突变。
+男性：“遗传方式”列为XL，“基因”列检出1个致病变异，“杂合性”列为hemi。
+女性：
+女性：“遗传方式”列为XL，“基因”列检出1个致病变异，“杂合性”列为hom或het。-
+5) 遗传方式Maternal Inheritance，单个基因上检出1个致病变异同质性突变或者异质性突变。
+“遗传方式”列为Maternal Inheritance，“基因”列检出1个致病变异，“杂合性”列为hom或者het。
+2、输出“携带者”有以下情况：
+1）基因与疾病遗传方式AR，检出单个基因1个致病变异het。
+“遗传方式”列为AR，“基因”列检出1个致病变异，“杂合性”列为het。
+2）基因与疾病遗传方式AR;AR，检出单个基因1个致病变异het。
+“遗传方式”列为AR;AR，“基因”列检出1个致病变异，“杂合性”列为het。
+```
 
 ## excel 格式
 ### DataValidation
