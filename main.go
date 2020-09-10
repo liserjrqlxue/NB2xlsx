@@ -281,9 +281,25 @@ var formulaTitle = map[string]bool{
 	"审核人": true,
 }
 
+var (
+	isClinVar = map[string]bool{
+		"Pathogenic":                   true,
+		"Likely_pathogenic":            true,
+		"Pathogenic/Likely_pathogenic": true,
+	}
+	isHGMD = map[string]bool{
+		"DM":     true,
+		"DM?":    true,
+		"DM/DM?": true,
+	}
+)
+
 func filterAvd(item map[string]string) bool {
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
+	}
+	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
+		return true
 	}
 	if functionExcludeMap[item["Function"]] {
 		return false
