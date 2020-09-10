@@ -66,6 +66,16 @@ var (
 		"Sheet2",
 		"sheet name of disease database excel",
 	)
+	localDbExcel = flag.String(
+		"db",
+		filepath.Join(etcPath, "已解读数据库-2020.09.10.xlsx"),
+		"已解读数据库",
+	)
+	localDbSheetName = flag.String(
+		"dbSheetName",
+		"Sheet1",
+		"已解读数据库 sheet name",
+	)
 	dmdFiles = flag.String(
 		"dmd",
 		"",
@@ -112,6 +122,7 @@ var (
 	geneListMap        = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
+	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 )
 
@@ -135,9 +146,27 @@ func main() {
 	}
 
 	// load disease database
-	var diseaseExcel = simpleUtil.HandleError(excelize.OpenFile(*diseaseExcel)).(*excelize.File)
-	var diseaseSlice = simpleUtil.HandleError(diseaseExcel.GetRows(*diseaseSheetName)).([][]string)
-	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(diseaseSlice, "基因", "/")
+	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*diseaseExcel),
+			).(*excelize.File).
+				GetRows(*diseaseSheetName),
+		).([][]string),
+		"基因",
+		"/",
+	)
+
+	// load 已解读数据库
+	localDb, _ = simpleUtil.Slice2MapMapArray(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*localDbExcel),
+			).(*excelize.File).
+				GetRows(*localDbSheetName),
+		).([][]string),
+		"Transcript", "cHGVS",
+	)
 
 	// load drop list
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
@@ -294,6 +323,14 @@ var (
 	}
 )
 
+func gt(s string, tv float64) bool {
+	var af, err = strconv.ParseFloat(s, 64)
+	if err == nil && af > tv {
+		return true
+	}
+	return false
+}
+
 func filterAvd(item map[string]string) bool {
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
@@ -304,19 +341,54 @@ func filterAvd(item map[string]string) bool {
 	if functionExcludeMap[item["Function"]] {
 		return false
 	}
-	var af, err = strconv.ParseFloat(item["GnomAD AF"], 64)
-	if err == nil && af > 0.01 {
+	if gt(item["GnomAD AF"], 001) {
 		return false
 	}
 	return true
 }
 
-func updateAvd(item map[string]string, rIdx int) {
+var LOF = map[string]bool{
+	"nonsense":   true,
+	"frameshift": true,
+	"splice-3":   true,
+	"splice-5":   true,
+}
+
+func updateLOF(item map[string]string) {
+	if !LOF[item["Function"]] || gt(item["GnomAD AF"], 0.01) || gt(item["1000G AF"], 0.01) {
+		item["LOF"] = "NO"
+	}
+	item["LOF"] = "YES"
+}
+
+func updateDisease(item map[string]string) {
 	var gene = item["Gene Symbol"]
-	var db, ok = diseaseDb[gene]
+	var disease, ok = diseaseDb[gene]
 	if ok {
-		item["疾病中文名"] = db["疾病"]
-		item["遗传模式"] = db["遗传模式"]
+		item["疾病中文名"] = disease["疾病"]
+		item["遗传模式"] = disease["遗传模式"]
+	}
+}
+
+func updateAvd(item map[string]string, rIdx int) {
+	updateLOF(item)
+	updateDisease(item)
+	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
+	var db, ok = localDb[mainKey]
+	if ok {
+		if db["是否是包装位点"] == "是" {
+			item["Database"] = "NBS-in"
+			item["报告类别"] = "正式报告"
+		} else {
+			item["Database"] = "NBS-out"
+		}
+		item["Definition"] = db["Definition"]
+		item["参考文献"] = db["Reference"]
+	} else {
+		item["Database"] = "."
+		if item["LOF"] == "YES" {
+			item["报告类别"] = "补充报告"
+		}
 	}
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
