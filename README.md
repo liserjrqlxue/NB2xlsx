@@ -58,5 +58,14 @@ Definition|Definition|
 
 ## excel 格式
 ### DataValidation
+```
+（1）CNV sheet的Y列“报告类别”有下拉选项：正式报告和补充报告
+（2）CNV sheet的AA列“杂合性”有下拉选项：Hom和Het和Hemi
+（3） CNV sheet的AB列“disGroup”有下拉选项：A和B
+（4）CNV sheet的AC列”突变类型”有下拉选项：Pathogenic和Likely pathogenic和VUS
+（5）补充实验sheet的I列“β地贫_最终结果”有下拉选项：阴性和SEA-HPFH和Chinese和SEA-HPFH；SEA-HPFH和Chinese；Chinese和SEA-HPFH；Chinese
+（6）补充实验sheet的J列“α地贫_最终结果”有下拉选项：阴性和3.7和SEA和4.2和THAI和FIL和3.7;3.7和4.2;4.2和SEA;SEA和3.7;4.2和3.7;SEA和3.7;THAI和3.7;FIL和4.2;SEA和 4.2;THAI和4.2;FIL和SEA;THAI和SEA;FIL和THAI;THAI和THAI;FIL和FIL;FIL
+（7）补充实验sheet的M列“SMN1 EX7 del最终结果”有下拉选项：阴性和杂合阳性和纯合阳性和杂合灰区和纯合灰区
+```
 etc/drop.list.txt 包含对应列的下拉表
 
