@@ -380,8 +380,9 @@ var LOF = map[string]bool{
 func updateLOF(item map[string]string) {
 	if !LOF[item["Function"]] || gt(item["GnomAD AF"], 0.01) || gt(item["1000G AF"], 0.01) {
 		item["LOF"] = "NO"
+	} else {
+		item["LOF"] = "YES"
 	}
-	item["LOF"] = "YES"
 }
 
 func updateDisease(item map[string]string) {
