@@ -1,4 +1,4 @@
-PS1PM5.MutationName.count	PS1PM5.Mutation.count
+PS1PM5.MutationName.count	PS1PM5.MutationName.count
 PS1PM5.pHGVS1.count	PS1PM5.pHGVS1.count
 PS1PM5.AApos.count	PS1PM5.AApos.count
 PM1InterproDomain	PM1.InterproDomain.count
