@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"github.com/liserjrqlxue/acmg2015"
 
 	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -21,6 +22,7 @@ import (
 var (
 	ex, _        = os.Executable()
 	exPath       = filepath.Dir(ex)
+	dbPath       = filepath.Join(exPath, "db")
 	etcPath      = filepath.Join(exPath, "etc")
 	templatePath = filepath.Join(exPath, "template")
 )
@@ -76,6 +78,16 @@ var (
 		"dbSheetName",
 		"Sheet1",
 		"已解读数据库 sheet name",
+	)
+	acmgDb = flag.String(
+		"acmgDb",
+		filepath.Join(etcPath, "acmg.db.list.txt"),
+		"acmg db list",
+	)
+	autoPVS1 = flag.Bool(
+		"autoPVS1",
+		false,
+		"is use autoPVS1",
 	)
 	dmdFiles = flag.String(
 		"dmd",
@@ -185,6 +197,12 @@ func main() {
 		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
 	}
 	if len(avdArray) > 0 {
+		acmg2015.AutoPVS1 = *autoPVS1
+		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
+		for k, v := range acmgCfg {
+			acmgCfg[k] = filepath.Join(dbPath, v)
+		}
+		acmg2015.Init(acmgCfg)
 		var sheetName = *avdSheetName
 		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		var title = rows[0]
@@ -378,6 +396,10 @@ func updateDisease(item map[string]string) {
 func updateAvd(item map[string]string, rIdx int) {
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
+	var gene = item["Gene Symbol"]
+	item["gene+cHGVS"] = gene + ":" + item["cHGVS"]
+	item["gene+pHGVS3"] = gene + ":" + item["pHGVS3"]
+	item["gene+pHGVS1"] = gene + ":" + item["pHGVS1"]
 	anno.Score2Pred(item)
 	updateLOF(item)
 	updateDisease(item)
@@ -398,6 +420,9 @@ func updateAvd(item map[string]string, rIdx int) {
 			item["报告类别"] = "补充报告"
 		}
 	}
+	acmg2015.AddEvidences(item)
+	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
+	anno.UpdateAutoRule(item)
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
