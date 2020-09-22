@@ -1,0 +1,84 @@
+期数
+flow ID
+产品编码_产品名称
+SampleID
+Sex
+#Chr
+Start
+Stop
+Ref
+Call
+A.Depth
+A.Ratio
+reads_picture
+引物设计
+Filter
+Zygosity
+Gene Symbol
+Strand
+Transcript
+cHGVS
+Protein
+pHGVS
+ExIn_ID
+FuncRegion
+Flank
+RepeatTag
+CodonChange
+PolarChange
+MutationName
+Function
+dbSNP Allele Freq
+1000Gp3 AF
+1000Gp3 EAS AF
+GnomAD EAS HomoAlt Count
+GnomAD EAS AF
+GnomAD HomoAlt Count
+GnomAD AF
+ESP6500 AF
+ExAC EAS HomoAlt Count
+ExAC EAS AF
+ExAC HomoAlt Count
+ExAC AF
+rsID
+filter
+PhyloP Vertebrates Pred
+PhyloP Placental Mammals Pred
+GERP++_RS_pred
+Ens Condel Pred
+SIFT Pred
+Polyphen2 HDIV Pred
+Polyphen2 HVAR Pred
+MutationTaster Pred
+dbscSNV_ADA_pred
+dbscSNV_RF_pred
+AI splice
+REVEL
+HGMD MutName
+HGMD Disease
+HGMD pmID
+HGMD Pred
+ClinVar Significance
+ClinVar星级
+HGMDorClinvar
+LOF
+MIM Gene ID
+MIM Pheno IDs
+MIM Inheritance
+Disease*
+疾病中文名
+遗传模式
+Database
+autoRuleName
+Definition
+遗传模式判读
+报告类别
+中文-突变详情
+gene+cHGVS
+gene+pHGVS3
+gene+pHGVS1
+Evidence New + Check
+参考文献
+解读人
+checkdate
+审核人
