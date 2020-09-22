@@ -148,6 +148,7 @@ var (
 
 func main() {
 	version.LogVersion()
+	// flag
 	flag.Parse()
 	if *prefix == "" {
 		flag.Usage()
@@ -155,43 +156,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// load gene list
-	for _, key := range textUtil.File2Array(*geneList) {
-		geneListMap[key] = true
-	}
-
-	// load function exclude list
-	for _, key := range textUtil.File2Array(*functionExclude) {
-		functionExcludeMap[key] = true
-	}
-
-	// load disease database
-	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(*diseaseExcel),
-			).(*excelize.File).
-				GetRows(*diseaseSheetName),
-		).([][]string),
-		"基因",
-		"/",
-	)
-
-	// load 已解读数据库
-	localDb, _ = simpleUtil.Slice2MapMapArray(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(*localDbExcel),
-			).(*excelize.File).
-				GetRows(*localDbSheetName),
-		).([][]string),
-		"Transcript", "cHGVS",
-	)
-
-	// load drop list
-	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
-		dropListMap[k] = strings.Split(v, ",")
-	}
+	loadDb()
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
@@ -210,7 +175,7 @@ func main() {
 		var allTitle = textUtil.File2Array(*allColumns)
 		writeTitle(allExcel, *allSheetName, allTitle)
 		var rIdx0 = 1
-
+		// acmg
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
 		for k, v := range acmgCfg {
