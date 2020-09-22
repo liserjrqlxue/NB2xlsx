@@ -265,68 +265,13 @@ func main() {
 	if *dipinResult != "" {
 		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
 		for _, item := range dipin {
-			var sampleID = item["sample"]
-			var info, ok = db[sampleID]
-			if !ok {
-				info = item
-			}
-			var qc, aResult, bResult string
-			if item["QC"] != "pass" {
-				qc = "_等验证"
-			}
-			if item["chr11"] == "N" {
-				bResult = "阴性"
-			} else {
-				bResult = item["chr11"]
-			}
-			if item["chr16"] == "N" {
-				aResult = "阴性"
-			} else {
-				aResult = item["chr16"]
-			}
-			info["SampleID"] = sampleID
-			info["地贫_QC"] = item["QC"]
-			info["β地贫_chr11"] = item["chr11"]
-			info["α地贫_chr16"] = item["chr16"]
-			info["β地贫_最终结果"] = bResult + qc
-			info["α地贫_最终结果"] = aResult + qc
-			db[sampleID] = info
+			updateDipin(item, db)
 		}
 	}
 	if *smaResult != "" {
 		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
 		for _, item := range sma {
-			var sampleID = item["SampleID"]
-			var info, ok = db[sampleID]
-			if !ok {
-				info = item
-			}
-			var result, qc, qcResult string
-			var Categorization = item["SMN1_ex7_cn"]
-			var QC = item["qc"]
-			if Categorization == "1.5" || Categorization == "1" || QC != "1" {
-				qcResult = "_等验证"
-			}
-			switch Categorization {
-			case "0":
-				result = "纯阳性"
-			case "0.5":
-				result = "纯合灰区"
-			case "1":
-				result = "杂合阳性"
-			case "1.5":
-				result = "杂合灰区"
-			default:
-				result = "阴性"
-			}
-			if QC == "1" {
-				qc = "Pass"
-			} else {
-				qc = "Fail"
-			}
-			info["SMN1_检测结果"] = result
-			info["SMN1_质控结果"] = qc
-			info["SMN1 EX7 del最终结果"] = result + qcResult
+			updateSma(item, db)
 		}
 	}
 	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)

@@ -162,6 +162,70 @@ func updateDmd(item map[string]string, rIdx int) {
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
+func updateDipin(item map[string]string, db map[string]map[string]string) {
+	var sampleID = item["sample"]
+	var info, ok = db[sampleID]
+	if !ok {
+		info = item
+	}
+	var qc, aResult, bResult string
+	if item["QC"] != "pass" {
+		qc = "_等验证"
+	}
+	if item["chr11"] == "N" {
+		bResult = "阴性"
+	} else {
+		bResult = item["chr11"]
+	}
+	if item["chr16"] == "N" {
+		aResult = "阴性"
+	} else {
+		aResult = item["chr16"]
+	}
+	info["SampleID"] = item["sample"]
+	info["地贫_QC"] = item["QC"]
+	info["β地贫_chr11"] = item["chr11"]
+	info["α地贫_chr16"] = item["chr16"]
+	info["β地贫_最终结果"] = bResult + qc
+	info["α地贫_最终结果"] = aResult + qc
+	db[sampleID] = info
+}
+
+func updateSma(item map[string]string, db map[string]map[string]string) {
+	var sampleID = item["SampleID"]
+	var info, ok = db[sampleID]
+	if !ok {
+		info = item
+	}
+	var result, qc, qcResult string
+	var Categorization = item["SMN1_ex7_cn"]
+	var QC = item["qc"]
+	if Categorization == "1.5" || Categorization == "1" || QC != "1" {
+		qcResult = "_等验证"
+	}
+	switch Categorization {
+	case "0":
+		result = "纯阳性"
+	case "0.5":
+		result = "纯合灰区"
+	case "1":
+		result = "杂合阳性"
+	case "1.5":
+		result = "杂合灰区"
+	default:
+		result = "阴性"
+	}
+	if QC == "1" {
+		qc = "Pass"
+	} else {
+		qc = "Fail"
+	}
+	info["SMN1_检测结果"] = result
+	info["SMN1_质控结果"] = qc
+	info["SMN1 EX7 del最终结果"] = result + qcResult
+	db[sampleID] = info
+}
+
 func updateAe(item map[string]string, rIdx int) {
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
