@@ -3,12 +3,53 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
+	"github.com/liserjrqlxue/goUtil/textUtil"
 )
+
+func loadDb() {
+	// load gene list
+	for _, key := range textUtil.File2Array(*geneList) {
+		geneListMap[key] = true
+	}
+	// load function exclude list
+	for _, key := range textUtil.File2Array(*functionExclude) {
+		functionExcludeMap[key] = true
+	}
+
+	// load disease database
+	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*diseaseExcel),
+			).(*excelize.File).
+				GetRows(*diseaseSheetName),
+		).([][]string),
+		"基因",
+		"/",
+	)
+	// load 已解读数据库
+	localDb, _ = simpleUtil.Slice2MapMapArray(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*localDbExcel),
+			).(*excelize.File).
+				GetRows(*localDbSheetName),
+		).([][]string),
+		"Transcript", "cHGVS",
+	)
+
+	// load drop list
+	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
+		dropListMap[k] = strings.Split(v, ",")
+	}
+
+}
 
 var formulaTitle = map[string]bool{
 	"解读人": true,
