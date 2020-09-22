@@ -64,6 +64,7 @@ Database||NBS-in\|NBS-out\|.
 
 ### Other Columns
 key1|key2|note
+-|-|-
 1000Gp3 AF|1000G AF|
 1000Gp3 EAS AF|1000G EAS AF|
 #### LOF
@@ -73,7 +74,7 @@ key1|key2|note
 [`updateLOF`](../367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
 key|value
 -|-
-LOF|YES\|NO
+LOF|['YES','NO']
 #### 遗传模式判读
 ```
  遗传模式判读列输出两种：携带者和可能患病
@@ -97,6 +98,15 @@ LOF|YES\|NO
 2）基因与疾病遗传方式AR;AR，检出单个基因1个致病变异het。
 “遗传方式”列为AR;AR，“基因”列检出1个致病变异，“杂合性”列为het。
 ```
+
+遗传模式|杂合性|个数|样品性别|遗传模式判读
+-|-|-|-|-
+只为AR|Hom|>=1||可能患病
+只为AR|Het|=1||携带者
+只为AR|Het|>1||可能患病
+含AD,且只含AD或AR|Hom/Het|>=1||可能患病
+只为XL|Hem|>=1|Male|可能患病
+只为XL|Hom/Het|>=1|Female|可能患病
 
 ## excel 格式
 ### DataValidation
