@@ -129,6 +129,16 @@ var (
 		filepath.Join(etcPath, "function.exclude.txt"),
 		"function list to exclude",
 	)
+	allSheetName = flag.String(
+		"allSheetName",
+		"Sheet1",
+		"all snv sheet name",
+	)
+	allColumns = flag.String(
+		"allColumns",
+		filepath.Join(etcPath, "avd.all.columns.txt"),
+		"all snv sheet title",
+	)
 )
 
 var (
@@ -197,6 +207,13 @@ func main() {
 		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
 	}
 	if len(avdArray) > 0 {
+		// all snv
+		var allExcel = excelize.NewFile()
+		allExcel.NewSheet(*allSheetName)
+		var allTitle = textUtil.File2Array(*allColumns)
+		writeTitle(allExcel, *allSheetName, allTitle)
+		var rIdx0 = 1
+
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
 		for k, v := range acmgCfg {
@@ -210,13 +227,17 @@ func main() {
 		for _, fileName := range avdArray {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range avd {
+				rIdx0++
+				updateAvd(item, rIdx)
+				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
 				if filterAvd(item) {
 					rIdx++
-					updateAvd(item, rIdx)
 					writeRow(excel, sheetName, item, title, rIdx)
 				}
 			}
 		}
+		log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".all.xlsx")
+		simpleUtil.CheckErr(allExcel.SaveAs(*prefix + ".all.xlsx"))
 	}
 
 	// CNV
@@ -494,5 +515,12 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 			simpleUtil.CheckErr(dvRange.SetDropList(list))
 			simpleUtil.CheckErr(excel.AddDataValidation(sheetName, dvRange))
 		}
+	}
+}
+
+func writeTitle(excel *excelize.File, sheetName string, title []string) {
+	for j, k := range title {
+		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, 1)).(string)
+		simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, k))
 	}
 }
