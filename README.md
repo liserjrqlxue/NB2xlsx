@@ -101,12 +101,12 @@ LOF|['YES','NO']
 
 遗传模式|杂合性|个数|样品性别|遗传模式判读
 -|-|-|-|-
-只为AR|Hom|>=1||可能患病
-只为AR|Het|=1||携带者
-只为AR|Het|>1||可能患病
-含AD,且只含AD或AR|Hom/Het|>=1||可能患病
-只为XL|Hem|>=1|Male|可能患病
-只为XL|Hom/Het|>=1|Female|可能患病
+['AR']|Hom|>=1||可能患病
+['AR']|Het|=1||携带者
+['AR']|Het|>1||可能患病
+['AD','AD,AR']|Hom/Het|>=1||可能患病
+['XL']|Hem|>=1|Male|可能患病
+['XL']|Hom/Het|>=1|Female|可能患病
 
 ## excel 格式
 ### DataValidation
