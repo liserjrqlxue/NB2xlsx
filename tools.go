@@ -85,7 +85,7 @@ func filterAvd(item map[string]string) bool {
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
 	}
-	if gt(item["GnomAD AF"], 0.05) {
+	if gt(item["GnomAD AF"], 0.05) || gt(item["1000G AF"], 0.05) {
 		return false
 	}
 	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
@@ -94,7 +94,7 @@ func filterAvd(item map[string]string) bool {
 	if functionExcludeMap[item["Function"]] {
 		return false
 	}
-	if gt(item["GnomAD AF"], 0.01) {
+	if gt(item["GnomAD AF"], 0.01) || gt(item["1000G AF"], 0.01) {
 		return false
 	}
 	return true
