@@ -124,6 +124,26 @@ func updateDisease(item map[string]string) {
 	}
 }
 
+var afList = []string{
+	"1000Gp3 AF",
+	"1000Gp3 EAS AF",
+	"GnomAD EAS HomoAlt Count",
+	"GnomAD EAS AF",
+	"GnomAD HomoAlt Count",
+	"GnomAD AF",
+	"ExAC EAS AF",
+	"ExAC HomoAlt Count",
+	"ExAC AF",
+}
+
+func updateAf(item map[string]string) {
+	for _, af := range afList {
+		if item[af] == "-1" {
+			item[af] = "."
+		}
+	}
+}
+
 func Interpret(item map[string]string, geneCount map[string]int) {
 
 }
@@ -158,6 +178,7 @@ func updateAvd(item map[string]string, rIdx int) {
 	acmg2015.AddEvidences(item)
 	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
 	anno.UpdateAutoRule(item)
+	updateAf(item)
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
