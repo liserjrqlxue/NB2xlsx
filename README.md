@@ -17,9 +17,9 @@
 ```
 一：现在输出到Sheet1的逻辑（也就是下面邮件的第一个要求）更改如下：
 满足以下任一一个条件就输出到sheet1
-1.     164基因上Clinvar的标签是Pathogenic或者Likely_pathogenic或者Pathogenic/Likely_pathogenic并且满足GnomAD频率≤0.05
-2.     164基因上HGMD的标签是DM或者DM？或者DM/DM?并且满足GnomAD频率≤0.05
-3.     164基因上Clinvar/HGMD数据库外GnomAD频率≤0.01，并且变异类型不包括intron、promoter、no-change、UTR区变异
+1.     164基因上Clinvar的标签是Pathogenic或者Likely_pathogenic或者Pathogenic/Likely_pathogenic并且满足GnomAD和千人的频率≤0.05
+2.     164基因上HGMD的标签是DM或者DM？或者DM/DM? 并且满足GnomAD和千人的频率≤0.05
+3.     164基因上Clinvar/HGMD数据库外GnomAD和千人的频率≤0.01，并且变异类型不包括intron、promoter、no-change、UTR区变异
 4.     已解读数据库内位点
 
 ```
