@@ -169,12 +169,6 @@ func main() {
 		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
 	}
 	if len(avdArray) > 0 {
-		// all snv
-		var allExcel = excelize.NewFile()
-		allExcel.NewSheet(*allSheetName)
-		var allTitle = textUtil.File2Array(*allColumns)
-		writeTitle(allExcel, *allSheetName, allTitle)
-		var rIdx0 = 1
 		// acmg
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
@@ -188,10 +182,23 @@ func main() {
 		var rIdx = len(rows)
 		for _, fileName := range avdArray {
 			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
+			// all snv
+			var allExcel = excelize.NewFile()
+			allExcel.NewSheet(*allSheetName)
+			var allTitle = textUtil.File2Array(*allColumns)
+			writeTitle(allExcel, *allSheetName, allTitle)
+			var rIdx0 = 1
+			var sampleID = filepath.Base(fileName)
+			if avd[0]["SampleID"] != "" {
+				sampleID = avd[0]["SampleID"]
+			}
 			for _, item := range avd {
 				rIdx0++
 				updateAvd(item, rIdx)
 				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
+			}
+			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
+			for _, item := range avd {
 				if filterAvd(item) {
 					rIdx++
 					writeRow(excel, sheetName, item, title, rIdx)
@@ -199,7 +206,6 @@ func main() {
 			}
 		}
 		log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".all.xlsx")
-		simpleUtil.CheckErr(allExcel.SaveAs(*prefix + ".all.xlsx"))
 	}
 
 	// CNV
