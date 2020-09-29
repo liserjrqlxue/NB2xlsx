@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -219,7 +218,7 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 	}
 }
 
-func updateDmd(item map[string]string, rIdx int) {
+func updateDmd(item map[string]string) {
 	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
 	if item["Significant"] != "YES" {
@@ -259,8 +258,6 @@ func updateDmd(item map[string]string, rIdx int) {
 	} else {
 		item["primerDesign"] = "-"
 	}
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func updateDipin(item map[string]string, db map[string]map[string]string) {
@@ -327,11 +324,9 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	db[sampleID] = info
 }
 
-func updateAe(item map[string]string, rIdx int) {
+func updateAe(item map[string]string) {
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
