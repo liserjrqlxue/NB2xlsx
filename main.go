@@ -200,7 +200,7 @@ func main() {
 			writeTitle(allExcel, *allSheetName, allTitle)
 			var rIdx0 = 1
 			var sampleID = filepath.Base(fileName)
-			if len(avd) > 0 {
+			if len(avd) == 0 {
 				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 				continue
 			}
