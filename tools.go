@@ -144,10 +144,6 @@ func updateAf(item map[string]string) {
 	}
 }
 
-func Interpret(item map[string]string, geneCount map[string]int) {
-
-}
-
 func updateAvd(item map[string]string, rIdx int) {
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
@@ -179,8 +175,50 @@ func updateAvd(item map[string]string, rIdx int) {
 	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
 	anno.UpdateAutoRule(item)
 	updateAf(item)
+	if filterAvd(item) {
+		item["filterAvd"] = "Y"
+	}
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+}
+
+func updateGeneHash(geneHash, item map[string]string, gender string) {
+	if item["Definition"] == "P" || item["Definition"] == "LP" {
+		var gene = item["Gene Symbol"]
+		var genePred, ok = geneHash[gene]
+		if !ok || genePred != "可能患病" {
+			switch item["遗传模式"] {
+			case "AR":
+				if item["Zygosity"] == "Hom" {
+					geneHash[gene] = "可能患病"
+				} else if item["Zygosity"] == "Het" {
+					if genePred == "" {
+						geneHash[gene] = "携带者"
+					} else if genePred == "携带者" {
+						geneHash[gene] = "可能患病"
+					}
+				}
+			case "AD":
+				if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+					geneHash[gene] = "可能患病"
+				}
+			case "AD,AR":
+				if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+					geneHash[gene] = "可能患病"
+				}
+			case "XL":
+				if gender == "M" {
+					if item["Zygosity"] == "Hem" {
+						geneHash[gene] = "可能患病"
+					}
+				} else if gender == "F" {
+					if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+						geneHash[gene] = "可能患病"
+					}
+				}
+			}
+		}
+	}
 }
 
 func updateDmd(item map[string]string, rIdx int) {
