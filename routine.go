@@ -26,7 +26,6 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bo
 		simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 		dbChan <- avd
 		<-throttle
-		return
 	}
 	var rIdx0 = 1
 	if avd[0]["SampleID"] != "" {
@@ -56,10 +55,9 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bo
 	}
 	dbChan <- filterAvd
 	<-throttle
-	return
 }
 
-func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int) {
+func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int, ch chan<- bool) {
 	var sheetName = *avdSheetName
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
@@ -76,6 +74,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int) {
 			close(dbChan)
 		}
 	}
+	ch <- true
 }
 
 func updateINDEX(item map[string]string, rIdx int) {

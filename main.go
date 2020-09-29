@@ -195,11 +195,13 @@ func main() {
 		}
 		acmg2015.Init(acmgCfg)
 
+		var ch = make(chan bool)
+		go writeAvd(excel, dbChan, len(avdArray), ch)
 		for _, fileName := range avdArray {
 			throttle <- true
 			go getAvd(fileName, dbChan, throttle)
 		}
-		writeAvd(excel, dbChan, len(avdArray))
+		<-ch
 	}
 
 	// CNV
