@@ -13,16 +13,16 @@ import (
 
 func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool) {
 	var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-	// all snv
-	var allExcel = excelize.NewFile()
-	allExcel.NewSheet(*allSheetName)
-	var allTitle = textUtil.File2Array(*allColumns)
-	writeTitle(allExcel, *allSheetName, allTitle)
 	var sampleID = filepath.Base(fileName)
 	if len(avd) == 0 {
-		log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 		writeExcel <- true
 		go func() {
+			// all snv
+			var allExcel = excelize.NewFile()
+			allExcel.NewSheet(*allSheetName)
+			var allTitle = textUtil.File2Array(*allColumns)
+			writeTitle(allExcel, *allSheetName, allTitle)
+			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 			<-writeExcel
 		}()
@@ -30,13 +30,11 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 		<-throttle
 		return
 	}
-	var rIdx0 = 1
 	if avd[0]["SampleID"] != "" {
 		sampleID = avd[0]["SampleID"]
 	}
 	var geneHash = make(map[string]string)
 	for _, item := range avd {
-		rIdx0++
 		updateAvd(item)
 		if item["filterAvd"] == "Y" {
 			if *gender == "M" || genderMap[sampleID] == "M" {
@@ -45,11 +43,20 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 				updateGeneHash(geneHash, item, "F")
 			}
 		}
-		writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
 	}
-	log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 	writeExcel <- true
 	go func() {
+		// all snv
+		var allExcel = excelize.NewFile()
+		allExcel.NewSheet(*allSheetName)
+		var allTitle = textUtil.File2Array(*allColumns)
+		writeTitle(allExcel, *allSheetName, allTitle)
+		var rIdx0 = 1
+		for _, item := range avd {
+			rIdx0++
+			writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
+		}
+		log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 		simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 		<-writeExcel
 	}()
