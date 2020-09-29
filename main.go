@@ -186,6 +186,7 @@ func main() {
 	}
 	if len(avdArray) > 0 {
 		log.Println("Start load AVD")
+		var throttle = make(chan bool, *threshold)
 		// acmg
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
@@ -193,50 +194,12 @@ func main() {
 			acmgCfg[k] = filepath.Join(dbPath, v)
 		}
 		acmg2015.Init(acmgCfg)
-		var sheetName = *avdSheetName
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
+
 		for _, fileName := range avdArray {
-			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			// all snv
-			var allExcel = excelize.NewFile()
-			allExcel.NewSheet(*allSheetName)
-			var allTitle = textUtil.File2Array(*allColumns)
-			writeTitle(allExcel, *allSheetName, allTitle)
-			var rIdx0 = 1
-			var sampleID = filepath.Base(fileName)
-			if len(avd) == 0 {
-				log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-				continue
-			}
-			if avd[0]["SampleID"] != "" {
-				sampleID = avd[0]["SampleID"]
-			}
-			var geneHash = make(map[string]string)
-			for _, item := range avd {
-				rIdx0++
-				updateAvd(item, rIdx)
-				if item["filterAvd"] == "Y" {
-					if *gender == "M" || genderMap[sampleID] == "M" {
-						updateGeneHash(geneHash, item, "M")
-					} else if *gender == "F" || genderMap[sampleID] == "F" {
-						updateGeneHash(geneHash, item, "F")
-					}
-				}
-				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
-			}
-			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-			for _, item := range avd {
-				if item["filterAvd"] == "Y" {
-					rIdx++
-					item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-					writeRow(excel, sheetName, item, title, rIdx)
-				}
-			}
+			throttle <- true
+			go getAvd(fileName, dbChan, throttle)
 		}
+		writeAvd(excel, dbChan, len(avdArray))
 	}
 
 	// CNV

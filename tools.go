@@ -144,7 +144,7 @@ func updateAf(item map[string]string) {
 	}
 }
 
-func updateAvd(item map[string]string, rIdx int) {
+func updateAvd(item map[string]string) {
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
 	var gene = item["Gene Symbol"]
@@ -178,8 +178,6 @@ func updateAvd(item map[string]string, rIdx int) {
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
 	}
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func updateGeneHash(geneHash, item map[string]string, gender string) {
