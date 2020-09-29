@@ -137,7 +137,7 @@ var afList = []string{
 
 func updateAf(item map[string]string) {
 	for _, af := range afList {
-		if item[af] == "-1" {
+		if item[af] == "-1" || item[af] == "-1.0" {
 			item[af] = "."
 		}
 	}

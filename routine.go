@@ -12,6 +12,7 @@ import (
 )
 
 func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool) {
+	log.Printf("load avd[%s]\n", fileName)
 	var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 	var sampleID = filepath.Base(fileName)
 	if len(avd) == 0 {
