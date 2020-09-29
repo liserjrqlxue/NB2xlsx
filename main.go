@@ -9,6 +9,7 @@ import (
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/acmg2015"
+	"github.com/liserjrqlxue/goUtil/osUtil"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -136,6 +137,11 @@ var (
 		filepath.Join(etcPath, "avd.all.columns.txt"),
 		"all snv sheet title",
 	)
+	gender = flag.String(
+		"gender",
+		"F",
+		"gender for all or gender map file",
+	)
 )
 
 var (
@@ -144,6 +150,7 @@ var (
 	diseaseDb          = make(map[string]map[string]string)
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
+	genderMap          = make(map[string]string)
 )
 
 func main() {
@@ -154,6 +161,10 @@ func main() {
 		flag.Usage()
 		log.Println("-prefix are required!")
 		os.Exit(1)
+	}
+
+	if osUtil.FileExists(*gender) {
+		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
 	loadDb()
@@ -192,15 +203,58 @@ func main() {
 			if avd[0]["SampleID"] != "" {
 				sampleID = avd[0]["SampleID"]
 			}
+			var geneHash = make(map[string]string)
 			for _, item := range avd {
 				rIdx0++
 				updateAvd(item, rIdx)
+				if filterAvd(item) {
+					item["filterAvd"] = "Y"
+					if item["Definition"] == "P" || item["Definition"] == "LP" {
+						var gene = item["Gene Symbol"]
+						var genePred, ok = geneHash[gene]
+						if ok && genePred == "可能患病" {
+						} else {
+							switch item["遗传模式"] {
+							case "AR":
+								if item["Zygosity"] == "Hom" {
+									geneHash[gene] = "可能患病"
+								} else if item["Zygosity"] == "Het" {
+									if genePred == "" {
+										geneHash[gene] = "携带者"
+									} else if genePred == "携带者" {
+										geneHash[gene] = "可能患病"
+									}
+								}
+							case "AD":
+								if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+									geneHash[gene] = "可能患病"
+								}
+							case "AD,AR":
+								if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+									geneHash[gene] = "可能患病"
+								}
+							case "XL":
+								if *gender == "M" || genderMap[sampleID] == "M" {
+									if item["Zygosity"] == "Hem" {
+										geneHash[gene] = "可能患病"
+									}
+								} else if *gender == "F" || genderMap[sampleID] == "F" {
+									if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+										geneHash[gene] = "可能患病"
+									}
+								}
+							}
+
+						}
+					}
+				}
 				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
 			}
 			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 			for _, item := range avd {
-				if filterAvd(item) {
+				if item["filterAvd"] == "Y" {
 					rIdx++
+					item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
 					writeRow(excel, sheetName, item, title, rIdx)
 				}
 			}
