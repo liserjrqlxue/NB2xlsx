@@ -201,6 +201,7 @@ func main() {
 			var rIdx0 = 1
 			var sampleID = filepath.Base(fileName)
 			if len(avd) == 0 {
+				log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 				continue
 			}
@@ -211,49 +212,16 @@ func main() {
 			for _, item := range avd {
 				rIdx0++
 				updateAvd(item, rIdx)
-				if filterAvd(item) {
-					item["filterAvd"] = "Y"
-					if item["Definition"] == "P" || item["Definition"] == "LP" {
-						var gene = item["Gene Symbol"]
-						var genePred, ok = geneHash[gene]
-						if ok && genePred == "可能患病" {
-						} else {
-							switch item["遗传模式"] {
-							case "AR":
-								if item["Zygosity"] == "Hom" {
-									geneHash[gene] = "可能患病"
-								} else if item["Zygosity"] == "Het" {
-									if genePred == "" {
-										geneHash[gene] = "携带者"
-									} else if genePred == "携带者" {
-										geneHash[gene] = "可能患病"
-									}
-								}
-							case "AD":
-								if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-									geneHash[gene] = "可能患病"
-								}
-							case "AD,AR":
-								if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-									geneHash[gene] = "可能患病"
-								}
-							case "XL":
-								if *gender == "M" || genderMap[sampleID] == "M" {
-									if item["Zygosity"] == "Hem" {
-										geneHash[gene] = "可能患病"
-									}
-								} else if *gender == "F" || genderMap[sampleID] == "F" {
-									if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-										geneHash[gene] = "可能患病"
-									}
-								}
-							}
-
-						}
+				if item["filterAvd"] == "Y" {
+					if *gender == "M" || genderMap[sampleID] == "M" {
+						updateGeneHash(geneHash, item, "M")
+					} else if *gender == "F" || genderMap[sampleID] == "F" {
+						updateGeneHash(geneHash, item, "F")
 					}
 				}
 				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
 			}
+			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
 			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 			for _, item := range avd {
 				if item["filterAvd"] == "Y" {
@@ -263,7 +231,6 @@ func main() {
 				}
 			}
 		}
-		log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".all.xlsx")
 	}
 
 	// CNV
