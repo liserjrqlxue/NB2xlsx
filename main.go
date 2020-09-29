@@ -172,6 +172,7 @@ func main() {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	// All variant data
+	log.Println("Start load AVD")
 	var avdArray []string
 	if *avdFiles != "" {
 		avdArray = strings.Split(*avdFiles, ",")
@@ -234,6 +235,7 @@ func main() {
 	}
 
 	// CNV
+	log.Println("Start load DMD")
 	var dmdArray []string
 	if *dmdFiles != "" {
 		dmdArray = strings.Split(*dmdFiles, ",")
@@ -257,6 +259,7 @@ func main() {
 	}
 
 	// 补充实验
+	log.Println("Start load 补充实验")
 	var db = make(map[string]map[string]string)
 	if *dipinResult != "" {
 		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
