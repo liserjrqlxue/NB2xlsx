@@ -159,8 +159,9 @@ var (
 )
 
 var (
-	throttle = make(chan bool, 1)
-	dbChan   = make(chan []map[string]string, 1)
+	throttle   = make(chan bool, 1)
+	writeExcel = make(chan bool, 1)
+	dbChan     = make(chan []map[string]string, 1)
 )
 
 func main() {
@@ -174,6 +175,7 @@ func main() {
 	}
 	dbChan = make(chan []map[string]string, *threshold)
 	throttle = make(chan bool, *threshold+1)
+	writeExcel = make(chan bool, *threshold+1)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
@@ -205,7 +207,7 @@ func main() {
 		go writeAvd(excel, dbChan, len(avdArray), throttle)
 		for _, fileName := range avdArray {
 			throttle <- true
-			go getAvd(fileName, dbChan, throttle)
+			go getAvd(fileName, dbChan, throttle, writeExcel)
 		}
 	}
 
@@ -242,6 +244,9 @@ func main() {
 
 	for i := 0; i <= *threshold; i++ {
 		throttle <- true
+	}
+	for i := 0; i <= *threshold; i++ {
+		writeExcel <- true
 	}
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
