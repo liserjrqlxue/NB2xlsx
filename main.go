@@ -142,6 +142,11 @@ var (
 		"F",
 		"gender for all or gender map file",
 	)
+	threshold = flag.Int(
+		"threshold",
+		12,
+		"threshold limit",
+	)
 )
 
 var (
@@ -172,7 +177,6 @@ func main() {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	// All variant data
-	log.Println("Start load AVD")
 	var avdArray []string
 	if *avdFiles != "" {
 		avdArray = strings.Split(*avdFiles, ",")
@@ -181,6 +185,7 @@ func main() {
 		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
 	}
 	if len(avdArray) > 0 {
+		log.Println("Start load AVD")
 		// acmg
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
@@ -235,7 +240,6 @@ func main() {
 	}
 
 	// CNV
-	log.Println("Start load DMD")
 	var dmdArray []string
 	if *dmdFiles != "" {
 		dmdArray = strings.Split(*dmdFiles, ",")
@@ -244,6 +248,7 @@ func main() {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
+		log.Println("Start load DMD")
 		var sheetName = *dmdSheetName
 		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		var title = rows[0]
