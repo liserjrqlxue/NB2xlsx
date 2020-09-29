@@ -26,6 +26,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bo
 		simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 		dbChan <- avd
 		<-throttle
+		return
 	}
 	var rIdx0 = 1
 	if avd[0]["SampleID"] != "" {
