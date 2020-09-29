@@ -158,6 +158,8 @@ var (
 	genderMap          = make(map[string]string)
 )
 
+var dbChan = make(chan []map[string]string, 1)
+
 func main() {
 	version.LogVersion()
 	// flag
@@ -167,6 +169,7 @@ func main() {
 		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
+	dbChan = make(chan []map[string]string, *threshold)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)

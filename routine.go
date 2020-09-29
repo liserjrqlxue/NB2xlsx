@@ -11,8 +11,6 @@ import (
 	"github.com/liserjrqlxue/goUtil/textUtil"
 )
 
-var dbChan = make(chan []map[string]string, 1)
-
 func getAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bool) {
 	var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 	// all snv
