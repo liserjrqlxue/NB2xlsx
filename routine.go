@@ -56,7 +56,8 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bo
 	<-throttle
 }
 
-func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int, ch chan<- bool) {
+func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int, throttle chan bool) {
+	log.Println("Write AVD Start")
 	var sheetName = *avdSheetName
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
@@ -73,7 +74,42 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, num int, ch
 			close(dbChan)
 		}
 	}
-	ch <- true
+	log.Println("Write AVD Done")
+	<-throttle
+}
+
+func writeDmd(excel *excelize.File, dmdArray []string, throttle chan bool) {
+	log.Println("Write DMD Start")
+	var sheetName = *dmdSheetName
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	for _, fileName := range dmdArray {
+		var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
+		for _, item := range dmd {
+			rIdx++
+			updateDmd(item)
+			updateINDEX(item, rIdx)
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+	log.Println("Write DMD Done")
+	<-throttle
+}
+
+func writeAe(excel *excelize.File, db map[string]map[string]string, throttle chan bool) {
+	log.Println("Write AE Start")
+	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	for _, item := range db {
+		rIdx++
+		updateAe(item)
+		updateINDEX(item, rIdx)
+		writeRow(excel, *aeSheetName, item, title, rIdx)
+	}
+	log.Println("Write AE Done")
+	<-throttle
 }
 
 func updateINDEX(item map[string]string, rIdx int) {

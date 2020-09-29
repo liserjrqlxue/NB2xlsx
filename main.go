@@ -158,7 +158,10 @@ var (
 	genderMap          = make(map[string]string)
 )
 
-var dbChan = make(chan []map[string]string, 1)
+var (
+	throttle = make(chan bool, 1)
+	dbChan   = make(chan []map[string]string, 1)
+)
 
 func main() {
 	version.LogVersion()
@@ -170,6 +173,7 @@ func main() {
 		os.Exit(1)
 	}
 	dbChan = make(chan []map[string]string, *threshold)
+	throttle = make(chan bool, *threshold+1)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
@@ -189,7 +193,6 @@ func main() {
 	}
 	if len(avdArray) > 0 {
 		log.Println("Start load AVD")
-		var throttle = make(chan bool, *threshold)
 		// acmg
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
@@ -198,13 +201,12 @@ func main() {
 		}
 		acmg2015.Init(acmgCfg)
 
-		var ch = make(chan bool)
-		go writeAvd(excel, dbChan, len(avdArray), ch)
+		throttle <- true
+		go writeAvd(excel, dbChan, len(avdArray), throttle)
 		for _, fileName := range avdArray {
 			throttle <- true
 			go getAvd(fileName, dbChan, throttle)
 		}
-		<-ch
 	}
 
 	// CNV
@@ -216,19 +218,8 @@ func main() {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		log.Println("Start load DMD")
-		var sheetName = *dmdSheetName
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
-		for _, fileName := range dmdArray {
-			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			for _, item := range dmd {
-				rIdx++
-				updateDmd(item, rIdx)
-				writeRow(excel, sheetName, item, title, rIdx)
-			}
-		}
+		throttle <- true
+		go writeDmd(excel, dmdArray, throttle)
 	}
 
 	// 补充实验
@@ -246,13 +237,11 @@ func main() {
 			updateSma(item, db)
 		}
 	}
-	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-	for _, item := range db {
-		rIdx++
-		updateAe(item, rIdx)
-		writeRow(excel, *aeSheetName, item, title, rIdx)
+	throttle <- true
+	go writeAe(excel, db, throttle)
+
+	for i := 0; i <= *threshold; i++ {
+		throttle <- true
 	}
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
