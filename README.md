@@ -105,9 +105,9 @@ LOF|['YES','NO']
 ['AR']|Hom|>=1||可能患病
 ['AR']|Het|=1||携带者
 ['AR']|Het|>1||可能患病
-['AD','AD,AR']|Hom/Het|>=1||可能患病
-['XL']|Hem|>=1|Male|可能患病
-['XL']|Hom/Het|>=1|Female|可能患病
+['AD','AD,AR']|['Hom','Het]|>=1||可能患病
+['XL']|Hemi|>=1|Male|可能患病
+['XL']|['Hom','Het']|>=1|Female|可能患病
 
 ## excel 格式
 ### DataValidation
