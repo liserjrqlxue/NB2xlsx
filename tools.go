@@ -205,7 +205,7 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 				}
 			case "XL":
 				if gender == "M" {
-					if item["Zygosity"] == "Hem" {
+					if item["Zygosity"] == "Hemi" {
 						geneHash[gene] = "可能患病"
 					}
 				} else if gender == "F" {
