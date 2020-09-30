@@ -133,6 +133,9 @@ var afList = []string{
 	"ExAC EAS AF",
 	"ExAC HomoAlt Count",
 	"ExAC AF",
+	"1000G AF",
+	"1000G EAS AF",
+	"ExAC EAS HomoAlt Count",
 }
 
 func updateAf(item map[string]string) {
