@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -134,17 +133,20 @@ var afList = []string{
 	"ExAC EAS AF",
 	"ExAC HomoAlt Count",
 	"ExAC AF",
+	"1000G AF",
+	"1000G EAS AF",
+	"ExAC EAS HomoAlt Count",
 }
 
 func updateAf(item map[string]string) {
 	for _, af := range afList {
-		if item[af] == "-1" {
+		if item[af] == "-1" || item[af] == "-1.0" {
 			item[af] = "."
 		}
 	}
 }
 
-func updateAvd(item map[string]string, rIdx int) {
+func updateAvd(item map[string]string) {
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
 	var gene = item["Gene Symbol"]
@@ -178,8 +180,6 @@ func updateAvd(item map[string]string, rIdx int) {
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
 	}
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func updateGeneHash(geneHash, item map[string]string, gender string) {
@@ -208,7 +208,7 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 				}
 			case "XL":
 				if gender == "M" {
-					if item["Zygosity"] == "Hem" {
+					if item["Zygosity"] == "Hemi" {
 						geneHash[gene] = "可能患病"
 					}
 				} else if gender == "F" {
@@ -221,7 +221,7 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 	}
 }
 
-func updateDmd(item map[string]string, rIdx int) {
+func updateDmd(item map[string]string) {
 	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
 	if item["Significant"] != "YES" {
@@ -261,8 +261,6 @@ func updateDmd(item map[string]string, rIdx int) {
 	} else {
 		item["primerDesign"] = "-"
 	}
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func updateDipin(item map[string]string, db map[string]map[string]string) {
@@ -329,11 +327,9 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	db[sampleID] = info
 }
 
-func updateAe(item map[string]string, rIdx int) {
+func updateAe(item map[string]string) {
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {

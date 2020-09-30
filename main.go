@@ -158,6 +158,12 @@ var (
 	genderMap          = make(map[string]string)
 )
 
+var (
+	throttle   = make(chan bool, 1)
+	writeExcel = make(chan bool, 1)
+	dbChan     = make(chan []map[string]string, 1)
+)
+
 func main() {
 	version.LogVersion()
 	// flag
@@ -167,6 +173,9 @@ func main() {
 		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
+	dbChan = make(chan []map[string]string, *threshold)
+	throttle = make(chan bool, *threshold+1)
+	writeExcel = make(chan bool, *threshold+1)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
@@ -193,49 +202,12 @@ func main() {
 			acmgCfg[k] = filepath.Join(dbPath, v)
 		}
 		acmg2015.Init(acmgCfg)
-		var sheetName = *avdSheetName
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
+
+		throttle <- true
+		go writeAvd(excel, dbChan, len(avdArray), throttle)
 		for _, fileName := range avdArray {
-			var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			// all snv
-			var allExcel = excelize.NewFile()
-			allExcel.NewSheet(*allSheetName)
-			var allTitle = textUtil.File2Array(*allColumns)
-			writeTitle(allExcel, *allSheetName, allTitle)
-			var rIdx0 = 1
-			var sampleID = filepath.Base(fileName)
-			if len(avd) == 0 {
-				log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-				continue
-			}
-			if avd[0]["SampleID"] != "" {
-				sampleID = avd[0]["SampleID"]
-			}
-			var geneHash = make(map[string]string)
-			for _, item := range avd {
-				rIdx0++
-				updateAvd(item, rIdx)
-				if item["filterAvd"] == "Y" {
-					if *gender == "M" || genderMap[sampleID] == "M" {
-						updateGeneHash(geneHash, item, "M")
-					} else if *gender == "F" || genderMap[sampleID] == "F" {
-						updateGeneHash(geneHash, item, "F")
-					}
-				}
-				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
-			}
-			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-			for _, item := range avd {
-				if item["filterAvd"] == "Y" {
-					rIdx++
-					item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-					writeRow(excel, sheetName, item, title, rIdx)
-				}
-			}
+			throttle <- true
+			go getAvd(fileName, dbChan, throttle, writeExcel)
 		}
 	}
 
@@ -248,19 +220,8 @@ func main() {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		log.Println("Start load DMD")
-		var sheetName = *dmdSheetName
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
-		for _, fileName := range dmdArray {
-			var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			for _, item := range dmd {
-				rIdx++
-				updateDmd(item, rIdx)
-				writeRow(excel, sheetName, item, title, rIdx)
-			}
-		}
+		throttle <- true
+		go writeDmd(excel, dmdArray, throttle)
 	}
 
 	// 补充实验
@@ -278,13 +239,14 @@ func main() {
 			updateSma(item, db)
 		}
 	}
-	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-	for _, item := range db {
-		rIdx++
-		updateAe(item, rIdx)
-		writeRow(excel, *aeSheetName, item, title, rIdx)
+	throttle <- true
+	go writeAe(excel, db, throttle)
+
+	for i := 0; i <= *threshold; i++ {
+		throttle <- true
+	}
+	for i := 0; i <= *threshold; i++ {
+		writeExcel <- true
 	}
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
