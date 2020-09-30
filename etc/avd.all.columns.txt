@@ -29,8 +29,8 @@ PolarChange
 MutationName
 Function
 dbSNP Allele Freq
-1000Gp3 AF
-1000Gp3 EAS AF
+1000G AF
+1000G EAS AF
 GnomAD EAS HomoAlt Count
 GnomAD EAS AF
 GnomAD HomoAlt Count
@@ -52,7 +52,7 @@ Polyphen2 HVAR Pred
 MutationTaster Pred
 dbscSNV_ADA_pred
 dbscSNV_RF_pred
-AI splice
+SpliceAI Pred
 REVEL
 HGMD MutName
 HGMD Disease
