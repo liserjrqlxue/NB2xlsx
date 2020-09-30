@@ -29,8 +29,8 @@ PolarChange
 MutationName
 Function
 dbSNP Allele Freq
-1000 AF
-1000 EAS AF
+1000G AF
+1000G EAS AF
 GnomAD EAS HomoAlt Count
 GnomAD EAS AF
 GnomAD HomoAlt Count
