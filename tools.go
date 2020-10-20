@@ -98,7 +98,13 @@ func filterAvd(item map[string]string) bool {
 			return false
 		}
 	}
-	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
+	if isClinVar[item["ClinVar Significance"]] {
+		return true
+	}
+	if item["ACMG"] == "B" || item["ACMG"] == "LB" {
+		return false
+	}
+	if isHGMD[item["HGMD Pred"]] {
 		return true
 	}
 	if functionExcludeMap[item["Function"]] {
