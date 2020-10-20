@@ -112,6 +112,9 @@ func filterAvd(item map[string]string) bool {
 			return false
 		}
 	}
+	if item["Function"] == "intron" && item["SpliceAI Pred"] == "D" {
+		return true
+	}
 	if functionExcludeMap[item["Function"]] {
 		return false
 	}
