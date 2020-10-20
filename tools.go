@@ -76,6 +76,15 @@ func gt(s string, tv float64) bool {
 	return false
 }
 
+var avdAfList = []string{
+	"ESP6500 AF",
+	"1000G AF",
+	"ExAC AF",
+	"GnomAD AF",
+	"ExAC EAS AF",
+	"GnomAD EAS AF",
+}
+
 func filterAvd(item map[string]string) bool {
 	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
 	if _, ok := localDb[mainKey]; ok {
@@ -84,8 +93,10 @@ func filterAvd(item map[string]string) bool {
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
 	}
-	if gt(item["GnomAD AF"], 0.05) || gt(item["1000G AF"], 0.05) {
-		return false
+	for _, af := range avdAfList {
+		if gt(item[af], 0.05) {
+			return false
+		}
 	}
 	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
 		return true
@@ -177,10 +188,10 @@ func updateAvd(item map[string]string) {
 	acmg2015.AddEvidences(item)
 	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
 	anno.UpdateAutoRule(item)
-	updateAf(item)
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
 	}
+	updateAf(item)
 }
 
 func updateGeneHash(geneHash, item map[string]string, gender string) {
