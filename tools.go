@@ -107,6 +107,11 @@ func filterAvd(item map[string]string) bool {
 	if isHGMD[item["HGMD Pred"]] {
 		return true
 	}
+	for _, af := range avdAfList {
+		if gt(item[af], 0.01) {
+			return false
+		}
+	}
 	if functionExcludeMap[item["Function"]] {
 		return false
 	}
