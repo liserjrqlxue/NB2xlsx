@@ -15,20 +15,35 @@
 
 ### 过滤
 ```
-一：现在输出到Sheet1的逻辑（也就是下面邮件的第一个要求）更改如下：
-满足以下任一一个条件就输出到sheet1
-1.     164基因上Clinvar的标签是Pathogenic或者Likely_pathogenic或者Pathogenic/Likely_pathogenic并且满足GnomAD和千人的频率≤0.05
-2.     164基因上HGMD的标签是DM或者DM？或者DM/DM? 并且满足GnomAD和千人的频率≤0.05
-3.     164基因上Clinvar/HGMD数据库外GnomAD和千人的频率≤0.01，并且变异类型不包括intron、promoter、no-change、UTR区变异
-4.     已解读数据库内位点
-
+三 输出到解读表位点调整
+满足以下任一一个条件就输出到sheet1：
+1. 161基因上Clinvar的标签是Pathogenic或者Likely_pathogenic或者Pathogenic/Likely_pathogenic或者HGMD的标签是DM或者DM？或者DM/DM? 并且ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian频率≤0.05，去除自动化致病等级是B，LB的变异（保留clinvar是P，LP，P/LP的位点）。
+2. 161基因上Clinvar/HGMD数据库外ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian的频率≤0.01，并且变异包括missense/nonsense/frameshift/cds-ins/cds-del/coding-synon/init-loss/ncRNA/splice-3/splice-5/20位以内的intron/SpliceAI预测影响剪切的ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian的频率≤0.01的intron
+3. 已解读数据库内位点
 ```
-1. 保留已解读数据库内位点
-2. 过滤 etc/gene.list.txt 之外的基因
-3. 过滤 "GnomAD AF" > 0.05
-4. "ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
-5. "HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
-6. "Function" 不在 etc/function.exclude.txt 中，且 "GnomAD AF" <= 0.01 的保留
+```
+第三条的具体条件如下：
+
+（1）保留已解读数据库内位点
+（2）过滤 etc/gene.list.txt 之外的基因
+（3）过滤 "ESP6500 AF/1000G AF/ExAC AF/GnomeAD AF/ExAC EAS AF、GnomAD EAS AF" > 0.05
+（4）过滤自动化致病等级是B，LB的变异（不包括clinvar是P，LP，P/LP的位点）。
+（5）"ClinVar Significance" 是 Pathogenic 或者 Likely_pathogenic 或者 Pathogenic/Likely_pathogenic 的保留
+（6）"HGMD Pred" 是 DM 或者 DM? 或者 DM/DM? 的保留
+（7）"Function"列为 missense/nonsense/frameshift/cds-ins/cds-del/cds-indel/stop-loss/span/altstart/coding-synon/init-loss/ncRNA/splice-3/splice-5/splice+10/splice-10/splice+20/splice-20，且 "ESP6500 AF/1000G AF/ExAC AF/GnomeAD AF/ExAC EAS AF、GnomAD EAS AF" <= 0.01 的保留
+（8）"Function"列为intron且SpliceAI预测影响剪切且"ESP6500 AF/1000G AF/ExAC AF/GnomeAD AF/ExAC EAS AF、GnomAD EAS AF" <= 0.01 的保留
+```
+1.  **保留** 已解读数据库内位点
+2.  **过滤** "Gene Symbol" no in `etc/gene.list.txt`
+3.  **定义** 频率列表 `avdAfList` ["ESP6500 AF","1000G AF","ExAC AF","GnomAD AF","ExAC EAS AF","GnomAD EAS AF",]
+4.  **过滤** `avdAfList` > 0.05
+5.  **保留** "ClinVar Significance" in ["Pathogenic","Likely_pathogenic","Pathogenic/Likely_pathogenic"]
+6.  **过滤** "ACMG" in ["B","LB"]
+7.  **保留** "HGMD Pred" in ["DM","DM?","DM/DM?"]
+8.  **过滤** `avdAfList` > 0.01
+9.  **保留** "Function" = "intron" 且 "SpliceAI Pred" = "D"
+10. **过滤** "Function" in `etc/function.exclude.txt`
+11. **保留** 剩余
 
 ### 疾病数据库
 ```
