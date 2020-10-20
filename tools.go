@@ -118,9 +118,6 @@ func filterAvd(item map[string]string) bool {
 	if functionExcludeMap[item["Function"]] {
 		return false
 	}
-	if gt(item["GnomAD AF"], 0.01) || gt(item["1000G AF"], 0.01) {
-		return false
-	}
 	return true
 }
 
