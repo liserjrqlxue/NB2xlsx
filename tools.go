@@ -173,6 +173,7 @@ func updateAvd(item map[string]string) {
 			item["报告类别"] = "补充报告"
 		}
 	}
+	anno.UpdateFunction(item)
 	acmg2015.AddEvidences(item)
 	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
 	anno.UpdateAutoRule(item)
