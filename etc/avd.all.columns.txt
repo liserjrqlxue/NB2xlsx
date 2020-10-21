@@ -70,6 +70,7 @@ Disease*
 遗传模式
 Database
 autoRuleName
+自动化判断
 Definition
 遗传模式判读
 报告类别
