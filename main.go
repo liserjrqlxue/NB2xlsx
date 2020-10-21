@@ -117,6 +117,16 @@ var (
 		"补充实验",
 		"Additional Experiments sheet name",
 	)
+	drugResult = flag.String(
+		"drug",
+		"",
+		"drug result file",
+	)
+	drugSheetName = flag.String(
+		"drugSheetName",
+		"药物",
+		"drug sheet name",
+	)
 	geneList = flag.String(
 		"geneList",
 		filepath.Join(etcPath, "gene.list.txt"),
@@ -241,6 +251,31 @@ func main() {
 	}
 	throttle <- true
 	go writeAe(excel, db, throttle)
+
+	// drug
+	if *drugResult != "" {
+		log.Println("Start load Drug")
+		var drugDb = make(map[string]map[string]map[string]string)
+		var drug, _ = textUtil.File2MapArray(*drugResult, "\t", nil)
+		for _, item := range drug {
+			var sampleID = item["样本编号"]
+			var drugName = item["药物名称"]
+			var sampleDrug, ok1 = drugDb[sampleID]
+			if !ok1 {
+				sampleDrug = make(map[string]map[string]string)
+				drugDb[sampleID] = sampleDrug
+			}
+			var drugInfo, ok2 = sampleDrug[drugName]
+			if !ok2 {
+				drugInfo = item
+				sampleDrug[drugName] = drugInfo
+				drugInfo["SampleID"] = sampleID
+			} else {
+
+			}
+		}
+
+	}
 
 	for i := 0; i <= *threshold; i++ {
 		throttle <- true
