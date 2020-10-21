@@ -197,7 +197,7 @@ func updateAvd(item map[string]string) {
 	}
 	anno.UpdateFunction(item)
 	acmg2015.AddEvidences(item)
-	item["ACMG"] = acmg2015.PredACMG2015(item, *autoPVS1)
+	item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 	anno.UpdateAutoRule(item)
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
