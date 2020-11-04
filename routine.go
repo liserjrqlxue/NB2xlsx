@@ -46,6 +46,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 			var info, ok = geneInfo[item["Gene Symbol"]]
 			if !ok {
 				info = new(GeneInfo).new(item)
+				geneInfo[item["Gene Symbol"]] = info
 			} else {
 				info.count(item)
 			}
@@ -57,6 +58,19 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 		}
 	}
 
+	var filterAvd []map[string]string
+	for _, item := range avd {
+		if item["filterAvd"] == "Y" {
+			var info, ok = geneInfo[item["Gene Symbol"]]
+			if !ok {
+				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
+			} else {
+				item["Database"] = info.getTag(item)
+			}
+			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
+			filterAvd = append(filterAvd, item)
+		}
+	}
 	writeExcel <- true
 	go func() {
 		// all snv
@@ -73,19 +87,6 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 		simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
 		<-writeExcel
 	}()
-	var filterAvd []map[string]string
-	for _, item := range avd {
-		if item["filterAvd"] == "Y" {
-			var info, ok = geneInfo[item["Gene Symbol"]]
-			if !ok {
-				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
-			} else {
-				item["Database"] = info.getTag(item)
-			}
-			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-			filterAvd = append(filterAvd, item)
-		}
-	}
 	dbChan <- filterAvd
 	<-throttle
 }
