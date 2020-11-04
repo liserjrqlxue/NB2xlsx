@@ -61,6 +61,11 @@ var (
 		"Likely_pathogenic":            true,
 		"Pathogenic/Likely_pathogenic": true,
 	}
+	notClinVar = map[string]bool{
+		"Benign":               true,
+		"Likely_benign":        true,
+		"Benign/Likely_benign": true,
+	}
 	isHGMD = map[string]bool{
 		"DM":     true,
 		"DM?":    true,
