@@ -160,7 +160,7 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) string {
 		function = item["Function"]
 	)
 	if 遗传模式["AD"] || 遗传模式["Mi"] || (性别 == "M" && (遗传模式["XL"] || 遗传模式["YL"])) {
-		if item["P/LP*"] != "1" {
+		if item["P/LP*"] != "2" {
 			return ""
 		}
 		if 遗传模式["AD"] || 遗传模式["XL"] || 遗传模式["YL"] {
@@ -171,30 +171,30 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) string {
 			}
 		}
 		if cdsList[function] && item["RepeatTag"] == "" {
-			return "1"
+			return "2"
 		}
 		if spliceList[function] {
 			if item["SpliceAI Pred"] == "D" {
-				return "1"
+				return "2"
 			}
 		} else {
 			if item["PP3"] == "1" {
-				return "1"
+				return "2"
 			}
 		}
 	}
 	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
 		if item["Zygosity"] == "Hom" || VUS > 1 {
 			if cdsList[function] && item["RepeatTag"] == "" {
-				return "1"
+				return "2"
 			}
 			if spliceList[function] {
 				if item["SpliceAI Pred"] == "D" {
-					return "1"
+					return "2"
 				}
 			} else {
 				if item["PP3"] == "1" {
-					return "1"
+					return "2"
 				}
 			}
 		}
@@ -217,15 +217,15 @@ func 标签3(item map[string]string, geneInfo *GeneInfo) string {
 	}
 	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
 		if cdsList[function] && item["RepeatTag"] == "" {
-			return "1"
+			return "3"
 		}
 		if spliceList[function] {
 			if item["SpliceAI Pred"] == "D" {
-				return "1"
+				return "3"
 			}
 		} else {
 			if item["PP3"] == "1" {
-				return "1"
+				return "3"
 			}
 		}
 	}
@@ -241,12 +241,12 @@ func 标签4(item map[string]string, geneInfo *GeneInfo) string {
 	)
 	if 遗传模式["AD"] || 遗传模式["Mi"] || (性别 == "M" && (遗传模式["XL"] || 遗传模式["YL"])) {
 		if cnv {
-			return "1"
+			return "4"
 		}
 	}
 	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
 		if cnv0 {
-			return "1"
+			return "4"
 		}
 	}
 	return ""
@@ -265,7 +265,7 @@ func 标签5(item map[string]string, geneInfo *GeneInfo) string {
 	)
 	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
 		if PLP == 1 && VUS == 0 && !cnv {
-			return "1"
+			return "5"
 		}
 	}
 	return ""
