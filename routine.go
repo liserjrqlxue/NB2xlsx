@@ -34,10 +34,21 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	if avd[0]["SampleID"] != "" {
 		sampleID = avd[0]["SampleID"]
 	}
+
 	var geneHash = make(map[string]string)
+	var geneInfo, ok = SampleGeneInfo[sampleID]
+	if !ok {
+		geneInfo = make(map[string]*GeneInfo)
+	}
 	for _, item := range avd {
 		updateAvd(item)
 		if item["filterAvd"] == "Y" {
+			var info, ok = geneInfo[item["Gene Symbol"]]
+			if !ok {
+				info = new(GeneInfo).new(item)
+			} else {
+				info.count(item)
+			}
 			if *gender == "M" || genderMap[sampleID] == "M" {
 				updateGeneHash(geneHash, item, "M")
 			} else if *gender == "F" || genderMap[sampleID] == "F" {
@@ -45,6 +56,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 			}
 		}
 	}
+
 	writeExcel <- true
 	go func() {
 		// all snv
@@ -64,6 +76,12 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	var filterAvd []map[string]string
 	for _, item := range avd {
 		if item["filterAvd"] == "Y" {
+			var info, ok = geneInfo[item["Gene Symbol"]]
+			if !ok {
+				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
+			} else {
+				item["Database"] = info.getTag(item)
+			}
 			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
 			filterAvd = append(filterAvd, item)
 		}
