@@ -131,6 +131,10 @@ func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool) {
 		}
 		// wait writeAvd done
 		runWrite <- true
+		for i := 0; i < *threshold; i++ {
+			throttle <- true
+			writeExcel <- true
+		}
 	} else {
 		log.Println("Write AVD Skip")
 	}
