@@ -193,7 +193,6 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 				CopyNum = 3
 				log.Printf("%+v, treat CopyNum[%s] as 3\n", err, item["CopyNum"])
 			}
-			simpleUtil.CheckErr(err, "can not convert CopyNum of "+item["CopyNum"])
 			if CopyNum != 2 {
 				var geneInfo, ok = SampleGeneInfo[sampleID]
 				if !ok {
