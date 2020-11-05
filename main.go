@@ -5,10 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
-	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/goUtil/osUtil"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -168,12 +166,6 @@ var (
 	genderMap          = make(map[string]string)
 )
 
-var (
-	throttle   = make(chan bool, 1)
-	writeExcel = make(chan bool, 1)
-	dbChan     = make(chan []map[string]string, 1)
-)
-
 func main() {
 	version.LogVersion()
 	// flag
@@ -183,9 +175,11 @@ func main() {
 		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
-	dbChan = make(chan []map[string]string, *threshold)
-	throttle = make(chan bool, *threshold+1)
-	writeExcel = make(chan bool, *threshold+1)
+	var (
+		runAe  = make(chan bool, 1)
+		runAvd = make(chan bool, 1)
+		runDmd = make(chan bool, 1)
+	)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
@@ -195,62 +189,25 @@ func main() {
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
-	// All variant data
-	var avdArray []string
-	if *avdFiles != "" {
-		avdArray = strings.Split(*avdFiles, ",")
-	}
-	if *avdList != "" {
-		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
-	}
-	if len(avdArray) > 0 {
-		log.Println("Start load AVD")
-		// acmg
-		acmg2015.AutoPVS1 = *autoPVS1
-		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
-		for k, v := range acmgCfg {
-			acmgCfg[k] = filepath.Join(dbPath, v)
-		}
-		acmg2015.Init(acmgCfg)
-
-		throttle <- true
-		go writeAvd(excel, dbChan, len(avdArray), throttle)
-		for _, fileName := range avdArray {
-			throttle <- true
-			go getAvd(fileName, dbChan, throttle, writeExcel)
-		}
-	}
+	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 
 	// CNV
-	var dmdArray []string
-	if *dmdFiles != "" {
-		dmdArray = strings.Split(*dmdFiles, ",")
-	}
-	if *dmdList != "" {
-		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
-	}
-	if len(dmdArray) > 0 {
-		throttle <- true
-		go writeDmd(excel, dmdArray, throttle)
+	{
+		runDmd <- true
+		go WriteDmd(excel, *dmdFiles, *dmdList, runDmd)
 	}
 
 	// 补充实验
-	log.Println("Start load 补充实验")
-	var db = make(map[string]map[string]string)
-	if *dipinResult != "" {
-		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
-		for _, item := range dipin {
-			updateDipin(item, db)
-		}
+	{
+		runAe <- true
+		go WriteAe(excel, *dipinResult, *smaResult, runAe)
 	}
-	if *smaResult != "" {
-		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
-		for _, item := range sma {
-			updateSma(item, db)
-		}
+
+	// All variant data
+	{
+		runAvd <- true
+		go WriteAvd(excel, runDmd, runAvd)
 	}
-	throttle <- true
-	go writeAe(excel, db, throttle)
 
 	// drug
 	if *drugResult != "" {
@@ -277,13 +234,11 @@ func main() {
 
 	}
 
-	for i := 0; i <= *threshold; i++ {
-		throttle <- true
-	}
-	for i := 0; i <= *threshold; i++ {
-		writeExcel <- true
-	}
+	// wait done
+	runAe <- true
+	runAvd <- true
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
 	simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
+	log.Println("Done")
 }
