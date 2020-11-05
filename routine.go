@@ -188,7 +188,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 			updateDmd(item)
 			var sampleID = item["#Sample"]
 			var gene = item["gene"]
-			var CopyNum, err = strconv.Atoi(item["CopyNum"])
+			var CopyNum, err = strconv.ParseFloat(item["CopyNum"], 64)
 			simpleUtil.CheckErr(err, "can not convert CopyNum of "+item["CopyNum"])
 			if CopyNum != 2 {
 				var geneInfo, ok = SampleGeneInfo[sampleID]
