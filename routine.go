@@ -158,14 +158,14 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	<-throttle
 }
 
-func WriteDmd(excel *excelize.File, dmdFiles, dmdList string, throttle chan bool) {
+func WriteDmd(excel *excelize.File, throttle chan bool) {
 	log.Println("Write DMD Start")
 	var dmdArray []string
-	if dmdFiles != "" {
-		dmdArray = strings.Split(dmdFiles, ",")
+	if *dmdFiles != "" {
+		dmdArray = strings.Split(*dmdFiles, ",")
 	}
-	if dmdList != "" {
-		dmdArray = append(dmdArray, textUtil.File2Array(dmdList)...)
+	if *dmdList != "" {
+		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
 		writeDmd(excel, dmdArray)
@@ -173,6 +173,7 @@ func WriteDmd(excel *excelize.File, dmdFiles, dmdList string, throttle chan bool
 		log.Println("Write DMD Skip")
 	}
 	log.Println("Write DMD Done")
+	<-throttle
 }
 
 func writeDmd(excel *excelize.File, dmdArray []string) {
@@ -219,17 +220,17 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 	}
 }
 
-func WriteAe(excel *excelize.File, dipinResult, smaResult string, throttle chan bool) {
+func WriteAe(excel *excelize.File, throttle chan bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)
-	if dipinResult != "" {
-		var dipin, _ = textUtil.File2MapArray(dipinResult, "\t", nil)
+	if *dipinResult != "" {
+		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
 		for _, item := range dipin {
 			updateDipin(item, db)
 		}
 	}
-	if smaResult != "" {
-		var sma, _ = textUtil.File2MapArray(smaResult, "\t", nil)
+	if *smaResult != "" {
+		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
 		for _, item := range sma {
 			updateSma(item, db)
 		}
