@@ -175,11 +175,6 @@ func main() {
 		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
-	var (
-		runAe  = make(chan bool, 1)
-		runAvd = make(chan bool, 1)
-		runDmd = make(chan bool, 1)
-	)
 
 	if osUtil.FileExists(*gender) {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
@@ -191,16 +186,22 @@ func main() {
 
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 
+	var (
+		runAe  = make(chan bool, 1)
+		runAvd = make(chan bool, 1)
+		runDmd = make(chan bool, 1)
+	)
+
 	// CNV
 	{
 		runDmd <- true
-		go WriteDmd(excel, *dmdFiles, *dmdList, runDmd)
+		go WriteDmd(excel, runDmd)
 	}
 
 	// 补充实验
 	{
 		runAe <- true
-		go WriteAe(excel, *dipinResult, *smaResult, runAe)
+		go WriteAe(excel, runAe)
 	}
 
 	// All variant data
@@ -235,8 +236,10 @@ func main() {
 	}
 
 	// wait done
-	runAe <- true
-	runAvd <- true
+	{
+		runAe <- true
+		runAvd <- true
+	}
 
 	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
 	simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
