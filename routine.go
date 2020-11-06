@@ -272,3 +272,16 @@ func updateINDEX(item map[string]string, rIdx int) {
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
+
+func writeBatchCnv(throttle chan bool) {
+	BatchCnvTitle = append(BatchCnvTitle, "Database")
+	var sheetName = "batchCNV"
+	var bcExcel = excelize.NewFile()
+	bcExcel.NewSheet(sheetName)
+	writeTitle(bcExcel, sheetName, BatchCnvTitle)
+	for i, item := range BatchCnv {
+		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+3)
+	}
+	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix + ".batchCNV.xlsx"))
+	<-throttle
+}

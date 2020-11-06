@@ -398,3 +398,46 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 		simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, k))
 	}
 }
+
+func loadBatchCNV(cnv string) {
+	BatchCnv, BatchCnvTitle = textUtil.File2MapArray(cnv, "\t", nil)
+	for _, item := range BatchCnv {
+		var sampleID = item["sample"]
+		var cn, err = strconv.Atoi(item["copyNumber"])
+		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
+		updateSampleGeneInfo(cn, sampleID, strings.Split(item["gene"], ",")...)
+	}
+}
+
+func updateSampleGeneInfo(cn int, sampleID string, genes ...string) {
+	if cn != 2 {
+		var geneInfo, ok = SampleGeneInfo[sampleID]
+		if !ok {
+			geneInfo = make(map[string]*GeneInfo)
+			for _, gene := range genes {
+				geneInfo[gene] = &GeneInfo{
+					基因:   gene,
+					遗传模式: geneInheritance[gene],
+					cnv:  true,
+					cnv0: cn == 0,
+				}
+			}
+			SampleGeneInfo[sampleID] = geneInfo
+		} else {
+			for _, gene := range genes {
+				var info, ok = geneInfo[gene]
+				if !ok {
+					geneInfo[gene] = &GeneInfo{
+						基因:   gene,
+						遗传模式: geneInheritance[gene],
+						cnv:  true,
+						cnv0: cn == 0,
+					}
+				} else {
+					info.cnv = true
+					info.cnv0 = info.cnv0 || cn == 0
+				}
+			}
+		}
+	}
+}
