@@ -175,6 +175,8 @@ var (
 	SampleGeneInfo     = make(map[string]map[string]*GeneInfo)
 )
 
+var err error
+
 func main() {
 	version.LogVersion()
 	// flag

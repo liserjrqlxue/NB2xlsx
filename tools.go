@@ -24,6 +24,7 @@ func loadDb() {
 	}
 
 	// load disease database
+	log.Println("Load Disease Start")
 	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
@@ -407,11 +408,11 @@ func loadBatchCNV(cnv string) {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
-		updateSampleGeneInfo(cn, sampleID, strings.Split(item["gene"], ",")...)
+		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
 }
 
-func updateSampleGeneInfo(cn int, sampleID string, genes ...string) {
+func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 	if cn != 2 {
 		var geneInfo, ok = SampleGeneInfo[sampleID]
 		if !ok {
