@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 )
 
 func loadDb() {
+	log.Println("Load Database Start")
 	// load gene list
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
@@ -51,7 +53,7 @@ func loadDb() {
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
-
+	log.Println("Load Database Done")
 }
 
 var formulaTitle = map[string]bool{

@@ -44,8 +44,6 @@ type GeneInfo struct {
 	cnv, cnv0        bool
 }
 
-var SampleGeneInfo map[string]map[string]*GeneInfo // sampleID -> 基因 -> GeneInfo
-
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 	info.基因 = item["Gene Symbol"]
 	info.遗传模式 = geneInheritance[info.基因]

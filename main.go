@@ -172,6 +172,7 @@ var (
 	genderMap          = make(map[string]string)
 	BatchCnv           []map[string]string
 	BatchCnvTitle      []string
+	SampleGeneInfo     = make(map[string]map[string]*GeneInfo)
 )
 
 func main() {
@@ -185,6 +186,7 @@ func main() {
 	}
 
 	if osUtil.FileExists(*gender) {
+		log.Printf("load gender map from %s", *gender)
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
@@ -193,8 +195,6 @@ func main() {
 	loadBatchCNV(*batchCNV)
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-
-	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 
 	var (
 		runAe        = make(chan bool, 1)
