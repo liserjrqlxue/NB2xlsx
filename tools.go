@@ -32,6 +32,9 @@ func loadDb() {
 		"基因",
 		"/",
 	)
+	for gene, info := range diseaseDb {
+		geneInheritance[gene] = info["遗传模式"]
+	}
 
 	// load 已解读数据库
 	localDb, _ = simpleUtil.Slice2MapMapArray(

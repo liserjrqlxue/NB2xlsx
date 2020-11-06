@@ -161,6 +161,7 @@ var (
 	geneListMap        = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
+	geneInheritance    = make(map[string]string)
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 	genderMap          = make(map[string]string)

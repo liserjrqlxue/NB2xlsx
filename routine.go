@@ -114,6 +114,7 @@ func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool) {
 
 		// wait runDmd done
 		runDmd <- true
+
 		var (
 			runWrite   = make(chan bool, 1)
 			throttle   = make(chan bool, *threshold)
@@ -203,6 +204,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 					geneInfo = make(map[string]*GeneInfo)
 					geneInfo[gene] = &GeneInfo{
 						基因:   gene,
+						遗传模式: geneInheritance[gene],
 						cnv:  true,
 						cnv0: CopyNum == 0,
 					}
@@ -212,6 +214,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 					if !ok {
 						geneInfo[gene] = &GeneInfo{
 							基因:   gene,
+							遗传模式: geneInheritance[gene],
 							cnv:  true,
 							cnv0: CopyNum == 0,
 						}

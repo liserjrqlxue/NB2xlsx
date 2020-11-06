@@ -48,7 +48,7 @@ var SampleGeneInfo map[string]map[string]*GeneInfo // sampleID -> 基因 -> Gene
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 	info.基因 = item["Gene Symbol"]
-	info.遗传模式 = item["遗传模式"]
+	info.遗传模式 = geneInheritance[info.基因]
 	info.count(item)
 	return info
 }
