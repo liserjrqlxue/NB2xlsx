@@ -193,37 +193,19 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 			updateDmd(item)
 			var sampleID = item["#Sample"]
 			var gene = item["gene"]
-			var CopyNum, err = strconv.ParseFloat(strings.Split(item["CopyNum"], ";")[0], 64)
-			if err != nil {
-				CopyNum = 3
-				log.Printf("%+v, treat CopyNum[%s] as 3\n", err, item["CopyNum"])
-			}
-			if CopyNum != 2 {
-				var geneInfo, ok = SampleGeneInfo[sampleID]
-				if !ok {
-					geneInfo = make(map[string]*GeneInfo)
-					geneInfo[gene] = &GeneInfo{
-						基因:   gene,
-						遗传模式: geneInheritance[gene],
-						cnv:  true,
-						cnv0: CopyNum == 0,
-					}
-					SampleGeneInfo[sampleID] = geneInfo
-				} else {
-					var info, ok = geneInfo[gene]
-					if !ok {
-						geneInfo[gene] = &GeneInfo{
-							基因:   gene,
-							遗传模式: geneInheritance[gene],
-							cnv:  true,
-							cnv0: CopyNum == 0,
-						}
-					} else {
-						info.cnv = true
-						info.cnv0 = info.cnv0 || CopyNum == 0
-					}
+			var CN = strings.Split(item["CopyNum"], ";")[0]
+			var cn float64
+			if CN == ">4" {
+				cn = 5
+				log.Printf("treat CopyNum[%s] as 5\n", item["CopyNum"])
+			} else {
+				cn, err = strconv.ParseFloat(strings.Split(item["CopyNum"], ";")[0], 64)
+				if err != nil {
+					cn = 3
+					log.Printf("treat CopyNum[%s] as 3:%+v\n", item["CopyNum"], err)
 				}
 			}
+			updateSampleGeneInfo(cn, sampleID, gene)
 			updateINDEX(item, rIdx)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
