@@ -1,7 +1,5 @@
 package main
 
-import "strings"
-
 func geneCnv(item map[string]string) (cnv, cnv0 map[string]bool) {
 	cnv = make(map[string]bool)
 	cnv0 = make(map[string]bool)
@@ -40,21 +38,17 @@ func isPLP(item map[string]string) bool {
 
 type GeneInfo struct {
 	基因               string
-	遗传模式             map[string]bool
+	遗传模式             string
 	性别               string
 	PLP, hetPLP, VUS int
 	cnv, cnv0        bool
-	tag              string
 }
 
 var SampleGeneInfo map[string]map[string]*GeneInfo // sampleID -> 基因 -> GeneInfo
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 	info.基因 = item["Gene Symbol"]
-	info.遗传模式 = make(map[string]bool)
-	for _, s := range strings.Split(item["遗传模式"], ",") {
-		info.遗传模式[s] = true
-	}
+	info.遗传模式 = item["遗传模式"]
 	info.count(item)
 	return info
 }
@@ -91,12 +85,12 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) string {
 		自动化判断    = item["自动化判断"]
 		Zygosity = item["Zygosity"]
 	)
-	if 遗传模式["AD"] || 遗传模式["Mi"] || (性别 == "M" && (遗传模式["XL"] || 遗传模式["YL"])) {
+	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if item["P/LP*"] == "1" {
 			return "1"
 		}
 	}
-	if 遗传模式["AR"] || (性别 == "F" && 遗传模式["XL"]) {
+	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if item["P/LP*"] != "1" {
 			if 自动化判断 == "VUS" && hetPLP >= 1 {
 				return "1"
@@ -159,11 +153,11 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) string {
 		VUS      = geneInfo.VUS
 		function = item["Function"]
 	)
-	if 遗传模式["AD"] || 遗传模式["Mi"] || (性别 == "M" && (遗传模式["XL"] || 遗传模式["YL"])) {
+	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if item["P/LP*"] != "2" {
 			return ""
 		}
-		if 遗传模式["AD"] || 遗传模式["XL"] || 遗传模式["YL"] {
+		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "XL" || 遗传模式 == "YL" {
 			for af := range af0List {
 				if gt(item[item[af]], 2e-5) {
 					return ""
@@ -183,7 +177,7 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) string {
 			}
 		}
 	}
-	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
+	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if item["Zygosity"] == "Hom" || VUS > 1 {
 			if cdsList[function] && item["RepeatTag"] == "" {
 				return "2"
@@ -215,7 +209,7 @@ func 标签3(item map[string]string, geneInfo *GeneInfo) string {
 	if !cnv {
 		return ""
 	}
-	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
+	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cdsList[function] && item["RepeatTag"] == "" {
 			return "3"
 		}
@@ -239,12 +233,12 @@ func 标签4(item map[string]string, geneInfo *GeneInfo) string {
 		cnv  = geneInfo.cnv
 		cnv0 = geneInfo.cnv0
 	)
-	if 遗传模式["AD"] || 遗传模式["Mi"] || (性别 == "M" && (遗传模式["XL"] || 遗传模式["YL"])) {
+	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if cnv {
 			return "4"
 		}
 	}
-	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
+	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cnv0 {
 			return "4"
 		}
@@ -263,7 +257,7 @@ func 标签5(item map[string]string, geneInfo *GeneInfo) string {
 		PLP  = geneInfo.PLP
 		cnv  = geneInfo.cnv
 	)
-	if 遗传模式["AR"] || (性别 == "F" && (遗传模式["XL"])) {
+	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if PLP == 1 && VUS == 0 && !cnv {
 			return "5"
 		}
