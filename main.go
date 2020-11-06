@@ -155,6 +155,11 @@ var (
 		12,
 		"threshold limit",
 	)
+	batchCNV = flag.String(
+		"batchCNV",
+		"",
+		"batchCNV result",
+	)
 )
 
 var (
@@ -165,6 +170,8 @@ var (
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 	genderMap          = make(map[string]string)
+	BatchCnv           []map[string]string
+	BatchCnvTitle      []string
 )
 
 func main() {
@@ -183,14 +190,18 @@ func main() {
 
 	loadDb()
 
+	loadBatchCNV(*batchCNV)
+
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 
 	var (
-		runAe  = make(chan bool, 1)
-		runAvd = make(chan bool, 1)
-		runDmd = make(chan bool, 1)
+		runAe        = make(chan bool, 1)
+		runAvd       = make(chan bool, 1)
+		runDmd       = make(chan bool, 1)
+		saveMain     = make(chan bool, 1)
+		saveBatchCnv = make(chan bool, 1)
 	)
 
 	// CNV
@@ -236,13 +247,27 @@ func main() {
 
 	}
 
-	// wait done
 	{
-		runAe <- true
 		runAvd <- true
+		saveBatchCnv <- true
+		go writeBatchCnv(saveBatchCnv)
 	}
 
-	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
-	simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
-	log.Println("Done")
+	{
+		runAe <- true
+		saveMain <- true
+		go func() {
+			log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
+			simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
+			log.Println("Save main Done")
+			<-saveMain
+		}()
+	}
+
+	// waite excel write done
+	{
+		saveMain <- true
+		saveBatchCnv <- true
+	}
+	log.Println("All Done")
 }
