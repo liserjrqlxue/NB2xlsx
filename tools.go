@@ -32,6 +32,7 @@ func loadDb() {
 		"基因",
 		"/",
 	)
+
 	// load 已解读数据库
 	localDb, _ = simpleUtil.Slice2MapMapArray(
 		simpleUtil.HandleError(
@@ -217,6 +218,16 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 		if !ok || genePred != "可能患病" {
 			switch item["遗传模式"] {
 			case "AR":
+				if item["Zygosity"] == "Hom" {
+					geneHash[gene] = "可能患病"
+				} else if item["Zygosity"] == "Het" {
+					if genePred == "" {
+						geneHash[gene] = "携带者"
+					} else if genePred == "携带者" {
+						geneHash[gene] = "可能患病"
+					}
+				}
+			case "AR/AR":
 				if item["Zygosity"] == "Hom" {
 					geneHash[gene] = "可能患病"
 				} else if item["Zygosity"] == "Het" {
