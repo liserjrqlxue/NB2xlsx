@@ -257,12 +257,31 @@ func updateINDEX(item map[string]string, rIdx int) {
 
 func writeBatchCnv(throttle chan bool) {
 	BatchCnvTitle = append(BatchCnvTitle, "Database")
-	var sheetName = "batchCNV"
+	var sheetName = "Sheet1"
 	var bcExcel = excelize.NewFile()
-	bcExcel.NewSheet(sheetName)
 	writeTitle(bcExcel, sheetName, BatchCnvTitle)
 	for i, item := range BatchCnv {
-		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+3)
+		var tag3, tag4 bool
+		var sampleID = item["sample"]
+		var genes = strings.Split(item["gene"], ",")
+		for _, gene := range genes {
+			var info, ok = SampleGeneInfo[sampleID][gene]
+			if ok {
+				if info.tag3 {
+					tag3 = true
+				}
+				if info.tag4 {
+					tag4 = true
+				}
+			}
+		}
+		if tag3 {
+			item["Database"] += "3"
+		}
+		if tag4 {
+			item["Database"] += "4"
+		}
+		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix + ".batchCNV.xlsx"))
 	<-throttle
