@@ -261,26 +261,7 @@ func writeBatchCnv(throttle chan bool) {
 	var bcExcel = excelize.NewFile()
 	writeTitle(bcExcel, sheetName, BatchCnvTitle)
 	for i, item := range BatchCnv {
-		var tag3, tag4 bool
-		var sampleID = item["sample"]
-		var genes = strings.Split(item["gene"], ",")
-		for _, gene := range genes {
-			var info, ok = SampleGeneInfo[sampleID][gene]
-			if ok {
-				if info.tag3 {
-					tag3 = true
-				}
-				if info.tag4 {
-					tag4 = true
-				}
-			}
-		}
-		if tag3 {
-			item["Database"] += "3"
-		}
-		if tag4 {
-			item["Database"] += "4"
-		}
+		updateCnvTags(item, item["sample"], strings.Split(item["gene"], ",")...)
 		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix + ".batchCNV.xlsx"))

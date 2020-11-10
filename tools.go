@@ -40,6 +40,7 @@ func loadDb() {
 	}
 
 	// load 已解读数据库
+	log.Println("Load LocalDb Start")
 	localDb, _ = simpleUtil.Slice2MapMapArray(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
@@ -442,5 +443,26 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				}
 			}
 		}
+	}
+}
+
+func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
+	var tag3, tag4 bool
+	for _, gene := range genes {
+		var info, ok = SampleGeneInfo[sampleID][gene]
+		if ok {
+			if info.tag3 {
+				tag3 = true
+			}
+			if info.tag4 {
+				tag4 = true
+			}
+		}
+	}
+	if tag3 {
+		item["Database"] += "3"
+	}
+	if tag4 {
+		item["Database"] += "4"
 	}
 }
