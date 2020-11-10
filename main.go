@@ -194,7 +194,9 @@ func main() {
 
 	loadDb()
 
-	loadBatchCNV(*batchCNV)
+	if *batchCNV != "" {
+		loadBatchCNV(*batchCNV)
+	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
