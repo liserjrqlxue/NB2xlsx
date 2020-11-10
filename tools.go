@@ -52,6 +52,7 @@ func loadDb() {
 	)
 
 	// load drop list
+	log.Println("Load DropList Start")
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
@@ -404,6 +405,7 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 }
 
 func loadBatchCNV(cnv string) {
+	log.Println("Load BatchCNV Start")
 	BatchCnv, BatchCnvTitle = textUtil.File2MapArray(cnv, "\t", nil)
 	for _, item := range BatchCnv {
 		var sampleID = item["sample"]
@@ -411,6 +413,7 @@ func loadBatchCNV(cnv string) {
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
 		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
+	log.Println("Load BatchCNV Done")
 }
 
 func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
