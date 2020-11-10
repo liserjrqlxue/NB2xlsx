@@ -212,17 +212,17 @@ func 标签3(item map[string]string, geneInfo *GeneInfo) string {
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cdsList[function] && item["RepeatTag"] == "" {
 			geneInfo.tag3 = true
-			return "3"
+			return ""
 		}
 		if spliceList[function] {
 			if item["SpliceAI Pred"] == "D" {
 				geneInfo.tag3 = true
-				return "3"
+				return ""
 			}
 		} else {
 			if item["PP3"] == "1" {
 				geneInfo.tag3 = true
-				return "3"
+				return ""
 			}
 		}
 	}
@@ -239,13 +239,13 @@ func 标签4(item map[string]string, geneInfo *GeneInfo) string {
 	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if cnv {
 			geneInfo.tag4 = true
-			return "4"
+			return ""
 		}
 	}
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cnv0 {
 			geneInfo.tag4 = true
-			return "4"
+			return ""
 		}
 	}
 	return ""
