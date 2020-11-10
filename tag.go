@@ -57,6 +57,7 @@ func (info *GeneInfo) count(item map[string]string) {
 		info.VUS++
 	}
 	if isPLP(item) {
+		item["P/LP*"] = "1"
 		info.PLP++
 		if item["Zygosity"] == "Het" {
 			info.hetPLP++
