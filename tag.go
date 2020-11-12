@@ -80,7 +80,6 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) string {
 		性别       = geneInfo.性别
 		PLP      = geneInfo.PLP
 		hetPLP   = geneInfo.hetPLP
-		cnv      = geneInfo.cnv
 		VUS      = geneInfo.VUS
 		自动化判断    = item["自动化判断"]
 		Zygosity = item["Zygosity"]
@@ -91,28 +90,16 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) string {
 		}
 	}
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if item["P/LP*"] != "1" {
-			if 自动化判断 == "VUS" && hetPLP >= 1 {
-				return "1"
-			}
-			return ""
-		} else {
+		if item["P/LP*"] == "1" {
 			if Zygosity == "Hom" {
 				return "1"
-			}
-			if PLP > 1 {
-				return "1"
-			}
-			switch VUS {
-			case 0:
-				if cnv {
+			} else if Zygosity == "Het" {
+				if PLP > 1 || VUS > 1 || (VUS == 1 && 自动化判断 != "VUS") {
 					return "1"
 				}
-			case 1:
-				if 自动化判断 != "VUS" {
-					return "1"
-				}
-			default:
+			}
+		} else {
+			if 自动化判断 == "VUS" && hetPLP >= 1 {
 				return "1"
 			}
 		}
