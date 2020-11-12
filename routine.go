@@ -237,7 +237,6 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 }
 
 func writeAe(excel *excelize.File, db map[string]map[string]string) {
-	log.Println("Write AE Start")
 	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
@@ -247,7 +246,6 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		updateINDEX(item, rIdx)
 		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
-	log.Println("Write AE Done")
 }
 
 func updateINDEX(item map[string]string, rIdx int) {
