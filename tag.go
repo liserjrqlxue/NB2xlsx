@@ -212,17 +212,17 @@ func 标签3(item map[string]string, geneInfo *GeneInfo) string {
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cdsList[function] && item["RepeatTag"] == "" {
 			geneInfo.tag3 = true
-			return ""
+			return "3"
 		}
 		if spliceList[function] {
 			if item["SpliceAI Pred"] == "D" {
 				geneInfo.tag3 = true
-				return ""
+				return "3"
 			}
 		} else {
 			if item["PP3"] == "1" {
 				geneInfo.tag3 = true
-				return ""
+				return "3"
 			}
 		}
 	}
