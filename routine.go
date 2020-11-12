@@ -255,13 +255,34 @@ func updateINDEX(item map[string]string, rIdx int) {
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 }
 
+var (
+	batcnCnvSep          = "\n"
+	batchCnvDiseaseTitle = []string{
+		"包装疾病分类",
+		"基因",
+		"疾病",
+		"遗传模式",
+		"发病年龄",
+		"疾病简介",
+		"疾病治疗",
+		"治疗药物",
+		"中国上市",
+		"国家医保",
+		"出生缺陷救助项目",
+		"可及治疗梯队",
+	}
+)
+
 func writeBatchCnv(throttle chan bool) {
 	BatchCnvTitle = append(BatchCnvTitle, "Database")
+	BatchCnvTitle = append(BatchCnvTitle, batchCnvDiseaseTitle...)
 	var sheetName = "Sheet1"
 	var bcExcel = excelize.NewFile()
 	writeTitle(bcExcel, sheetName, BatchCnvTitle)
 	for i, item := range BatchCnv {
-		updateCnvTags(item, item["sample"], strings.Split(item["gene"], ",")...)
+		var genes = strings.Split(item["gene"], ",")
+		updateCnvTags(item, item["sample"], genes...)
+		addDiseases2Cnv(item, batchCnvDiseaseTitle, batcnCnvSep, genes...)
 		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix + ".batchCNV.xlsx"))

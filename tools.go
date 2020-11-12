@@ -469,3 +469,15 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 		item["Database"] += "4"
 	}
 }
+
+func addDiseases2Cnv(item map[string]string, title []string, sep string, genes ...string) {
+	for _, gene := range genes {
+		var info = diseaseDb[gene]
+		for _, key := range title {
+			item[key] += info[key] + sep
+		}
+	}
+	for _, key := range title {
+		item[key] = strings.TrimSuffix(item[key], sep)
+	}
+}
