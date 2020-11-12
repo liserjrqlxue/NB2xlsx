@@ -98,7 +98,7 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) (tag string) {
 				}
 			}
 		}
-	} else if 自动化判断 == "VUS" && hetPLP >= 1 && (遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F")) {
+	} else if 自动化判断 == "VUS" && hetPLP == 1 && (遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F")) {
 		tag = "1"
 	}
 	return
@@ -126,12 +126,14 @@ var (
 		"GnomAD AF":     true,
 		"GnomAD EAS AF": true,
 	}
+	tag2Pred = map[string]bool{
+		"P":   true,
+		"LP":  true,
+		"VUS": true,
+	}
 )
 
-func 标签2(item map[string]string, geneInfo *GeneInfo) string {
-	if item["自动化判断"] != "VUS" {
-		return ""
-	}
+func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	var (
 		遗传模式     = geneInfo.遗传模式
 		性别       = geneInfo.性别
@@ -139,46 +141,43 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) string {
 		function = item["Function"]
 	)
 	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
-		if item["P/LP*"] != "2" {
-			return ""
+		if item["P/LP*"] == "1" || !tag2Pred[item["自动化判断"]] {
+			return
 		}
 		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "XL" || 遗传模式 == "YL" {
 			for af := range af0List {
 				if gt(item[item[af]], 2e-5) {
-					return ""
+					return
 				}
 			}
 		}
 		if cdsList[function] && item["RepeatTag"] == "" {
-			return "2"
+			tag = "2"
 		}
 		if spliceList[function] {
 			if item["SpliceAI Pred"] == "D" {
-				return "2"
+				tag = "2"
 			}
-		} else {
-			if item["PP3"] == "1" {
-				return "2"
-			}
+		} else if item["PP3"] == "1" {
+			tag = "2"
 		}
-	}
-	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if item["Zygosity"] == "Hom" || VUS > 1 {
+	} else if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
+		if item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || VUS > 1) {
 			if cdsList[function] && item["RepeatTag"] == "" {
-				return "2"
+				tag = "2"
 			}
 			if spliceList[function] {
 				if item["SpliceAI Pred"] == "D" {
-					return "2"
+					tag = "2"
 				}
 			} else {
 				if item["PP3"] == "1" {
-					return "2"
+					tag = "2"
 				}
 			}
 		}
 	}
-	return ""
+	return
 }
 
 func 标签3(item map[string]string, geneInfo *GeneInfo) string {
@@ -253,4 +252,22 @@ func 标签5(item map[string]string, geneInfo *GeneInfo) string {
 		}
 	}
 	return ""
+}
+func isPLP5(item map[string]string) bool {
+	if item["Definition"] == "P" || item["Definition"] == "LP" {
+		return true
+	}
+	if LOFofPLP[item["Function"]] {
+		return true
+	}
+	if isClinVar[item["ClinVar Significance"]] {
+		return true
+	}
+	if notClinVar[item["ClinVar Significance"]] {
+		return false
+	}
+	if isHGMD[item["HGMD Pred"]] {
+		return true
+	}
+	return false
 }
