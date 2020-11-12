@@ -126,6 +126,7 @@ var (
 		"splice-10": true,
 		"splice+20": true,
 		"splice-20": true,
+		"intron":    true,
 	}
 	cdsList = map[string]bool{
 		"cds-del":   true,
