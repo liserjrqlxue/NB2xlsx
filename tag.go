@@ -74,7 +74,7 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	return
 }
 
-func 标签1(item map[string]string, geneInfo *GeneInfo) string {
+func 标签1(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	var (
 		遗传模式     = geneInfo.遗传模式
 		性别       = geneInfo.性别
@@ -84,27 +84,24 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) string {
 		自动化判断    = item["自动化判断"]
 		Zygosity = item["Zygosity"]
 	)
-	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
-		if item["P/LP*"] == "1" {
-			return "1"
+	if item["P/LP*"] == "1" {
+		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
+			tag = "1"
 		}
-	}
-	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if item["P/LP*"] == "1" {
-			if Zygosity == "Hom" {
-				return "1"
-			} else if Zygosity == "Het" {
+		if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
+			switch Zygosity {
+			case "Hom":
+				tag = "1"
+			case "Het":
 				if PLP > 1 || VUS > 1 || (VUS == 1 && 自动化判断 != "VUS") {
-					return "1"
+					tag = "1"
 				}
 			}
-		} else {
-			if 自动化判断 == "VUS" && hetPLP >= 1 {
-				return "1"
-			}
 		}
+	} else if 自动化判断 == "VUS" && hetPLP >= 1 && (遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F")) {
+		tag = "1"
 	}
-	return ""
+	return
 }
 
 var (
