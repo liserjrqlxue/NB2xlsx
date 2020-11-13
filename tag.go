@@ -1,11 +1,5 @@
 package main
 
-func geneCnv(item map[string]string) (cnv, cnv0 map[string]bool) {
-	cnv = make(map[string]bool)
-	cnv0 = make(map[string]bool)
-	return
-}
-
 var LOFofPLP = map[string]bool{
 	"nonsense":   true,
 	"frameshift": true,
@@ -69,8 +63,7 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	tag += 标签1(item, info)
 	tag += 标签2(item, info)
 	tag += 标签3(item, info)
-	tag += 标签4(item, info)
-	tag += 标签5(item, info)
+	tag += 标签5(item)
 	return
 }
 
@@ -144,7 +137,7 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 		if item["P/LP*"] == "1" || !tag2Pred[item["自动化判断"]] {
 			return
 		}
-		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "XL" || 遗传模式 == "YL" {
+		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "YL" {
 			for af := range af0List {
 				if gt(item[item[af]], 2e-5) {
 					return
@@ -180,94 +173,66 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	return
 }
 
-func 标签3(item map[string]string, geneInfo *GeneInfo) string {
-	if item["VUS"] == "0" {
-		return ""
-	}
+func 标签3(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	var (
 		遗传模式     = geneInfo.遗传模式
 		性别       = geneInfo.性别
 		cnv      = geneInfo.cnv
+		VUS      = geneInfo.VUS
+		自动化判断    = item["自动化判断"]
 		function = item["Function"]
 	)
-	if !cnv {
-		return ""
-	}
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if cdsList[function] && item["RepeatTag"] == "" {
-			geneInfo.tag3 = true
-			return "3"
+		if !cnv {
+			return
 		}
-		if spliceList[function] {
-			if item["SpliceAI Pred"] == "D" {
+		if VUS == 0 && item["P/LP*"] == "1" {
+			geneInfo.tag3 = true
+			tag = "3"
+		} else if 自动化判断 == "VUS" {
+			if cdsList[function] && item["RepeatTag"] == "" {
 				geneInfo.tag3 = true
-				return "3"
+				tag = "3"
 			}
-		} else {
-			if item["PP3"] == "1" {
-				geneInfo.tag3 = true
-				return "3"
+			if spliceList[function] {
+				if item["SpliceAI Pred"] == "D" {
+					geneInfo.tag3 = true
+					tag = "3"
+				}
+			} else {
+				if item["PP3"] == "1" {
+					geneInfo.tag3 = true
+					tag = "3"
+				}
 			}
+
 		}
 	}
-	return ""
+	return
 }
 
-func 标签4(item map[string]string, geneInfo *GeneInfo) string {
+func (info *GeneInfo) 标签4() {
 	var (
-		遗传模式 = geneInfo.遗传模式
-		性别   = geneInfo.性别
-		cnv  = geneInfo.cnv
-		cnv0 = geneInfo.cnv0
+		遗传模式 = info.遗传模式
+		性别   = info.性别
+		cnv  = info.cnv
+		cnv0 = info.cnv0
 	)
 	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if cnv {
-			geneInfo.tag4 = true
-			return ""
+			info.tag4 = true
 		}
 	}
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if cnv0 {
-			geneInfo.tag4 = true
-			return ""
+			info.tag4 = true
 		}
 	}
-	return ""
 }
 
-func 标签5(item map[string]string, geneInfo *GeneInfo) string {
-	if item["P/LP*"] == "0" || item["Zygosity"] != "Het" {
-		return ""
+func 标签5(item map[string]string) (tag string) {
+	if item["Definition"] == "P" || item["Definition"] == "LP" || LOFofPLP[item["Function"]] || isClinVar[item["ClinVar Significance"]] || (isHGMD[item["HGMD Pred"]] && !notClinVar2[item["ClinVar Significance"]]) {
+		tag = "5"
 	}
-	var (
-		遗传模式 = geneInfo.遗传模式
-		性别   = geneInfo.性别
-		VUS  = geneInfo.VUS
-		PLP  = geneInfo.PLP
-		cnv  = geneInfo.cnv
-	)
-	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if PLP == 1 && VUS == 0 && !cnv {
-			return "5"
-		}
-	}
-	return ""
-}
-func isPLP5(item map[string]string) bool {
-	if item["Definition"] == "P" || item["Definition"] == "LP" {
-		return true
-	}
-	if LOFofPLP[item["Function"]] {
-		return true
-	}
-	if isClinVar[item["ClinVar Significance"]] {
-		return true
-	}
-	if notClinVar[item["ClinVar Significance"]] {
-		return false
-	}
-	if isHGMD[item["HGMD Pred"]] {
-		return true
-	}
-	return false
+	return
 }
