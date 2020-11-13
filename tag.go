@@ -1,5 +1,7 @@
 package main
 
+import "regexp"
+
 var LOFofPLP = map[string]bool{
 	"nonsense":   true,
 	"frameshift": true,
@@ -25,6 +27,66 @@ func isPLP(item map[string]string) bool {
 		return false
 	}
 	if isHGMD[item["HGMD Pred"]] {
+		return true
+	}
+	return false
+}
+
+var cdsList = map[string]bool{
+	"cds-del":   true,
+	"cds-ins":   true,
+	"cds-indel": true,
+	"stop-loss": true,
+}
+
+var spliceList = map[string]bool{
+	"splice+10": true,
+	"splice-10": true,
+	"splice+20": true,
+	"splice-20": true,
+	"intron":    true,
+}
+
+var (
+	isP = regexp.MustCompile(`P`)
+	isI = regexp.MustCompile(`I`)
+	isD = regexp.MustCompile(`D`)
+)
+
+func compositeP(item map[string]string) bool {
+	if cdsList[item["Function"]] && item["RepeatTag"] == "" {
+		return true
+	}
+	var count int
+	if spliceList[item["Function"]] {
+		for _, pred := range []string{
+			item["dbscSNV_RF_pred"],
+			item["dbscSNV_ADA_pred"],
+			item["SpliceAI Pred"],
+		} {
+			if isP.MatchString(pred) || isI.MatchString(pred) {
+				return false
+			} else if isD.MatchString(pred) {
+				count++
+			}
+		}
+		if isD.MatchString(item["SpliceAI Pred"]) {
+			return true
+		}
+	} else {
+		for _, pred := range []string{
+			item["SIFT Pred"],
+			item["MutationTaster Pred"],
+			item["Polyphen2 HVAR Pred"],
+		} {
+			if isP.MatchString(pred) || isI.MatchString(pred) {
+				return false
+			} else if isD.MatchString(pred) {
+				count++
+			}
+		}
+	}
+	if count > 1 {
 		return true
 	}
 	return false
@@ -98,19 +160,6 @@ func 标签1(item map[string]string, geneInfo *GeneInfo) (tag string) {
 }
 
 var (
-	spliceList = map[string]bool{
-		"splice+10": true,
-		"splice-10": true,
-		"splice+20": true,
-		"splice-20": true,
-		"intron":    true,
-	}
-	cdsList = map[string]bool{
-		"cds-del":   true,
-		"cds-ins":   true,
-		"cds-indel": true,
-		"stop-loss": true,
-	}
 	af0List = map[string]bool{
 		"ESP6500 AF":    true,
 		"1000G AF":      true,
@@ -128,10 +177,9 @@ var (
 
 func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	var (
-		遗传模式     = geneInfo.遗传模式
-		性别       = geneInfo.性别
-		VUS      = geneInfo.VUS
-		function = item["Function"]
+		遗传模式 = geneInfo.遗传模式
+		性别   = geneInfo.性别
+		VUS  = geneInfo.VUS
 	)
 	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
 		if item["P/LP*"] == "1" || !tag2Pred[item["自动化判断"]] {
@@ -144,30 +192,12 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 				}
 			}
 		}
-		if cdsList[function] && item["RepeatTag"] == "" {
-			tag = "2"
-		}
-		if spliceList[function] {
-			if item["SpliceAI Pred"] == "D" {
-				tag = "2"
-			}
-		} else if item["PP3"] == "1" {
+		if compositeP(item) {
 			tag = "2"
 		}
 	} else if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || VUS > 1) {
-			if cdsList[function] && item["RepeatTag"] == "" {
-				tag = "2"
-			}
-			if spliceList[function] {
-				if item["SpliceAI Pred"] == "D" {
-					tag = "2"
-				}
-			} else {
-				if item["PP3"] == "1" {
-					tag = "2"
-				}
-			}
+		if item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || VUS > 1) && compositeP(item) {
+			tag = "2"
 		}
 	}
 	return
@@ -175,12 +205,11 @@ func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
 
 func 标签3(item map[string]string, geneInfo *GeneInfo) (tag string) {
 	var (
-		遗传模式     = geneInfo.遗传模式
-		性别       = geneInfo.性别
-		cnv      = geneInfo.cnv
-		VUS      = geneInfo.VUS
-		自动化判断    = item["自动化判断"]
-		function = item["Function"]
+		遗传模式  = geneInfo.遗传模式
+		性别    = geneInfo.性别
+		cnv   = geneInfo.cnv
+		VUS   = geneInfo.VUS
+		自动化判断 = item["自动化判断"]
 	)
 	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
 		if !cnv {
@@ -189,23 +218,9 @@ func 标签3(item map[string]string, geneInfo *GeneInfo) (tag string) {
 		if VUS == 0 && item["P/LP*"] == "1" {
 			geneInfo.tag3 = true
 			tag = "3"
-		} else if 自动化判断 == "VUS" {
-			if cdsList[function] && item["RepeatTag"] == "" {
-				geneInfo.tag3 = true
-				tag = "3"
-			}
-			if spliceList[function] {
-				if item["SpliceAI Pred"] == "D" {
-					geneInfo.tag3 = true
-					tag = "3"
-				}
-			} else {
-				if item["PP3"] == "1" {
-					geneInfo.tag3 = true
-					tag = "3"
-				}
-			}
-
+		} else if 自动化判断 == "VUS" && compositeP(item) {
+			geneInfo.tag3 = true
+			tag = "3"
 		}
 	}
 	return
