@@ -284,7 +284,7 @@ func writeBatchCnv(throttle chan bool) {
 		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
-	simpleUtil.CheckErr(bcExcel.AddTable(sheetName, "A1", lastCellName, `{"table_style":"TableStyleMedium9"}`))
-	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix + ".batchCNV.xlsx"))
+	simpleUtil.CheckErr(bcExcel.AddTable(sheetName, "A1", lastCellName, `{"table_style":"TableStyleMedium9"}`), "bcExcel.AddTable Error!")
+	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 	<-throttle
 }

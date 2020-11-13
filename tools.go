@@ -75,6 +75,13 @@ var (
 		"Likely_benign":        true,
 		"Benign/Likely_benign": true,
 	}
+	notClinVar2 = map[string]bool{
+		"Benign":                 true,
+		"Likely_benign":          true,
+		"Benign/Likely_benign":   true,
+		"Uncertain_significance": true,
+		"Conflicting_interpretations_of_pathogenicity": true,
+	}
 	isHGMD = map[string]bool{
 		"DM":     true,
 		"DM?":    true,
@@ -454,6 +461,7 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	for _, gene := range genes {
 		var info, ok = SampleGeneInfo[sampleID][gene]
 		if ok {
+			info.标签4()
 			if info.tag3 {
 				tag3 = true
 			}
