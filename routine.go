@@ -206,6 +206,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 				}
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
+			addDiseases2Cnv(item, batchCnvDiseaseTitle, batcnCnvSep, gene)
 			updateINDEX(item, rIdx)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
