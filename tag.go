@@ -129,34 +129,25 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	return
 }
 
-func 标签1(item map[string]string, geneInfo *GeneInfo) (tag string) {
-	var (
-		遗传模式     = geneInfo.遗传模式
-		性别       = geneInfo.性别
-		PLP      = geneInfo.PLP
-		hetPLP   = geneInfo.hetPLP
-		VUS      = geneInfo.VUS
-		自动化判断    = item["自动化判断"]
-		Zygosity = item["Zygosity"]
-	)
+func 标签1(item map[string]string, info *GeneInfo) string {
 	if item["P/LP*"] == "1" {
-		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
-			tag = "1"
+		if info.isAD() && info.lowADAF(item) {
+			return "1"
 		}
-		if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-			switch Zygosity {
-			case "Hom":
-				tag = "1"
-			case "Het":
-				if PLP > 1 || VUS > 1 || (VUS == 1 && 自动化判断 != "VUS") {
-					tag = "1"
+		if info.isAR() {
+			if item["Zygosity"] == "Hom" {
+				return "1"
+			}
+			if item["Zygosity"] == "Het" {
+				if info.PLP > 1 || info.VUS > 1 || (info.VUS == 1 && item["自动化判断"] != "VUS") {
+					return "1"
 				}
 			}
 		}
-	} else if 自动化判断 == "VUS" && hetPLP == 1 && (遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F")) {
-		tag = "1"
+	} else if item["自动化判断"] == "VUS" && info.hetPLP == 1 && info.isAR() {
+		return "1"
 	}
-	return
+	return ""
 }
 
 var (
@@ -175,79 +166,66 @@ var (
 	}
 )
 
-func 标签2(item map[string]string, geneInfo *GeneInfo) (tag string) {
-	var (
-		遗传模式 = geneInfo.遗传模式
-		性别   = geneInfo.性别
-		VUS  = geneInfo.VUS
-	)
-	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
-		if item["P/LP*"] == "1" || !tag2Pred[item["自动化判断"]] {
-			return
-		}
-		if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "YL" {
-			for af := range af0List {
-				if gt(item[item[af]], 2e-5) {
-					return
-				}
-			}
-		}
-		if compositeP(item) {
-			tag = "2"
-		}
-	} else if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || VUS > 1) && compositeP(item) {
-			tag = "2"
-		}
+func 标签2(item map[string]string, info *GeneInfo) (tag string) {
+	if !compositeP(item) {
+		return
+	}
+	if info.isAD() && item["P/LP*"] != "1" && tag2Pred[item["自动化判断"]] && info.lowADAF(item) {
+		return "2"
+	}
+	if info.isAR() && item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || info.VUS > 1) {
+		return "2"
 	}
 	return
 }
 
-func 标签3(item map[string]string, geneInfo *GeneInfo) (tag string) {
-	var (
-		遗传模式  = geneInfo.遗传模式
-		性别    = geneInfo.性别
-		cnv   = geneInfo.cnv
-		VUS   = geneInfo.VUS
-		自动化判断 = item["自动化判断"]
-	)
-	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if !cnv {
-			return
-		}
-		if VUS == 0 && item["P/LP*"] == "1" {
-			geneInfo.tag3 = true
-			tag = "3"
-		} else if 自动化判断 == "VUS" && compositeP(item) {
-			geneInfo.tag3 = true
-			tag = "3"
+func 标签3(item map[string]string, info *GeneInfo) string {
+	if info.cnv && info.isAR() {
+		if (info.VUS == 0 && item["P/LP*"] == "1") || (item["自动化判断"] == "VUS" && compositeP(item)) {
+			info.tag3 = true
+			return "3"
 		}
 	}
-	return
+	return ""
 }
 
 func (info *GeneInfo) 标签4() {
-	var (
-		遗传模式 = info.遗传模式
-		性别   = info.性别
-		cnv  = info.cnv
-		cnv0 = info.cnv0
-	)
-	if 遗传模式 == "AD" || 遗传模式 == "AD,AR" || 遗传模式 == "AD,SMu" || 遗传模式 == "Mi" || ((遗传模式 == "XL" || 遗传模式 == "YL") && 性别 == "M") {
-		if cnv {
-			info.tag4 = true
-		}
-	}
-	if 遗传模式 == "AR" || 遗传模式 == "AR/AR" || (遗传模式 == "XL" && 性别 == "F") {
-		if cnv0 {
-			info.tag4 = true
-		}
+	if info.cnv && info.isAD() {
+		info.tag4 = true
+	} else if info.cnv0 && info.isAR() {
+		info.tag4 = true
 	}
 }
 
-func 标签5(item map[string]string) (tag string) {
+func 标签5(item map[string]string) string {
 	if item["Definition"] == "P" || item["Definition"] == "LP" || LOFofPLP[item["Function"]] || isClinVar[item["ClinVar Significance"]] || (isHGMD[item["HGMD Pred"]] && !notClinVar2[item["ClinVar Significance"]]) {
-		tag = "5"
+		return "5"
 	}
-	return
+	return ""
+}
+
+func (info *GeneInfo) isAD() bool {
+	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "Mi" || ((info.遗传模式 == "XL" || info.遗传模式 == "YL") && info.性别 == "M") {
+		return true
+	}
+	return false
+}
+
+func (info *GeneInfo) isAR() bool {
+	if info.遗传模式 == "AR" || info.遗传模式 == "AR/AR" || (info.遗传模式 == "XL" && info.性别 == "F") {
+		return true
+	}
+	return false
+
+}
+
+func (info *GeneInfo) lowADAF(item map[string]string) bool {
+	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "YL" {
+		for af := range af0List {
+			if gt(item[item[af]], 2e-5) {
+				return false
+			}
+		}
+	}
+	return true
 }
