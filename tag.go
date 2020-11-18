@@ -48,9 +48,11 @@ var spliceList = map[string]bool{
 }
 
 var (
-	isP = regexp.MustCompile(`P`)
-	isI = regexp.MustCompile(`I`)
-	isD = regexp.MustCompile(`D`)
+	isP           = regexp.MustCompile(`P`)
+	isI           = regexp.MustCompile(`I`)
+	isD           = regexp.MustCompile(`D`)
+	isNeutral     = regexp.MustCompile(`neutral`)
+	isDeleterious = regexp.MustCompile(`deleterious`)
 )
 
 func compositeP(item map[string]string) bool {
@@ -74,6 +76,11 @@ func compositeP(item map[string]string) bool {
 			return true
 		}
 	} else {
+		if isNeutral.MatchString(item["Ens Condel Pred"]) {
+			return false
+		} else if isDeleterious.MatchString(item["Ens Condel Pred"]) {
+			count++
+		}
 		for _, pred := range []string{
 			item["SIFT Pred"],
 			item["MutationTaster Pred"],
