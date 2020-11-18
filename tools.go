@@ -166,6 +166,16 @@ func updateDisease(item map[string]string) {
 	}
 }
 
+func addDiseases2Cnv(item map[string]string, title []string, sep string, genes ...string) {
+	for _, gene := range genes {
+		var info = diseaseDb[gene]
+		item["疾病中文名"] = info["疾病"] + sep
+		item["遗传模式"] = info["遗传模式"] + sep
+	}
+	item["疾病中文名"] = strings.TrimSuffix(item["疾病中文名"], sep)
+	item["遗传模式"] = strings.TrimSuffix(item["遗传模式"], sep)
+}
+
 var afList = []string{
 	"1000Gp3 AF",
 	"1000Gp3 EAS AF",
@@ -475,17 +485,5 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	}
 	if tag4 {
 		item["Database"] += "4"
-	}
-}
-
-func addDiseases2Cnv(item map[string]string, title []string, sep string, genes ...string) {
-	for _, gene := range genes {
-		var info = diseaseDb[gene]
-		for _, key := range title {
-			item[key] += info[key] + sep
-		}
-	}
-	for _, key := range title {
-		item[key] = strings.TrimSuffix(item[key], sep)
 	}
 }
