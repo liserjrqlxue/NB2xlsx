@@ -229,7 +229,7 @@ func (info *GeneInfo) isAR() bool {
 func (info *GeneInfo) lowADAF(item map[string]string) bool {
 	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "YL" {
 		for af := range af0List {
-			if gt(item[item[af]], 2e-5) {
+			if gt(item[af], 2e-5) {
 				return false
 			}
 		}
