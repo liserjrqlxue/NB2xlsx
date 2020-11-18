@@ -57,7 +57,7 @@ var (
 	)
 	diseaseExcel = flag.String(
 		"disease",
-		filepath.Join(etcPath, "疾病简介和治疗-20200925.xlsx"),
+		filepath.Join(etcPath, "疾病简介和治疗-20200929.xlsx"),
 		"disease database excel",
 	)
 	diseaseSheetName = flag.String(
