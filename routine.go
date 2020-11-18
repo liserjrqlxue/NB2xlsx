@@ -208,7 +208,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 				}
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
-			addDiseases2Cnv(item, batchCnvDiseaseTitle, batcnCnvSep, gene)
+			addDiseases2Cnv(item, batchCnvDiseaseTitle, multiDiseaseSep, gene)
 			updateINDEX(item, rIdx)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
@@ -257,20 +257,10 @@ func updateINDEX(item map[string]string, rIdx int) {
 }
 
 var (
-	batcnCnvSep          = "\n"
+	multiDiseaseSep      = "\n"
 	batchCnvDiseaseTitle = []string{
-		"包装疾病分类",
-		"基因",
-		"疾病",
+		"疾病中文名",
 		"遗传模式",
-		"发病年龄",
-		"疾病简介",
-		"疾病治疗",
-		"治疗药物",
-		"中国上市",
-		"国家医保",
-		"出生缺陷救助项目",
-		"可及治疗梯队",
 	}
 )
 
@@ -283,7 +273,7 @@ func writeBatchCnv(throttle chan bool) {
 	for i, item := range BatchCnv {
 		var genes = strings.Split(item["gene"], ",")
 		updateCnvTags(item, item["sample"], genes...)
-		addDiseases2Cnv(item, batchCnvDiseaseTitle, batcnCnvSep, genes...)
+		addDiseases2Cnv(item, batchCnvDiseaseTitle, multiDiseaseSep, genes...)
 		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
