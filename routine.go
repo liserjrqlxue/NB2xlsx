@@ -56,7 +56,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 				info.性别 = "M"
 				updateGeneHash(geneHash, item, "M")
 			} else if *gender == "F" || genderMap[sampleID] == "F" {
-				info.性别 = "M"
+				info.性别 = "F"
 				updateGeneHash(geneHash, item, "F")
 			}
 		}
