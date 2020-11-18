@@ -53,6 +53,7 @@ var (
 	isD           = regexp.MustCompile(`D`)
 	isNeutral     = regexp.MustCompile(`neutral`)
 	isDeleterious = regexp.MustCompile(`deleterious`)
+	isPLPVUS      = regexp.MustCompile(`^P|^LP|^VUS`)
 )
 
 func compositeP(item map[string]string) bool {
@@ -100,12 +101,12 @@ func compositeP(item map[string]string) bool {
 }
 
 type GeneInfo struct {
-	基因               string
-	遗传模式             string
-	性别               string
-	PLP, hetPLP, VUS int
-	cnv, cnv0        bool
-	tag3, tag4       bool
+	基因                             string
+	遗传模式                           string
+	性别                             string
+	PLP, hetPLP, VUS, pVUS, PLPVUS int
+	cnv, cnv0                      bool
+	tag3, tag4                     bool
 }
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
@@ -118,6 +119,12 @@ func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 func (info *GeneInfo) count(item map[string]string) {
 	if item["自动化判断"] == "VUS" {
 		info.VUS++
+		if compositeP(item) {
+			info.pVUS++
+		}
+	}
+	if isPLPVUS.MatchString(item["自动化判断"]) {
+		info.PLPVUS++
 	}
 	if isPLP(item) {
 		item["P/LP*"] = "1"
@@ -146,7 +153,7 @@ func 标签1(item map[string]string, info *GeneInfo) string {
 				return "1"
 			}
 			if item["Zygosity"] == "Het" {
-				if info.PLP > 1 || info.VUS > 1 || (info.VUS == 1 && item["自动化判断"] != "VUS") {
+				if info.PLP > 1 || info.PLPVUS > 1 || (info.PLPVUS == 1 && !isPLPVUS.MatchString(item["自动化判断"])) {
 					return "1"
 				}
 			}
@@ -180,7 +187,7 @@ func 标签2(item map[string]string, info *GeneInfo) (tag string) {
 	if info.isAD() && item["P/LP*"] != "1" && tag2Pred[item["自动化判断"]] && info.lowADAF(item) {
 		return "2"
 	}
-	if info.isAR() && item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || info.VUS > 1) {
+	if info.isAR() && item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || info.pVUS > 1) {
 		return "2"
 	}
 	return
