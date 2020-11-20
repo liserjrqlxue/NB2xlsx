@@ -160,6 +160,11 @@ var (
 		"",
 		"batchCNV result",
 	)
+	all = flag.Bool(
+		"all",
+		false,
+		"if output all snv",
+	)
 )
 
 var (
@@ -223,7 +228,7 @@ func main() {
 	// All variant data
 	{
 		runAvd <- true
-		go WriteAvd(excel, runDmd, runAvd)
+		go WriteAvd(excel, runDmd, runAvd, *all)
 	}
 
 	// drug

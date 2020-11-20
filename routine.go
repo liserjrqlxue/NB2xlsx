@@ -13,22 +13,24 @@ import (
 	"github.com/liserjrqlxue/goUtil/textUtil"
 )
 
-func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool) {
+func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool, all bool) {
 	log.Printf("load avd[%s]\n", fileName)
 	var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 	var sampleID = filepath.Base(fileName)
 	if len(avd) == 0 {
-		writeExcel <- true
-		go func() {
-			// all snv
-			var allExcel = excelize.NewFile()
-			allExcel.NewSheet(*allSheetName)
-			var allTitle = textUtil.File2Array(*allColumns)
-			writeTitle(allExcel, *allSheetName, allTitle)
-			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-			<-writeExcel
-		}()
+		if all {
+			writeExcel <- true
+			go func() {
+				// all snv
+				var allExcel = excelize.NewFile()
+				allExcel.NewSheet(*allSheetName)
+				var allTitle = textUtil.File2Array(*allColumns)
+				writeTitle(allExcel, *allSheetName, allTitle)
+				log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
+				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
+				<-writeExcel
+			}()
+		}
 		dbChan <- avd
 		<-throttle
 		return
@@ -75,27 +77,29 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 			filterAvd = append(filterAvd, item)
 		}
 	}
-	writeExcel <- true
-	go func() {
-		// all snv
-		var allExcel = excelize.NewFile()
-		allExcel.NewSheet(*allSheetName)
-		var allTitle = textUtil.File2Array(*allColumns)
-		writeTitle(allExcel, *allSheetName, allTitle)
-		var rIdx0 = 1
-		for _, item := range avd {
-			rIdx0++
-			writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
-		}
-		log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-		simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-		<-writeExcel
-	}()
+	if all {
+		writeExcel <- true
+		go func() {
+			// all snv
+			var allExcel = excelize.NewFile()
+			allExcel.NewSheet(*allSheetName)
+			var allTitle = textUtil.File2Array(*allColumns)
+			writeTitle(allExcel, *allSheetName, allTitle)
+			var rIdx0 = 1
+			for _, item := range avd {
+				rIdx0++
+				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
+			}
+			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
+			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
+			<-writeExcel
+		}()
+	}
 	dbChan <- filterAvd
 	<-throttle
 }
 
-func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool) {
+func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	log.Println("Write AVD Start")
 	var avdArray []string
 	if *avdFiles != "" {
@@ -130,7 +134,7 @@ func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool) {
 		go writeAvd(excel, dbChan, size, runWrite)
 		for _, fileName := range avdArray {
 			throttle <- true
-			go getAvd(fileName, dbChan, throttle, writeExcel)
+			go getAvd(fileName, dbChan, throttle, writeExcel, all)
 		}
 		// wait writeAvd done
 		runWrite <- true
