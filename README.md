@@ -3,6 +3,7 @@
 
 - [ ] [All variants data](#all-variants-data)
   * [x] [过滤](#过滤)
+  * [X] [标签](#标签）
   * [x] [疾病数据库](#疾病数据库)
   * [x] [已解读数据库](#已解读数据库)
   * [Other Columns](#other-columns)
@@ -44,6 +45,28 @@
 9.  **保留** "Function" = "intron" 且 "SpliceAI Pred" = "D"
 10. **过滤** "Function" in `etc/function.exclude.txt`
 11. **保留** 剩余
+
+### 标签
+
+|遗传模式|P/LP*|compositeP|Zygosity|Function|自动化判断|Definition|ClinVar| HGMD |lowAF|VarCount| CNV |标签|CNV标签|
+|-------|-----|----------|--------|--------|---------|----------|-------|------|-----|---------|----|----|-------|
+|     AD|true |          |        |        |         |          |       |      |true |         |    |   1|       |
+|     AR|true |          |Hom     |        |         |          |       |      |     |         |    |   1|       |
+|     AR|true |          |Het     |        |         |          |       |      |     |LPL>1    |    |   1|       |
+|     AR|true |          |Het     |        |         |          |       |      |     |PLPVUS>1 |    |   1|       |
+|     AR|true |          |Het     |        |!PLPVUS  |          |       |      |     |PLP==1   |    |   1|       |
+|     AR|false|          |        |        |VUS      |          |       |      |     |hetPLP==1|    |   1|       |
+|     AD|false|true      |        |        |         |PLPVUS    |       |      |true |         |    |   2|       |
+|     AR|     |true      |Hom     |        |VUS      |          |       |      |     |         |    |   2|       |
+|     AR|     |true      |        |        |VUS      |          |       |      |     |HpVUS>1  |    |   2|       |
+|     AR|true |          |        |        |         |          |       |      |     |VUS==0   |cnv |   3|3      |
+|     AR|     |true      |        |        |VUS      |          |       |      |     |         |cnv |   3|3      |
+|     AD|     |          |        |        |         |          |       |      |     |         |cnv |    |4      |
+|     AR|     |          |        |        |         |          |       |      |     |         |cnv0|    |4      |
+|       |     |          |        |        |         |P/LP      |       |      |     |         |    |   5|       |
+|       |     |          |        |LoF     |         |          |       |      |     |         |    |   5|       |
+|       |     |          |        |        |         |          |P/LP   |      |     |         |    |   5|       |
+|       |     |          |        |        |         |          |!B/LB  |DM/DM?|     |         |    |   5|       |
 
 ### 疾病数据库
 ```
