@@ -3,7 +3,7 @@
 
 - [ ] [All variants data](#all-variants-data)
   * [x] [过滤](#过滤)
-  * [X] [标签](#标签）
+  * [X] [标签](#标签)
   * [x] [疾病数据库](#疾病数据库)
   * [x] [已解读数据库](#已解读数据库)
   * [Other Columns](#other-columns)
