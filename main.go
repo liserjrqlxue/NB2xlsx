@@ -5,10 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
-	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/goUtil/osUtil"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -59,7 +57,7 @@ var (
 	)
 	diseaseExcel = flag.String(
 		"disease",
-		filepath.Join(etcPath, "疾病简介和治疗-20200925.xlsx"),
+		filepath.Join(etcPath, "疾病简介和治疗-20201119.xlsx"),
 		"disease database excel",
 	)
 	diseaseSheetName = flag.String(
@@ -157,22 +155,32 @@ var (
 		12,
 		"threshold limit",
 	)
+	batchCNV = flag.String(
+		"batchCNV",
+		"",
+		"batchCNV result",
+	)
+	all = flag.Bool(
+		"all",
+		false,
+		"if output all snv",
+	)
 )
 
 var (
 	geneListMap        = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
+	geneInheritance    = make(map[string]string)
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 	genderMap          = make(map[string]string)
+	BatchCnv           []map[string]string
+	BatchCnvTitle      []string
+	SampleGeneInfo     = make(map[string]map[string]*GeneInfo)
 )
 
-var (
-	throttle   = make(chan bool, 1)
-	writeExcel = make(chan bool, 1)
-	dbChan     = make(chan []map[string]string, 1)
-)
+var err error
 
 func main() {
 	version.LogVersion()
@@ -183,74 +191,45 @@ func main() {
 		log.Println("-prefix are required!")
 		os.Exit(1)
 	}
-	dbChan = make(chan []map[string]string, *threshold)
-	throttle = make(chan bool, *threshold+1)
-	writeExcel = make(chan bool, *threshold+1)
 
 	if osUtil.FileExists(*gender) {
+		log.Printf("load gender map from %s", *gender)
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
 	loadDb()
 
+	if *batchCNV != "" {
+		loadBatchCNV(*batchCNV)
+	}
+
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 
-	// All variant data
-	var avdArray []string
-	if *avdFiles != "" {
-		avdArray = strings.Split(*avdFiles, ",")
-	}
-	if *avdList != "" {
-		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
-	}
-	if len(avdArray) > 0 {
-		log.Println("Start load AVD")
-		// acmg
-		acmg2015.AutoPVS1 = *autoPVS1
-		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
-		for k, v := range acmgCfg {
-			acmgCfg[k] = filepath.Join(dbPath, v)
-		}
-		acmg2015.Init(acmgCfg)
-
-		throttle <- true
-		go writeAvd(excel, dbChan, len(avdArray), throttle)
-		for _, fileName := range avdArray {
-			throttle <- true
-			go getAvd(fileName, dbChan, throttle, writeExcel)
-		}
-	}
+	var (
+		runAe        = make(chan bool, 1)
+		runAvd       = make(chan bool, 1)
+		runDmd       = make(chan bool, 1)
+		saveMain     = make(chan bool, 1)
+		saveBatchCnv = make(chan bool, 1)
+	)
 
 	// CNV
-	var dmdArray []string
-	if *dmdFiles != "" {
-		dmdArray = strings.Split(*dmdFiles, ",")
-	}
-	if *dmdList != "" {
-		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
-	}
-	if len(dmdArray) > 0 {
-		throttle <- true
-		go writeDmd(excel, dmdArray, throttle)
+	{
+		runDmd <- true
+		go WriteDmd(excel, runDmd)
 	}
 
 	// 补充实验
-	log.Println("Start load 补充实验")
-	var db = make(map[string]map[string]string)
-	if *dipinResult != "" {
-		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
-		for _, item := range dipin {
-			updateDipin(item, db)
-		}
+	{
+		runAe <- true
+		go WriteAe(excel, runAe)
 	}
-	if *smaResult != "" {
-		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
-		for _, item := range sma {
-			updateSma(item, db)
-		}
+
+	// All variant data
+	{
+		runAvd <- true
+		go WriteAvd(excel, runDmd, runAvd, *all)
 	}
-	throttle <- true
-	go writeAe(excel, db, throttle)
 
 	// drug
 	if *drugResult != "" {
@@ -277,13 +256,27 @@ func main() {
 
 	}
 
-	for i := 0; i <= *threshold; i++ {
-		throttle <- true
-	}
-	for i := 0; i <= *threshold; i++ {
-		writeExcel <- true
+	{
+		runAvd <- true
+		saveBatchCnv <- true
+		go writeBatchCnv(saveBatchCnv)
 	}
 
-	log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
-	simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
+	{
+		runAe <- true
+		saveMain <- true
+		go func() {
+			log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
+			simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
+			log.Println("Save main Done")
+			<-saveMain
+		}()
+	}
+
+	// waite excel write done
+	{
+		saveMain <- true
+		saveBatchCnv <- true
+	}
+	log.Println("All Done")
 }

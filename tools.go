@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 )
 
 func loadDb() {
+	log.Println("Load Database Start")
 	// load gene list
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
@@ -22,6 +24,7 @@ func loadDb() {
 	}
 
 	// load disease database
+	log.Println("Load Disease Start")
 	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
@@ -32,7 +35,12 @@ func loadDb() {
 		"基因",
 		"/",
 	)
+	for gene, info := range diseaseDb {
+		geneInheritance[gene] = info["遗传模式"]
+	}
+
 	// load 已解读数据库
+	log.Println("Load LocalDb Start")
 	localDb, _ = simpleUtil.Slice2MapMapArray(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
@@ -44,10 +52,11 @@ func loadDb() {
 	)
 
 	// load drop list
+	log.Println("Load DropList Start")
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
-
+	log.Println("Load Database Done")
 }
 
 var formulaTitle = map[string]bool{
@@ -60,6 +69,18 @@ var (
 		"Pathogenic":                   true,
 		"Likely_pathogenic":            true,
 		"Pathogenic/Likely_pathogenic": true,
+	}
+	notClinVar = map[string]bool{
+		"Benign":               true,
+		"Likely_benign":        true,
+		"Benign/Likely_benign": true,
+	}
+	notClinVar2 = map[string]bool{
+		"Benign":                 true,
+		"Likely_benign":          true,
+		"Benign/Likely_benign":   true,
+		"Uncertain_significance": true,
+		"Conflicting_interpretations_of_pathogenicity": true,
 	}
 	isHGMD = map[string]bool{
 		"DM":     true,
@@ -145,6 +166,16 @@ func updateDisease(item map[string]string) {
 	}
 }
 
+func addDiseases2Cnv(item map[string]string, title []string, sep string, genes ...string) {
+	for _, gene := range genes {
+		var info = diseaseDb[gene]
+		item["疾病中文名"] = info["疾病"] + sep
+		item["遗传模式"] = info["遗传模式"] + sep
+	}
+	item["疾病中文名"] = strings.TrimSuffix(item["疾病中文名"], sep)
+	item["遗传模式"] = strings.TrimSuffix(item["遗传模式"], sep)
+}
+
 var afList = []string{
 	"1000Gp3 AF",
 	"1000Gp3 EAS AF",
@@ -212,6 +243,16 @@ func updateGeneHash(geneHash, item map[string]string, gender string) {
 		if !ok || genePred != "可能患病" {
 			switch item["遗传模式"] {
 			case "AR":
+				if item["Zygosity"] == "Hom" {
+					geneHash[gene] = "可能患病"
+				} else if item["Zygosity"] == "Het" {
+					if genePred == "" {
+						geneHash[gene] = "携带者"
+					} else if genePred == "携带者" {
+						geneHash[gene] = "可能患病"
+					}
+				}
+			case "AR/AR":
 				if item["Zygosity"] == "Hom" {
 					geneHash[gene] = "可能患病"
 				} else if item["Zygosity"] == "Het" {
@@ -377,5 +418,72 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 	for j, k := range title {
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, 1)).(string)
 		simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, k))
+	}
+}
+
+func loadBatchCNV(cnv string) {
+	log.Println("Load BatchCNV Start")
+	BatchCnv, BatchCnvTitle = textUtil.File2MapArray(cnv, "\t", nil)
+	for _, item := range BatchCnv {
+		var sampleID = item["sample"]
+		var cn, err = strconv.Atoi(item["copyNumber"])
+		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
+		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
+	}
+	log.Println("Load BatchCNV Done")
+}
+
+func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
+	if cn != 2 {
+		var geneInfo, ok = SampleGeneInfo[sampleID]
+		if !ok {
+			geneInfo = make(map[string]*GeneInfo)
+			for _, gene := range genes {
+				geneInfo[gene] = &GeneInfo{
+					基因:   gene,
+					遗传模式: geneInheritance[gene],
+					cnv:  true,
+					cnv0: cn == 0,
+				}
+			}
+			SampleGeneInfo[sampleID] = geneInfo
+		} else {
+			for _, gene := range genes {
+				var info, ok = geneInfo[gene]
+				if !ok {
+					geneInfo[gene] = &GeneInfo{
+						基因:   gene,
+						遗传模式: geneInheritance[gene],
+						cnv:  true,
+						cnv0: cn == 0,
+					}
+				} else {
+					info.cnv = true
+					info.cnv0 = info.cnv0 || cn == 0
+				}
+			}
+		}
+	}
+}
+
+func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
+	var tag3, tag4 bool
+	for _, gene := range genes {
+		var info, ok = SampleGeneInfo[sampleID][gene]
+		if ok {
+			info.标签4()
+			if info.tag3 {
+				tag3 = true
+			}
+			if info.tag4 {
+				tag4 = true
+			}
+		}
+	}
+	if tag3 {
+		item["Database"] += "3"
+	}
+	if tag4 {
+		item["Database"] += "4"
 	}
 }
