@@ -81,6 +81,7 @@ Database||NBS-in\|NBS-out\|.
 ### Other Columns
 key1|key2|note
 -|-|-
+ClinVar Number of gold stars|ClinVar星级|
 1000Gp3 AF|1000G AF|
 1000Gp3 EAS AF|1000G EAS AF|
 #### LOF
