@@ -246,8 +246,8 @@ func main() {
 			}
 			if drugInfo, ok := sampleDrug[drugName]; !ok {
 				drugInfo = item
-				sampleDrug[drugName] = drugInfo
 				drugInfo["SampleID"] = sampleID
+				sampleDrug[drugName] = drugInfo
 			}
 		}
 	}
