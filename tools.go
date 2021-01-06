@@ -238,52 +238,86 @@ func updateAvd(item map[string]string) {
 	updateAf(item)
 }
 
-func updateGeneHash(geneHash, item map[string]string, gender string) {
-	if item["Definition"] == "P" || item["Definition"] == "LP" {
-		var gene = item["Gene Symbol"]
-		var genePred, ok = geneHash[gene]
-		if !ok || genePred != "可能患病" {
-			switch item["遗传模式"] {
-			case "AR":
-				if item["Zygosity"] == "Hom" {
-					geneHash[gene] = "可能患病"
-				} else if item["Zygosity"] == "Het" {
-					if genePred == "" {
-						geneHash[gene] = "携带者"
-					} else if genePred == "携带者" {
-						geneHash[gene] = "可能患病"
-					}
-				}
-			case "AR/AR":
-				if item["Zygosity"] == "Hom" {
-					geneHash[gene] = "可能患病"
-				} else if item["Zygosity"] == "Het" {
-					if genePred == "" {
-						geneHash[gene] = "携带者"
-					} else if genePred == "携带者" {
-						geneHash[gene] = "可能患病"
-					}
-				}
-			case "AD":
-				if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-					geneHash[gene] = "可能患病"
-				}
-			case "AD,AR":
-				if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-					geneHash[gene] = "可能患病"
-				}
-			case "XL":
-				if gender == "M" {
-					if item["Zygosity"] == "Hemi" {
-						geneHash[gene] = "可能患病"
-					}
-				} else if gender == "F" {
-					if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-						geneHash[gene] = "可能患病"
-					}
-				}
-			}
+func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {
+	if item["filterAvd"] != "Y" {
+		return
+	}
+	var info, ok = geneInfo[item["Gene Symbol"]]
+	if !ok {
+		info = new(GeneInfo).new(item)
+		geneInfo[item["Gene Symbol"]] = info
+	} else {
+		info.count(item)
+	}
+	if *gender == "M" || genderMap[sampleID] == "M" {
+		item["Sex"] = "M"
+		info.性别 = "M"
+		UpdateGeneHash(geneHash, item, "M")
+	} else if *gender == "F" || genderMap[sampleID] == "F" {
+		item["Sex"] = "F"
+		info.性别 = "F"
+		UpdateGeneHash(geneHash, item, "F")
+	}
+}
+
+func updateGeneHashAR(geneHash, item map[string]string, gene, genePred string) string {
+	if item["Zygosity"] == "Hom" {
+		return "可能患病"
+	} else if item["Zygosity"] == "Het" {
+		if genePred == "" {
+			return "携带者"
+		} else if genePred == "携带者" {
+			return "可能患病"
 		}
+	}
+	return ""
+}
+
+func updateGeneHashAD(geneHash, item map[string]string, gene string) string {
+	if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+		return "可能患病"
+	}
+	return ""
+}
+
+func updateGeneHashXL(geneHash, item map[string]string, gene, gender string) string {
+	if gender == "M" {
+		if item["Zygosity"] == "Hemi" {
+			return "可能患病"
+		}
+	} else if gender == "F" {
+		if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
+			return "可能患病"
+		}
+	}
+	return ""
+}
+
+func updateGeneHash(geneHash, item map[string]string, gene, genePred, gender string) string {
+	switch item["遗传模式"] {
+	case "AR":
+		return updateGeneHashAR(geneHash, item, gene, genePred)
+	case "AR/AR":
+		return updateGeneHashAR(geneHash, item, gene, genePred)
+	case "AD":
+		updateGeneHashAD(geneHash, item, gene)
+	case "AD,AR":
+		updateGeneHashAD(geneHash, item, gene)
+	case "XL":
+		updateGeneHashXL(geneHash, item, gene, gender)
+	}
+	return ""
+}
+
+// UpdateGeneHash : update geneHash
+func UpdateGeneHash(geneHash, item map[string]string, gender string) {
+	if item["Definition"] != "P" && item["Definition"] != "LP" {
+		return
+	}
+	var gene = item["Gene Symbol"]
+	var genePred, ok = geneHash[gene]
+	if !ok || genePred != "可能患病" {
+		geneHash[gene] = updateGeneHash(geneHash, item, gene, genePred, gender)
 	}
 }
 
