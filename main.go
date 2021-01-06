@@ -244,16 +244,12 @@ func main() {
 				sampleDrug = make(map[string]map[string]string)
 				drugDb[sampleID] = sampleDrug
 			}
-			var drugInfo, ok2 = sampleDrug[drugName]
-			if !ok2 {
+			if drugInfo, ok := sampleDrug[drugName]; !ok {
 				drugInfo = item
 				sampleDrug[drugName] = drugInfo
 				drugInfo["SampleID"] = sampleID
-			} else {
-
 			}
 		}
-
 	}
 
 	{
