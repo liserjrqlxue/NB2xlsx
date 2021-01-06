@@ -57,43 +57,53 @@ var (
 	isPLPVUS      = regexp.MustCompile(`^P|^LP|^VUS`)
 )
 
+func spliceP(item map[string]string) (count int) {
+	for _, pred := range []string{
+		item["dbscSNV_RF_pred"],
+		item["dbscSNV_ADA_pred"],
+		item["SpliceAI Pred"],
+	} {
+		if isP.MatchString(pred) || isI.MatchString(pred) {
+			return 0
+		} else if isD.MatchString(pred) {
+			count++
+		}
+	}
+	if isD.MatchString(item["SpliceAI Pred"]) {
+		return 2
+	}
+	return
+}
+
+func noSpliceP(item map[string]string) (count int) {
+	if isNeutral.MatchString(item["Ens Condel Pred"]) {
+		return 0
+	} else if isDeleterious.MatchString(item["Ens Condel Pred"]) {
+		count++
+	}
+	for _, pred := range []string{
+		item["SIFT Pred"],
+		item["MutationTaster Pred"],
+		item["Polyphen2 HVAR Pred"],
+	} {
+		if isP.MatchString(pred) || isI.MatchString(pred) {
+			return 0
+		} else if isD.MatchString(pred) {
+			count++
+		}
+	}
+	return
+}
+
 func compositeP(item map[string]string) bool {
 	if cdsList[item["Function"]] && item["RepeatTag"] == "" {
 		return true
 	}
 	var count int
 	if spliceList[item["Function"]] {
-		for _, pred := range []string{
-			item["dbscSNV_RF_pred"],
-			item["dbscSNV_ADA_pred"],
-			item["SpliceAI Pred"],
-		} {
-			if isP.MatchString(pred) || isI.MatchString(pred) {
-				return false
-			} else if isD.MatchString(pred) {
-				count++
-			}
-		}
-		if isD.MatchString(item["SpliceAI Pred"]) {
-			return true
-		}
+		count = spliceP(item)
 	} else {
-		if isNeutral.MatchString(item["Ens Condel Pred"]) {
-			return false
-		} else if isDeleterious.MatchString(item["Ens Condel Pred"]) {
-			count++
-		}
-		for _, pred := range []string{
-			item["SIFT Pred"],
-			item["MutationTaster Pred"],
-			item["Polyphen2 HVAR Pred"],
-		} {
-			if isP.MatchString(pred) || isI.MatchString(pred) {
-				return false
-			} else if isD.MatchString(pred) {
-				count++
-			}
-		}
+		count = noSpliceP(item)
 	}
 	if count > 1 {
 		return true

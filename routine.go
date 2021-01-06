@@ -46,24 +46,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	}
 	for _, item := range avd {
 		updateAvd(item)
-		if item["filterAvd"] == "Y" {
-			var info, ok = geneInfo[item["Gene Symbol"]]
-			if !ok {
-				info = new(GeneInfo).new(item)
-				geneInfo[item["Gene Symbol"]] = info
-			} else {
-				info.count(item)
-			}
-			if *gender == "M" || genderMap[sampleID] == "M" {
-				item["Sex"] = "M"
-				info.性别 = "M"
-				updateGeneHash(geneHash, item, "M")
-			} else if *gender == "F" || genderMap[sampleID] == "F" {
-				item["Sex"] = "F"
-				info.性别 = "F"
-				updateGeneHash(geneHash, item, "F")
-			}
-		}
+		updateFromAvd(item, geneHash, geneInfo, sampleID)
 	}
 
 	var filterAvd []map[string]string
