@@ -1,5 +1,6 @@
 package main
 
+// DrugResult : drug level info
 type DrugResult struct {
 	样本编号 string
 	药物分类 string
@@ -9,12 +10,14 @@ type DrugResult struct {
 	结果说明 string
 }
 
+// DrugGene : gene level info
 type DrugGene struct {
 	检测基因   string
 	代谢型    string
 	阳性结果说明 string
 }
 
+// DrugVar : var level info
 type DrugVar struct {
 	检测位点, 影响类型, 证据等级, 参考基因型, Ref, Var string
 	检测结果                              string
