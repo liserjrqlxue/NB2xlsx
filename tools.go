@@ -142,6 +142,7 @@ func filterAvd(item map[string]string) bool {
 	return true
 }
 
+// LOF : Lost Of Function
 var LOF = map[string]bool{
 	"nonsense":   true,
 	"frameshift": true,
@@ -301,27 +302,27 @@ func updateDmd(item map[string]string) {
 		item["omimWebsite"]=omimWebsite
 	*/
 	// primerDesign
-	var exId = item["exon"]
-	var cdsId = item["exon"]
+	var exID = item["exon"]
+	var cdsID = item["exon"]
 	var ratioVal, err = strconv.ParseFloat(item["Mean_Ratio"], 64)
 	if err != nil {
 		ratioVal = 0
 	}
 	if ratioVal >= 1.3 && ratioVal < 1.8 {
-		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Het"
+		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Het"
 	} else if ratioVal >= 1.8 {
 		if item["chr"] == "chrX" {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Hemi"
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Hemi"
 		} else {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DUP; - ;" + exId + "; " + cdsId + "; Hom"
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Hom"
 		}
 	} else if ratioVal >= 0.2 && ratioVal <= 0.75 {
-		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Het"
+		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Het"
 	} else if ratioVal < 0.2 {
 		if item["chr"] == "chrX" {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Hemi"
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Hemi"
 		} else {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exId + " DEL; - ;" + exId + "; " + cdsId + "; Hom"
+			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Hom"
 		}
 	} else {
 		item["primerDesign"] = "-"

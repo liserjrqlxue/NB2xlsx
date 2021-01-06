@@ -101,6 +101,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	<-throttle
 }
 
+// WriteAvd write AVD sheet to excel
 func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	log.Println("Write AVD Start")
 	var avdArray []string
@@ -171,6 +172,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	<-throttle
 }
 
+// WriteDmd write DMD sheet to excel
 func WriteDmd(excel *excelize.File, throttle chan bool) {
 	log.Println("Write DMD Start")
 	var dmdArray []string
@@ -221,6 +223,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 	}
 }
 
+// WriteAe write AE sheet to excel
 func WriteAe(excel *excelize.File, throttle chan bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)

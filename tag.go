@@ -2,6 +2,7 @@ package main
 
 import "regexp"
 
+//LOFofPLP : Lost Of Function for PLP
 var LOFofPLP = map[string]bool{
 	"nonsense":   true,
 	"frameshift": true,
@@ -100,6 +101,7 @@ func compositeP(item map[string]string) bool {
 	return false
 }
 
+// GeneInfo : struct info of gene
 type GeneInfo struct {
 	基因                              string
 	遗传模式                            string

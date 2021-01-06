@@ -175,9 +175,12 @@ var (
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 	genderMap          = make(map[string]string)
-	BatchCnv           []map[string]string
-	BatchCnvTitle      []string
-	SampleGeneInfo     = make(map[string]map[string]*GeneInfo)
+	// BatchCnv : array of batch cnv map
+	BatchCnv []map[string]string
+	// BatchCnvTitle : titles of batch cnv
+	BatchCnvTitle []string
+	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
+	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 )
 
 var err error
