@@ -1,4 +1,7 @@
 # NB2xlsx
+[![GoDoc](https://godoc.org/github.com/liserjrqlxue/NB2xlsx?status.svg)](https://pkg.go.dev/github.com/liserjrqlxue/NB2xlsx) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/liserjrqlxue/NB2xlsx)](https://goreportcard.com/report/github.com/liserjrqlxue/NB2xlsx)
+
 安馨可生信注释格式
 
 - [ ] [All variants data](#all-variants-data)
