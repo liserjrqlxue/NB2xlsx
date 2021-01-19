@@ -76,6 +76,9 @@
 临床新生儿注释表shee1的Q列“Gene Symbol”与疾病库的C列“基因”相匹配，
 匹配上的在sheet1表的BQ列“疾病中文名”输出疾病库的D列“疾病”，sheet1表的BR列“遗传模式”输出疾病库的E列“遗传模式”
 ```
+```
+模板excel的CD列“疾病简介“疾病库中的的“疾病简介”
+```
 key1|key2|note
 -|-|-
 Gene Symbol|基因|main key
@@ -87,19 +90,28 @@ Gene Symbol|基因|main key
 第三附件1中的BS列Database，在已解读数据库内并且已解读数据库的DU列是否是包装位点记录为“是”：标记NBS-in
                          在已解读数据库内并且已解读数据库的DU列是否是包装位点无记录：标记NBS-out
                          不在已解读数据库：标记.
-第四附件1中的BU列Definition，填写的是已解读数据库中CW列Definition的致病等级
 第五附件1中的BW列报告类别，同孕前，数据库内包装的变异（BS列Database标记NBS-in）标记正式报告；数据库外的烈性（LOF列为YES）且低频(GnomAD≤1%，且千人≤1%)：标记补充报告
 ```
 ```
 sheet1里面的CC列“参考文献”，提取的是已解读数据库中的DM列“Reference”的内容
+```
+```shell script
+2. 模板excel的CE列“位点关联疾病”匹配位点数据库CU列“Disease“
+3. 模板excel的CF列“位点关联遗传模式“匹配位点数据库CV列” 遗传模式“
+4. 模板excel的CG列“Evidence New + Check“匹配位点数据库DU列” 证据项“
+5. 模板excel的CH列“Definition“匹配位点数据库CX列” Definition“
+6. 位点数据库中的DV列“是否是包装位点“为“是”的在注释表中是正式报告
 ```
 
 key1|key2|note
 -|-|-
 Transcript|Transcript|main key 1
 cHGVS|cHGVS|main key 2
-Definition|Definition|
 参考文献|Reference|
+位点关联疾病|Disease|
+位点关联遗传模式|遗传模式|
+Evidence New + Check|证据项|
+Definition|Definition|
 Database||NBS-in\|NBS-out\|.
 报告类别||正式报告\|补充报告
 ||是否是包装位点|

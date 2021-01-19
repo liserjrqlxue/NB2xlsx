@@ -164,6 +164,7 @@ func updateDisease(item map[string]string) {
 	if ok {
 		item["疾病中文名"] = disease["疾病"]
 		item["遗传模式"] = disease["遗传模式"]
+		item["疾病简介"] = disease["疾病简介"]
 	}
 }
 
@@ -220,8 +221,11 @@ func updateAvd(item map[string]string) {
 		} else {
 			item["Database"] = "NBS-out"
 		}
-		item["Definition"] = db["Definition"]
 		item["参考文献"] = db["Reference"]
+		item["位点关联疾病"] = db["Disease"]
+		item["位点关联遗传模式"] = db["遗传模式"]
+		item["Evidence New + Check"] = db["证据项"]
+		item["Definition"] = db["Definition"]
 	} else {
 		item["Database"] = "."
 		if item["LOF"] == "YES" {
