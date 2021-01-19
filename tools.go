@@ -202,6 +202,7 @@ func updateAf(item map[string]string) {
 }
 
 func updateAvd(item map[string]string) {
+	updateABC(item)
 	item["ClinVar星级"] = item["ClinVar Number of gold stars"]
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
@@ -325,7 +326,16 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string) {
 	}
 }
 
+func updateABC(item map[string]string) {
+	var info = limsInfo[item["Sample"]]
+	item["期数"] = info["HYBRID_LIBRARY_NUM"]
+	item["flow ID"] = info["FLOW_ID"]
+	item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + info["PRODUCT_NAME"]
+}
+
 func updateDmd(item map[string]string) {
+	item["SampleID"] = item["#Sample"]
+	updateABC(item)
 	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
 	if item["Significant"] != "YES" {
@@ -432,6 +442,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 }
 
 func updateAe(item map[string]string) {
+	updateABC(item)
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
 }

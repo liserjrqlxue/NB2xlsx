@@ -165,6 +165,11 @@ var (
 		false,
 		"if output all snv",
 	)
+	lims = flag.String(
+		"lims",
+		"",
+		"lims.info",
+	)
 )
 
 var (
@@ -181,6 +186,7 @@ var (
 	BatchCnvTitle []string
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
+	limsInfo       map[string]map[string]string
 )
 
 var err error
@@ -201,6 +207,8 @@ func main() {
 	}
 
 	loadDb()
+
+	limsInfo = loadLimsInfo()
 
 	if *batchCNV != "" {
 		loadBatchCNV(*batchCNV)
@@ -241,6 +249,8 @@ func main() {
 		var drug, _ = textUtil.File2MapArray(*drugResult, "\t", nil)
 		for _, item := range drug {
 			var sampleID = item["样本编号"]
+			item["SampleID"] = sampleID
+			updateABC(item)
 			var drugName = item["药物名称"]
 			var sampleDrug, ok1 = drugDb[sampleID]
 			if !ok1 {
