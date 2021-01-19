@@ -12,6 +12,7 @@
   * [Other Columns](#other-columns)
     - [x] [LOF](#lof)
     - [ ] [遗传模式判读](#遗传模式判读)
+- [ ] [lims.info](#limsinfo)
 - [ ] [excel 格式](#excel-格式)
   * [x] [DataValidation](#datavalidation)
 
@@ -167,6 +168,7 @@ LOF|['YES','NO']
 ## lims.info
 
 key1|key2|note
+-|-|-
 SampleID|MAIN_SAMPLE_NUM|main key
 期数|HYBRID_LIBRARY_NUM|
 flow ID|FLOW_ID|
