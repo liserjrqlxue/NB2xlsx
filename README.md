@@ -84,6 +84,7 @@ key1|key2|note
 Gene Symbol|基因|main key
 疾病中文名|疾病|
 遗传模式|遗传模式|
+疾病简介|疾病简介|
 
 ### 已解读数据库
 ```
@@ -162,6 +163,17 @@ LOF|['YES','NO']
 ['AD','AD,AR']|['Hom','Het]|>=1||可能患病
 ['XL']|Hemi|>=1|Male|可能患病
 ['XL']|['Hom','Het']|>=1|Female|可能患病
+
+## lims.info
+
+key1|key2|note
+SampleID|MAIN_SAMPLE_NUM|main key
+期数|HYBRID_LIBRARY_NUM|
+flow ID|FLOW_ID|
+产品编码|PRODUCT_CODE|
+产品名称|PRODUCT_NAME|
+产品编码_产品名称||产品编码+'_'+产品名称
+
 
 ## excel 格式
 ### DataValidation
