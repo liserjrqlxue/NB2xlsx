@@ -31,7 +31,7 @@ func updateABC(item map[string]string) {
 	item["期数"] = info["HYBRID_LIBRARY_NUM"]
 	item["flow ID"] = info["FLOW_ID"]
 	var productName, err = simplifiedchinese.GB18030.NewDecoder().String(info["PRODUCT_NAME"])
-	if err != nil {
+	if err == nil {
 		item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + productName
 	} else {
 		item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + info["PRODUCT_NAME"]
