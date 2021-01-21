@@ -327,7 +327,7 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string) {
 }
 
 func updateABC(item map[string]string) {
-	var info = limsInfo[item["Sample"]]
+	var info = limsInfo[item["SampleID"]]
 	item["期数"] = info["HYBRID_LIBRARY_NUM"]
 	item["flow ID"] = info["FLOW_ID"]
 	item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + info["PRODUCT_NAME"]
