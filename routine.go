@@ -263,7 +263,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 }
 
 func updateQC(item map[string]string, i int) {
-	item["Order"] = strconv.Itoa(i)
+	item["Order"] = strconv.Itoa(i + 1)
 	item["Sample"] = item["sampleID"]
 	item["Q20(%)"] = item["Q20"]
 	item["Q30(%)"] = item["Q30"]
