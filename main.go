@@ -216,6 +216,22 @@ func main() {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
+	var (
+		localDb      = make(chan bool, 1)
+		runAe        = make(chan bool, 1)
+		runAvd       = make(chan bool, 1)
+		runDmd       = make(chan bool, 1)
+		runQC        = make(chan bool, 1)
+		saveMain     = make(chan bool, 1)
+		saveBatchCnv = make(chan bool, 1)
+	)
+
+	// load local db
+	{
+		localDb <- true
+		loadLocalDb(localDb)
+	}
+
 	loadDb()
 
 	limsInfo = loadLimsInfo()
@@ -225,15 +241,6 @@ func main() {
 	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-
-	var (
-		runAe        = make(chan bool, 1)
-		runAvd       = make(chan bool, 1)
-		runDmd       = make(chan bool, 1)
-		runQC        = make(chan bool, 1)
-		saveMain     = make(chan bool, 1)
-		saveBatchCnv = make(chan bool, 1)
-	)
 
 	// QC
 	if *qc != "" {
@@ -255,6 +262,7 @@ func main() {
 
 	// All variant data
 	{
+		localDb <- true
 		runAvd <- true
 		go WriteAvd(excel, runDmd, runAvd, *all)
 	}
