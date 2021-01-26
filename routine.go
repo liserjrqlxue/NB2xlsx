@@ -243,6 +243,43 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 	}
 }
 
+func WriteQC(excel *excelize.File, throttle chan bool) {
+	log.Println("Write QC Start")
+	writeQC(excel, loadQC(*qc))
+	log.Println("Write QC Done")
+	<-throttle
+}
+
+func writeQC(excel *excelize.File, db map[string]map[string]string) {
+	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	var i = 1
+	for _, item := range db {
+		rIdx++
+		updateQC(item, i)
+		i++
+		updateINDEX(item, rIdx)
+		writeRow(excel, *qcSheetName, item, title, rIdx)
+	}
+}
+
+func updateQC(item map[string]string, i int) {
+	item["Order"] = strconv.Itoa(i)
+	item["Sample"] = item["sampleID"]
+	item["Q20(%)"] = item["Q20"]
+	item["Q30(%)"] = item["Q30"]
+	item["AverageDepth"] = item["Target Mean Depth[RM DUP]: (remove_mitochondria)"]
+	item["Depth>=10(%)"] = item["Target coverage >=10X percentage[RM DUP]:"]
+	item["Coverage(%)"] = item["Target coverage[RM DUP]:"]
+	item["GC(%)"] = item["Total mapped GC Rate:"]
+	item["Target coverage >=20X percentage"] = item["Target coverage >=20X percentage[RM DUP]:"]
+	item["mitochondria Target Mean Depth[RM DUP]"] = item["Target Mean Depth[RM DUP]: (mitochondria)"]
+	//item["Gender"]=item[""]
+	//item["RESULT"]=item[""]
+	//item["产品编号"]=item[""]
+}
+
 func updateINDEX(item map[string]string, rIdx int) {
 	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
 	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)

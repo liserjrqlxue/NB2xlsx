@@ -170,6 +170,16 @@ var (
 		"",
 		"lims.info",
 	)
+	qc = flag.String(
+		"qc",
+		"",
+		"qc excel",
+	)
+	qcSheetName = flag.String(
+		"qcSheet",
+		"QC",
+		"qc sheet name",
+	)
 )
 
 var (
@@ -220,9 +230,16 @@ func main() {
 		runAe        = make(chan bool, 1)
 		runAvd       = make(chan bool, 1)
 		runDmd       = make(chan bool, 1)
+		runQC        = make(chan bool, 1)
 		saveMain     = make(chan bool, 1)
 		saveBatchCnv = make(chan bool, 1)
 	)
+
+	// QC
+	if *qc != "" {
+		runQC <- true
+		go WriteQC(excel, runQC)
+	}
 
 	// CNV
 	{
@@ -271,6 +288,7 @@ func main() {
 	}
 
 	{
+		runQC <- true
 		runAe <- true
 		saveMain <- true
 		go func() {
