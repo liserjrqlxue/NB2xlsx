@@ -545,7 +545,7 @@ func loadQC(qc string) (qcDb []map[string]string) {
 		if i > 0 {
 			var item = make(map[string]string)
 			for j := range title {
-				item[title[i]] = rows[i][j]
+				item[title[j]] = rows[i][j]
 			}
 			qcDb = append(qcDb, item)
 		}
