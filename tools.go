@@ -39,6 +39,15 @@ func loadDb() {
 		geneInheritance[gene] = info["遗传模式"]
 	}
 
+	// load drop list
+	log.Println("Load DropList Start")
+	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
+		dropListMap[k] = strings.Split(v, ",")
+	}
+	log.Println("Load Database Done")
+}
+
+func loadLocalDb(throttle chan bool) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
 	localDb, _ = simpleUtil.Slice2MapMapArray(
@@ -50,13 +59,7 @@ func loadDb() {
 		).([][]string),
 		"Transcript", "cHGVS",
 	)
-
-	// load drop list
-	log.Println("Load DropList Start")
-	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
-		dropListMap[k] = strings.Split(v, ",")
-	}
-	log.Println("Load Database Done")
+	<-throttle
 }
 
 var formulaTitle = map[string]bool{
@@ -538,9 +541,11 @@ func loadQC(qc string) map[string]map[string]string {
 	simpleUtil.CheckErr(err)
 	var title = rows[0]
 	var qcDb = make(map[string]map[string]string)
-	for i, row := range rows {
+	for _, row := range rows {
 		var item = make(map[string]string)
-		item[title[i]] = row[i]
+		for i := range title {
+			item[title[i]] = row[i]
+		}
 		qcDb[item["sampleID"]] = item
 	}
 	return qcDb
