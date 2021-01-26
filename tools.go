@@ -59,6 +59,7 @@ func loadLocalDb(throttle chan bool) {
 		).([][]string),
 		"Transcript", "cHGVS",
 	)
+	log.Println("Load LocalDb Done")
 	<-throttle
 }
 

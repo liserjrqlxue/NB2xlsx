@@ -277,7 +277,7 @@ func updateQC(item map[string]string, i int) {
 	item["mitochondria Target Mean Depth[RM DUP]"] = item["Target Mean Depth[RM DUP]: (mitochondria)"]
 	//item["Gender"]=item[""]
 	//item["RESULT"]=item[""]
-	//item["产品编号"]=item[""]
+	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 }
 
 func updateINDEX(item map[string]string, rIdx int) {
