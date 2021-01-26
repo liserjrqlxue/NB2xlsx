@@ -536,18 +536,19 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	}
 }
 
-func loadQC(qc string) map[string]map[string]string {
+func loadQC(qc string) (qcDb []map[string]string) {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(qc)).(*excelize.File)
 	var rows, err = excel.GetRows("Sheet1")
 	simpleUtil.CheckErr(err)
 	var title = rows[0]
-	var qcDb = make(map[string]map[string]string)
-	for _, row := range rows {
-		var item = make(map[string]string)
-		for i := range title {
-			item[title[i]] = row[i]
+	for i := range rows {
+		if i > 0 {
+			var item = make(map[string]string)
+			for j := range title {
+				item[title[i]] = rows[i][j]
+			}
+			qcDb = append(qcDb, item)
 		}
-		qcDb[item["sampleID"]] = item
 	}
-	return qcDb
+	return
 }
