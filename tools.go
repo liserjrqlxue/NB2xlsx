@@ -172,14 +172,15 @@ func updateDisease(item map[string]string) {
 	}
 }
 
-func addDiseases2Cnv(item map[string]string, title []string, sep string, genes ...string) {
+func addDiseases2Cnv(item map[string]string, sep string, genes ...string) {
+	var diseaseCN, inherit []string
 	for _, gene := range genes {
 		var info = diseaseDb[gene]
-		item["疾病中文名"] = info["疾病"] + sep
-		item["遗传模式"] = info["遗传模式"] + sep
+		diseaseCN = append(diseaseCN, info["疾病"])
+		inherit = append(inherit, info["遗传模式"])
 	}
-	item["疾病中文名"] = strings.TrimSuffix(item["疾病中文名"], sep)
-	item["遗传模式"] = strings.TrimSuffix(item["遗传模式"], sep)
+	item["疾病中文名"] = strings.Join(diseaseCN, sep)
+	item["遗传模式"] = strings.Join(inherit, sep)
 }
 
 var afList = []string{

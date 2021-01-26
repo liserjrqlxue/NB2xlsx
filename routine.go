@@ -199,7 +199,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 				}
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
-			addDiseases2Cnv(item, batchCnvDiseaseTitle, multiDiseaseSep, gene)
+			addDiseases2Cnv(item, multiDiseaseSep, gene)
 			updateINDEX(item, rIdx)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
@@ -300,7 +300,7 @@ func writeBatchCnv(throttle chan bool) {
 	for i, item := range BatchCnv {
 		var genes = strings.Split(item["gene"], ",")
 		updateCnvTags(item, item["sample"], genes...)
-		addDiseases2Cnv(item, batchCnvDiseaseTitle, multiDiseaseSep, genes...)
+		addDiseases2Cnv(item, multiDiseaseSep, genes...)
 		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
 	}
 	var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
