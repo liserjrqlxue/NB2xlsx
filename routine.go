@@ -250,15 +250,13 @@ func WriteQC(excel *excelize.File, throttle chan bool) {
 	<-throttle
 }
 
-func writeQC(excel *excelize.File, db map[string]map[string]string) {
+func writeQC(excel *excelize.File, db []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
-	var i = 1
-	for _, item := range db {
+	for i, item := range db {
 		rIdx++
 		updateQC(item, i)
-		i++
 		updateINDEX(item, rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
