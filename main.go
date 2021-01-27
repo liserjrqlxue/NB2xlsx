@@ -175,6 +175,11 @@ var (
 		"",
 		"qc excel",
 	)
+	qcTitle = flag.String(
+		"qcTitle",
+		filepath.Join(etcPath, "QC.txt"),
+		"qc title map",
+	)
 	qcSheetName = flag.String(
 		"qcSheet",
 		"QC",
@@ -197,6 +202,7 @@ var (
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 	limsInfo       map[string]map[string]string
+	qcMap          map[string]string
 )
 
 var err error
