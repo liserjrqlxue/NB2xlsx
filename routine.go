@@ -254,25 +254,21 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
+	qcMap, err = textUtil.File2Map(*qcTitle, "\t", true)
+	simpleUtil.CheckErr(err, "load qcTitle fail")
 	for i, item := range db {
 		rIdx++
-		updateQC(item, i)
+		updateQC(item, qcMap, i)
 		updateINDEX(item, rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
 }
 
-func updateQC(item map[string]string, i int) {
+func updateQC(item, qcMap map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
-	item["Sample"] = item["sampleID"]
-	item["Q20(%)"] = item["Q20"]
-	item["Q30(%)"] = item["Q30"]
-	item["AverageDepth"] = item["Target Mean Depth[RM DUP]: (remove_mitochondria)"]
-	item["Depth>=10(%)"] = item["Target coverage >=10X percentage[RM DUP]:"]
-	item["Coverage(%)"] = item["Target coverage[RM DUP]:"]
-	item["GC(%)"] = item["Total mapped GC Rate:"]
-	item["Target coverage >=20X percentage"] = item["Target coverage >=20X percentage[RM DUP]:"]
-	item["mitochondria Target Mean Depth[RM DUP]"] = item["Target Mean Depth[RM DUP]: (mitochondria)"]
+	for k, v := range qcMap {
+		item[k] = item[v]
+	}
 	//item["Gender"]=item[""]
 	//item["RESULT"]=item[""]
 	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]

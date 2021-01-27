@@ -13,6 +13,9 @@
     - [x] [LOF](#lof)
     - [ ] [遗传模式判读](#遗传模式判读)
 - [ ] [lims.info](#limsinfo)
+- [x] [QC](#qc)
+  - [x] [common](#common)
+  - [x] [others](#others)
 - [ ] [excel 格式](#excel-格式)
   * [x] [DataValidation](#datavalidation)
 
@@ -175,6 +178,32 @@ flow ID|FLOW_ID|
 产品编码|PRODUCT_CODE|
 产品名称|PRODUCT_NAME|
 产品编码_产品名称||产品编码+'_'+产品名称
+
+## QC
+```
+1. Order为序号：1，2，3，。。。
+2. Sample列对应下机QC的 “Sample”列
+3. Q20列对应下机QC的“Q20”
+4. Q30列对应下机QC的”Q30”
+5. AverageDepth对应下机QC的“Target Mean Depth[RM DUP]:”列
+6. Depth>=10(%)对应下机QC的“Target coverage >=10X percentage[RM DUP]:”列
+7. Coverage(%)对应下机QC的“Target coverage[RM DUP]:“列
+8. GC(%)对应下机QC的“Total mapped GC Rate:“
+9. Target coverage >=20X percentage对应下机QC的“Target coverage >=20X percentage[RM DUP]:“列
+10. mitochondria Target Mean Depth[RM DUP]对应下机QC的“Target Mean Depth[RM DUP]: (mitochondria)“列
+11. Gender为性别
+12. RESULT为C-K列的一个判断，比如提示性别不一致，GC含量高，如果都合格就输出“YES“
+13. 解读人和审核人为空
+14. 产品编号对应临床新生儿的产品编号DX1968，多中心是DX1964
+```
+### common
+`etc/QC.txt`
+
+### others
+title|key|note
+-|-|-
+Order|i+1|index+1
+产品编号|lims["PRODUCT_CODE"]|from `lims.info`
 
 
 ## excel 格式
