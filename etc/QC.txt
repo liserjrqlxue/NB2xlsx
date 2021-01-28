@@ -7,3 +7,4 @@ Coverage(%)	Target coverage[RM DUP]:
 GC(%)	Total mapped GC Rate:
 Target coverage >=20X percentage	Target coverage >=20X percentage[RM DUP]:
 mitochondria Target Mean Depth[RM DUP]	Target Mean Depth[RM DUP]: (mitochondria)
+Gender	gender_analysed
