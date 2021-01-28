@@ -22,14 +22,14 @@
 ## All variants data
 
 ### 过滤
-```
+```text
 三 输出到解读表位点调整
 满足以下任一一个条件就输出到sheet1：
 1. 161基因上Clinvar的标签是Pathogenic或者Likely_pathogenic或者Pathogenic/Likely_pathogenic或者HGMD的标签是DM或者DM？或者DM/DM? 并且ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian频率≤0.05，去除自动化致病等级是B，LB的变异（保留clinvar是P，LP，P/LP的位点）。
 2. 161基因上Clinvar/HGMD数据库外ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian的频率≤0.01，并且变异包括missense/nonsense/frameshift/cds-ins/cds-del/coding-synon/init-loss/ncRNA/splice-3/splice-5/20位以内的intron/SpliceAI预测影响剪切的ESP6500/1000G/ExAC和GnomeAD总人频以及ExAC的East Asian、GnomAD的East Asian的频率≤0.01的intron
 3. 已解读数据库内位点
 ```
-```
+```text
 第三条的具体条件如下：
 
 （1）保留已解读数据库内位点
@@ -76,11 +76,11 @@
 |       |     |          |        |        |         |          |!B/LB  |DM/DM?|     |         |    |   5|       |
 
 ### 疾病数据库
-```
+```text
 临床新生儿注释表shee1的Q列“Gene Symbol”与疾病库的C列“基因”相匹配，
 匹配上的在sheet1表的BQ列“疾病中文名”输出疾病库的D列“疾病”，sheet1表的BR列“遗传模式”输出疾病库的E列“遗传模式”
 ```
-```
+```text
 模板excel的CD列“疾病简介“疾病库中的的“疾病简介”
 ```
 key1|key2|note
@@ -91,13 +91,13 @@ Gene Symbol|基因|main key
 疾病简介|疾病简介|
 
 ### 已解读数据库
-```
+```text
 第三附件1中的BS列Database，在已解读数据库内并且已解读数据库的DU列是否是包装位点记录为“是”：标记NBS-in
                          在已解读数据库内并且已解读数据库的DU列是否是包装位点无记录：标记NBS-out
                          不在已解读数据库：标记.
 第五附件1中的BW列报告类别，同孕前，数据库内包装的变异（BS列Database标记NBS-in）标记正式报告；数据库外的烈性（LOF列为YES）且低频(GnomAD≤1%，且千人≤1%)：标记补充报告
 ```
-```
+```text
 sheet1里面的CC列“参考文献”，提取的是已解读数据库中的DM列“Reference”的内容
 ```
 ```shell script
@@ -128,7 +128,7 @@ ClinVar星级|ClinVar Number of gold stars|
 1000Gp3 AF|1000G AF|
 1000Gp3 EAS AF|1000G EAS AF|
 #### LOF
-```
+```text
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
 ```
 [`updateLOF`](../367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
@@ -136,7 +136,7 @@ key|value
 -|-
 LOF|['YES','NO']
 #### 遗传模式判读
-```
+```text
  遗传模式判读列输出两种：携带者和可能患病
 1、输出“可能患病”有以下情况：
 1) 基因与疾病遗传方式AR/AR;AR，检出单个基因1个致病变异纯合突变。
@@ -180,7 +180,7 @@ flow ID|FLOW_ID|
 产品编码_产品名称||产品编码+'_'+产品名称
 
 ## QC
-```
+```text
 1. Order为序号：1，2，3，。。。
 2. Sample列对应下机QC的 “Sample”列
 3. Q20列对应下机QC的“Q20”
@@ -196,8 +196,15 @@ flow ID|FLOW_ID|
 13. 解读人和审核人为空
 14. 产品编号对应临床新生儿的产品编号DX1968，多中心是DX1964
 ```
+```text
+11. Gender为性别，取下机QC的“gender_analysed”列
+12. RESULT为C-K列的一个判断，比如提示性别不一致，GC含量高，如果都合格就输出“YES“
+详细规则见下面玉婧的邮件
+14. 产品编号对应临床新生儿的产品编号DX1968，多中心是DX1964
+如微信沟通的方式实现
+```
 ### common
-`etc/QC.txt`
+[`etc/QC.txt`](etc/QC.txt)
 
 ### others
 title|key|note
@@ -208,7 +215,7 @@ Order|i+1|index+1
 
 ## excel 格式
 ### DataValidation
-```
+```text
 （1）CNV sheet的Y列“报告类别”有下拉选项：正式报告和补充报告
 （2）CNV sheet的AA列“杂合性”有下拉选项：Hom和Het和Hemi
 （3） CNV sheet的AB列“disGroup”有下拉选项：A和B
@@ -218,4 +225,10 @@ Order|i+1|index+1
 （7）补充实验sheet的M列“SMN1 EX7 del最终结果”有下拉选项：阴性和杂合阳性和纯合阳性和杂合灰区和纯合灰区
 ```
 etc/drop.list.txt 包含对应列的下拉表
+
+### Background Color
+```text
+4. 需要验证位点的一行字体标记红色
+5. 正式报告的位点一行标记蓝色底纹，补充报告位点一行标记绿色底纹
+```
 
