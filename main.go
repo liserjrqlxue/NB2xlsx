@@ -260,26 +260,26 @@ func main() {
 	// QC
 	if *qc != "" {
 		runQC <- true
-		go WriteQC(excel, runQC)
+		WriteQC(excel, runQC)
 	}
 
 	// CNV
 	{
 		runDmd <- true
-		go WriteDmd(excel, runDmd)
+		WriteDmd(excel, runDmd)
 	}
 
 	// 补充实验
 	{
 		runAe <- true
-		go WriteAe(excel, runAe)
+		WriteAe(excel, runAe)
 	}
 
 	// All variant data
 	{
 		localDb <- true
 		runAvd <- true
-		go WriteAvd(excel, runDmd, runAvd, *all)
+		WriteAvd(excel, runDmd, runAvd, *all)
 	}
 
 	// drug
