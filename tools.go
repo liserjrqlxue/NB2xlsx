@@ -252,6 +252,7 @@ func updateAvd(item map[string]string) {
 		item["filterAvd"] = "Y"
 	}
 	updateAf(item)
+	item["引物设计"] = anno.PrimerDesign(item)
 }
 
 func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {

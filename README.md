@@ -128,6 +128,8 @@ key1|key2|note
 ClinVar星级|ClinVar Number of gold stars|
 1000Gp3 AF|1000G AF|
 1000Gp3 EAS AF|1000G EAS AF|
+引物设计|anno.PrimerDesign(item)|
+
 #### LOF
 ```text
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
@@ -234,3 +236,19 @@ etc/drop.list.txt 包含对应列的下拉表
 5. 正式报告的位点一行标记蓝色底纹，补充报告位点一行标记绿色底纹
 ```
 
+### HyperLink
+```text
+2.1Sheet1 All variants data的内容如下
+2.	“reads_picture”需要链接reads图，需要链接的位点要同时满足以下2个条件：
+（1）正式报告或者补充报告或者clinvar收录是P,LP,P/LP或者HGMD收录DM,DM?,DM/DM?或者库内解读过的
+（2）SNV:depth≤40或者A.Ratio≤0.4；Indel:depth≤60或者A.Ratio≤0.45
+```
+```text
+2.3 Sheet3 补充实验的内容如下
+1.	“β地贫_最终结果”“α地贫_最终结果”CNE图链接的添加
+```
+```go
+item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
+item["β地贫_最终结果_HyperLink"] = item["HyperLink"]
+item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
+```
