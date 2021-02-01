@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -66,6 +67,11 @@ func loadLocalDb(throttle chan bool) {
 var formulaTitle = map[string]bool{
 	"解读人": true,
 	"审核人": true,
+}
+
+var hyperLinkTitle = map[string]bool{
+	"β地贫_最终结果": true,
+	"α地贫_最终结果": true,
 }
 
 var (
@@ -441,6 +447,9 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 
 func updateAe(item map[string]string) {
 	updateABC(item)
+	item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
+	item["β地贫_最终结果_HyperLink"] = item["HyperLink"]
+	item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
 }
@@ -450,6 +459,9 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 		if formulaTitle[k] {
 			simpleUtil.CheckErr(excel.SetCellFormula(sheetName, axis, item[k]))
+		} else if hyperLinkTitle[k] {
+			simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, item[k]))
+			simpleUtil.CheckErr(excel.SetCellHyperLink(sheetName, axis, item[k+"_HyperLink"], "External"))
 		} else {
 			simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, item[k]))
 		}
