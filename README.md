@@ -9,15 +9,16 @@
   * [X] [标签](#标签)
   * [x] [疾病数据库](#疾病数据库)
   * [x] [已解读数据库](#已解读数据库)
-  * [Other Columns](#other-columns)
+  * [ ] [Other Columns](#other-columns)
     - [x] [LOF](#lof)
     - [ ] [遗传模式判读](#遗传模式判读)
-- [ ] [lims.info](#limsinfo)
-- [x] [QC](#qc)
+- [x] [lims.info](#limsinfo)
+- [ ] [QC](#qc)
   - [x] [common](#common)
-  - [x] [others](#others)
+  - [ ] [others](#others)
 - [ ] [excel 格式](#excel-格式)
   * [x] [DataValidation](#datavalidation)
+  * [ ] [Background Color](#background-color)
 
 ## All variants data
 
@@ -211,6 +212,7 @@ title|key|note
 -|-|-
 Order|i+1|index+1
 产品编号|lims["PRODUCT_CODE"]|from `lims.info`
+RESULT|RESULT|
 
 
 ## excel 格式

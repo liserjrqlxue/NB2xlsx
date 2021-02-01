@@ -25,10 +25,15 @@ var (
 
 // flag
 var (
+	batch = flag.String(
+		"batch",
+		"",
+		"batch name",
+	)
 	prefix = flag.String(
 		"prefix",
 		"",
-		"output to -prefix.xlsx",
+		"output to -prefix.xlsx,default is -batch.xlsx",
 	)
 	template = flag.String(
 		"template",
@@ -212,9 +217,13 @@ func main() {
 	// flag
 	flag.Parse()
 	if *prefix == "" {
-		flag.Usage()
-		log.Println("-prefix are required!")
-		os.Exit(1)
+		if *batch != "" {
+			*prefix = *batch
+		} else {
+			flag.Usage()
+			log.Println("-prefix are required!")
+			os.Exit(1)
+		}
 	}
 
 	if osUtil.FileExists(*gender) {
