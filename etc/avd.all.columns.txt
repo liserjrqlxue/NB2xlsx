@@ -8,6 +8,9 @@ Start
 Stop
 Ref
 Call
+PID
+PGT
+Depth
 A.Depth
 A.Ratio
 reads_picture
@@ -31,10 +34,14 @@ Function
 dbSNP Allele Freq
 1000G AF
 1000G EAS AF
+GnomAD EAS HemiAlt Count
 GnomAD EAS HomoAlt Count
 GnomAD EAS AF
+GnomAD HemiAlt Count
 GnomAD HomoAlt Count
 GnomAD AF
+GnomAD_age_hist_het
+GnomAD_age_hist_hom
 ESP6500 AF
 ExAC EAS HomoAlt Count
 ExAC EAS AF
@@ -59,7 +66,9 @@ HGMD Disease
 HGMD pmID
 HGMD Pred
 ClinVar Significance
-ClinVar星级
+ClinVar review status
+ClinVar conflicting clinical significance
+ClinVar Number of gold stars
 HGMDorClinvar
 LOF
 MIM Gene ID
