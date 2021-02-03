@@ -67,7 +67,7 @@ var (
 	)
 	diseaseSheetName = flag.String(
 		"diseaseSheetName",
-		"Sheet2",
+		"Sheet1",
 		"sheet name of disease database excel",
 	)
 	localDbExcel = flag.String(
@@ -205,10 +205,20 @@ var (
 	// BatchCnvTitle : titles of batch cnv
 	BatchCnvTitle []string
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
-	SampleGeneInfo                                                    = make(map[string]map[string]*GeneInfo)
-	limsInfo                                                          map[string]map[string]string
-	qcMap                                                             map[string]string
-	bgBlueID, bgGreenID, fontRedID, fontRedBgBlueID, fontRedBgGreenID int
+	SampleGeneInfo                                                                                   = make(map[string]map[string]*GeneInfo)
+	limsInfo                                                                                         map[string]map[string]string
+	qcMap                                                                                            map[string]string
+	formalStyleID, supplementaryStyleID, checkStyleID, formalCheckStyleID, supplementaryCheckStyleID int
+)
+
+var colorRGB map[string]string
+var (
+	// 验证位点
+	checkColor string
+	// 正式报告
+	formalRreportColor string
+	// 补充报告
+	supplementaryReportColor string
 )
 
 var err error
@@ -257,11 +267,7 @@ func main() {
 	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-	bgBlueID = simpleUtil.HandleError(excel.NewStyle(`{"fill":{"type":"pattern","color":["#0000FF"],"pattern":1}}`)).(int)
-	bgGreenID = simpleUtil.HandleError(excel.NewStyle(`{"fill":{"type":"pattern","color":["#008000"],"pattern":1}}`)).(int)
-	fontRedID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"}}`)).(int)
-	fontRedBgBlueID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"},"fill":{"type":"pattern","color":["#0000FF"],"pattern":1}}`)).(int)
-	fontRedBgGreenID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"},"fill":{"type":"pattern","color":["#008000"],"pattern":1}}`)).(int)
+	styleInit(excel)
 
 	// QC
 	if *qc != "" {
