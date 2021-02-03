@@ -264,18 +264,18 @@ func ifCheck(item map[string]string) string {
 	var ratio float64
 	depth, err = strconv.Atoi(item["Depth"])
 	if err != nil {
-		return "Ydepth:" + item["Depth"]
+		return "Y"
 	}
 	ratio, err = strconv.ParseFloat(item["A.Ratio"], 64)
 	if err != nil {
-		return "Yratio:" + item["A.Ratio"]
+		return "Y"
 	}
 	if depth < 40 || ratio < 0.4 {
-		return "Ysnv:" + item["Depth"] + "," + item["A.Ratio"]
+		return "Y"
 	}
 	if len(item["Ref"]) != 1 || len(item["Call"]) != 1 || item["Ref"] == "." || item["Call"] == "." {
 		if depth < 60 || ratio < 0.45 {
-			return "Yindel:" + item["Depth"] + "," + item["A.Ratio"]
+			return "Y"
 		}
 	}
 	return ""
@@ -532,19 +532,19 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 			simpleUtil.CheckErr(excel.AddDataValidation(sheetName, dvRange))
 		}
 	}
-	var blueID, greenID int
-	if item["验证"] != "" {
-		blueID = fontRedBgBlueID
-		greenID = fontRedBgGreenID
+	var formalID, supplementaryID int
+	if item["验证"] == "Y" {
+		formalID = formalCheckStyleID
+		supplementaryID = supplementaryCheckStyleID
 	} else {
-		blueID = bgBlueID
-		greenID = bgGreenID
+		formalID = formalStyleID
+		supplementaryID = supplementaryStyleID
 	}
 	switch item["报告类别"] {
 	case "正式报告":
-		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, blueID), sheetName, axis0, axis1)
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, formalID), sheetName, axis0, axis1)
 	case "补充报告":
-		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, greenID), sheetName, axis0, axis1)
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, supplementaryID), sheetName, axis0, axis1)
 	}
 }
 
