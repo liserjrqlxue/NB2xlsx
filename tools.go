@@ -74,6 +74,8 @@ var hyperLinkTitle = map[string]bool{
 	"α地贫_最终结果":      true,
 	"reads_picture": true,
 	"P0":            true,
+	"P1":            true,
+	"P2":            true,
 }
 
 var (
@@ -436,6 +438,16 @@ func updateDmd(item map[string]string) {
 		item["primerDesign"] = "-"
 	}
 	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
+	updateP(item, "P1", "P2")
+}
+
+func updateP(item map[string]string, P ...string) {
+	for _, p := range P {
+		var ps = strings.Split(item[p], ",")
+		var sampleID = ps[0]
+		item[p] = strings.Join(ps[1:], ",")
+		item[p+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+".DMD.NM_004006.2.png")
+	}
 }
 
 func updateDipin(item map[string]string, db map[string]map[string]string) {
