@@ -205,9 +205,10 @@ var (
 	// BatchCnvTitle : titles of batch cnv
 	BatchCnvTitle []string
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
-	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
-	limsInfo       map[string]map[string]string
-	qcMap          map[string]string
+	SampleGeneInfo                                                    = make(map[string]map[string]*GeneInfo)
+	limsInfo                                                          map[string]map[string]string
+	qcMap                                                             map[string]string
+	bgBlueID, bgGreenID, fontRedID, fontRedBgBlueID, fontRedBgGreenID int
 )
 
 var err error
@@ -256,6 +257,11 @@ func main() {
 	}
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
+	bgBlueID = simpleUtil.HandleError(excel.NewStyle(`{"fill":{"type":"pattern","color":["#0000FF"],"pattern":1}}`)).(int)
+	bgGreenID = simpleUtil.HandleError(excel.NewStyle(`{"fill":{"type":"pattern","color":["#008000"],"pattern":1}}`)).(int)
+	fontRedID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"}}`)).(int)
+	fontRedBgBlueID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"},"fill":{"type":"pattern","color":["#0000FF"],"pattern":1}}`)).(int)
+	fontRedBgGreenID = simpleUtil.HandleError(excel.NewStyle(`{"font":{"color":"#FF0000"},"fill":{"type":"pattern","color":["#008000"],"pattern":1}}`)).(int)
 
 	// QC
 	if *qc != "" {

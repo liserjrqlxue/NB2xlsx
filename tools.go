@@ -70,8 +70,9 @@ var formulaTitle = map[string]bool{
 }
 
 var hyperLinkTitle = map[string]bool{
-	"β地贫_最终结果": true,
-	"α地贫_最终结果": true,
+	"β地贫_最终结果":      true,
+	"α地贫_最终结果":      true,
+	"reads_picture": true,
 }
 
 var (
@@ -253,6 +254,59 @@ func updateAvd(item map[string]string) {
 	}
 	updateAf(item)
 	item["引物设计"] = anno.PrimerDesign(item)
+	item["验证"] = ifCheck(item)
+	readsPicture(item)
+}
+
+func ifCheck(item map[string]string) string {
+	var depth int
+	var ratio float64
+	depth, err = strconv.Atoi(item["Depth"])
+	if err != nil {
+		return "Ydepth:" + item["Depth"]
+	}
+	ratio, err = strconv.ParseFloat(item["A.Ratio"], 64)
+	if err != nil {
+		return "Yratio:" + item["A.Ratio"]
+	}
+	if depth < 40 || ratio < 0.4 {
+		return "Ysnv:" + item["Depth"] + "," + item["A.Ratio"]
+	}
+	if len(item["Ref"]) != 1 || len(item["Call"]) != 1 || item["Ref"] == "." || item["Call"] == "." {
+		if depth < 60 || ratio < 0.45 {
+			return "Yindel:" + item["Depth"] + "," + item["A.Ratio"]
+		}
+	}
+	return ""
+}
+
+func readsPicture(item map[string]string) {
+	if item["验证"] == "Y" && ifPlotReads(item) {
+		var sampleID = item["SampleID"]
+		var chr = item["#Chr"]
+		if chr == "MT" {
+			chr = "chrM_NC_012920.1"
+		} else {
+			chr = "chr" + chr
+		}
+		var stop = item["Stop"]
+		var png = strings.Join([]string{sampleID, chr, stop}, "_") + ".png"
+		item["reads_picture"] = png
+		item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
+	}
+}
+
+func ifPlotReads(item map[string]string) bool {
+	if item["报告类别"] == "正式报告" || item["报告类别"] == "补充报告" {
+		return true
+	}
+	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
+		return true
+	}
+	if item["Database"] != "" {
+		return true
+	}
+	return false
 }
 
 func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {
@@ -456,6 +510,8 @@ func updateAe(item map[string]string) {
 }
 
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
+	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
+	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
 	for j, k := range title {
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 		if formulaTitle[k] {
@@ -473,6 +529,20 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 			simpleUtil.CheckErr(dvRange.SetDropList(list))
 			simpleUtil.CheckErr(excel.AddDataValidation(sheetName, dvRange))
 		}
+	}
+	var blueID, greenID int
+	if item["验证"] != "" {
+		blueID = fontRedBgBlueID
+		greenID = fontRedBgGreenID
+	} else {
+		blueID = bgBlueID
+		greenID = bgGreenID
+	}
+	switch item["报告类别"] {
+	case "正式报告":
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, blueID), sheetName, axis0, axis1)
+	case "补充报告":
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, greenID), sheetName, axis0, axis1)
 	}
 }
 
