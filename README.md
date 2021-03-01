@@ -244,6 +244,11 @@ etc/drop.list.txt 包含对应列的下拉表
 （2）SNV:depth≤40或者A.Ratio≤0.4；Indel:depth≤60或者A.Ratio≤0.45
 ```
 ```text
+2.	“reads_picture”需要链接reads图，需要链接的位点要满足以下1个条件：
+（1）正式报告或者补充报告或者clinvar收录是P,LP,P/LP或者HGMD收录DM,DM?,DM/DM?或者库内解读过的
+PS：之前是满足2个条件，现在改为1个，高质量位点也是需要查看reads图的
+```
+```text
 2.3 Sheet3 补充实验的内容如下
 1.	“β地贫_最终结果”“α地贫_最终结果”CNE图链接的添加
 ```
