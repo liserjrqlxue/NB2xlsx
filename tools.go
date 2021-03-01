@@ -284,7 +284,7 @@ func ifCheck(item map[string]string) string {
 }
 
 func readsPicture(item map[string]string) {
-	if item["验证"] == "Y" && ifPlotReads(item) {
+	if ifPlotReads(item) {
 		var sampleID = item["SampleID"]
 		var chr = item["#Chr"]
 		if chr == "MT" {
