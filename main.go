@@ -190,6 +190,16 @@ var (
 		"QC",
 		"qc sheet name",
 	)
+	bamPath = flag.String(
+		"bamPath",
+		"",
+		"bamList file",
+	)
+	bamPathSheetName = flag.String(
+		"bamPathSheetName",
+		"bam文件路径",
+		"bamPath sheet name",
+	)
 )
 
 var (
@@ -268,6 +278,19 @@ func main() {
 
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 	styleInit(excel)
+
+	if *bamPath != "" {
+		for i, path := range textUtil.File2Array(*bamPath) {
+			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
+			simpleUtil.CheckErr(
+				excel.SetCellStr(
+					*bamPathSheetName,
+					axis,
+					path,
+				),
+			)
+		}
+	}
 
 	// QC
 	if *qc != "" {
