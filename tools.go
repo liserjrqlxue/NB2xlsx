@@ -335,7 +335,7 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	}
 }
 
-func updateGeneHashAR(geneHash, item map[string]string, gene, genePred string) string {
+func updateGeneHashAR(item map[string]string, genePred string) string {
 	if item["Zygosity"] == "Hom" {
 		return "可能患病"
 	} else if item["Zygosity"] == "Het" {
@@ -348,14 +348,14 @@ func updateGeneHashAR(geneHash, item map[string]string, gene, genePred string) s
 	return ""
 }
 
-func updateGeneHashAD(geneHash, item map[string]string, gene string) string {
+func updateGeneHashAD(item map[string]string) string {
 	if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
 		return "可能患病"
 	}
 	return ""
 }
 
-func updateGeneHashXL(geneHash, item map[string]string, gene, gender string) string {
+func updateGeneHashXL(item map[string]string, gender string) string {
 	if gender == "M" {
 		if item["Zygosity"] == "Hemi" {
 			return "可能患病"
@@ -368,18 +368,18 @@ func updateGeneHashXL(geneHash, item map[string]string, gene, gender string) str
 	return ""
 }
 
-func updateGeneHash(geneHash, item map[string]string, gene, genePred, gender string) string {
+func updateGeneHash(item map[string]string, genePred, gender string) string {
 	switch item["遗传模式"] {
 	case "AR":
-		return updateGeneHashAR(geneHash, item, gene, genePred)
+		return updateGeneHashAR(item, genePred)
 	case "AR/AR":
-		return updateGeneHashAR(geneHash, item, gene, genePred)
+		return updateGeneHashAR(item, genePred)
 	case "AD":
-		updateGeneHashAD(geneHash, item, gene)
+		updateGeneHashAD(item)
 	case "AD,AR":
-		updateGeneHashAD(geneHash, item, gene)
+		updateGeneHashAD(item)
 	case "XL":
-		updateGeneHashXL(geneHash, item, gene, gender)
+		updateGeneHashXL(item, gender)
 	}
 	return ""
 }
@@ -392,7 +392,7 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string) {
 	var gene = item["Gene Symbol"]
 	var genePred, ok = geneHash[gene]
 	if !ok || genePred != "可能患病" {
-		geneHash[gene] = updateGeneHash(geneHash, item, gene, genePred, gender)
+		geneHash[gene] = updateGeneHash(item, genePred, gender)
 	}
 }
 
