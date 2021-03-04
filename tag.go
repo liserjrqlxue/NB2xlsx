@@ -1,6 +1,9 @@
 package main
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 //LOFofPLP : Lost Of Function for PLP
 var LOFofPLP = map[string]bool{
@@ -24,10 +27,33 @@ func isPLP(item map[string]string) bool {
 	if isClinVar[item["ClinVar Significance"]] {
 		return true
 	}
+	if isHGMD[item["HGMD Pred"]] && !notClinVar[item["ClinVar Significance"]] {
+		return true
+	}
+	return false
+}
+
+func isPLP2(item map[string]string) bool {
+	if item["Definition"] == "P" || item["Definition"] == "LP" {
+		return true
+	}
+	if LOFofPLP[item["Function"]] {
+		return true
+	}
+	if isClinVar[item["ClinVar Significance"]] {
+		return true
+	}
+	if isHGMD[item["HGMD Pred"]] && !notClinVar2[item["ClinVar Significance"]] {
+		return true
+	}
+	return false
+}
+
+func isVUS(item map[string]string) bool {
 	if notClinVar[item["ClinVar Significance"]] {
 		return false
 	}
-	if isHGMD[item["HGMD Pred"]] {
+	if item["Definition"] == "VUS" || isPLPVUS.MatchString(item["自动化判断"]) {
 		return true
 	}
 	return false
@@ -46,6 +72,15 @@ var spliceList = map[string]bool{
 	"splice+20": true,
 	"splice-20": true,
 	"intron":    true,
+}
+
+var spliceCSList = map[string]bool{
+	"splice+10":    true,
+	"splice-10":    true,
+	"splice+20":    true,
+	"splice-20":    true,
+	"intron":       true,
+	"coding-synon": true,
 }
 
 var (
@@ -111,14 +146,32 @@ func compositeP(item map[string]string) bool {
 	return false
 }
 
+func compositePCS(item map[string]string) bool {
+	if cdsList[item["Function"]] && item["RepeatTag"] == "" {
+		return true
+	}
+	var count int
+	if spliceCSList[item["Function"]] {
+		count = spliceP(item)
+	} else {
+		count = noSpliceP(item)
+	}
+	if count > 1 {
+		return true
+	}
+	return false
+}
+
 // GeneInfo : struct info of gene
 type GeneInfo struct {
-	基因                              string
-	遗传模式                            string
-	性别                              string
-	PLP, hetPLP, VUS, HpVUS, PLPVUS int
-	cnv, cnv0                       bool
-	tag3, tag4                      bool
+	基因                      string
+	遗传模式                    string
+	性别                      string
+	PLP, hetPLP, VUS, HpVUS int
+	VUSnoPLP                int
+	cnv, cnv0               bool
+	tag3                    string
+	tag4                    bool
 }
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
@@ -129,14 +182,11 @@ func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 }
 
 func (info *GeneInfo) count(item map[string]string) {
+
 	if item["自动化判断"] == "VUS" {
-		info.VUS++
 		if item["Zygosity"] == "Het" && compositeP(item) {
 			info.HpVUS++
 		}
-	}
-	if isPLPVUS.MatchString(item["自动化判断"]) {
-		info.PLPVUS++
 	}
 	if isPLP(item) {
 		item["P/LP*"] = "1"
@@ -145,33 +195,55 @@ func (info *GeneInfo) count(item map[string]string) {
 			info.hetPLP++
 		}
 	}
+	if isVUS(item) {
+		info.VUS++
+		if item["P/LP*"] != "1" {
+			info.VUSnoPLP++
+		}
+	}
 }
 
 func (info *GeneInfo) getTag(item map[string]string) (tag string) {
-	tag += 标签1(item, info)
-	tag += 标签2(item, info)
-	tag += 标签3(item, info)
-	tag += 标签5(item)
-	return
+	var tags []string
+	var tag1 = 标签1(item, info)
+	if tag1 != "" {
+		tags = append(tags, tag1)
+	}
+	var tag2 = 标签2(item, info)
+	if tag2 != "" {
+		tags = append(tags, tag2)
+	}
+	var tag3 = 标签3(item, info)
+	if tag3 != "" {
+		tags = append(tags, tag3)
+	}
+	var tag6 = 标签6(item)
+	if tag6 != "" {
+		tags = append(tags, tag6)
+	}
+	return strings.Join(tags, ";")
 }
 
 func 标签1(item map[string]string, info *GeneInfo) string {
 	if item["P/LP*"] == "1" {
 		if info.isAD() && info.lowADAF(item) {
-			return "1"
+			return "1-P/LP"
 		}
 		if info.isAR() {
 			if item["Zygosity"] == "Hom" {
-				return "1"
+				return "1-P/LP"
 			}
 			if item["Zygosity"] == "Het" {
-				if info.PLP > 1 || info.PLPVUS > 1 || (info.PLPVUS == 1 && !isPLPVUS.MatchString(item["自动化判断"])) {
-					return "1"
+				if info.PLP > 1 {
+					return "1-P/LP"
+				}
+				if info.VUSnoPLP > 0 {
+					return "1-VUS"
 				}
 			}
 		}
-	} else if item["自动化判断"] == "VUS" && info.hetPLP == 1 && info.isAR() {
-		return "1"
+	} else if isVUS(item) && info.hetPLP > 0 && info.isAR() {
+		return "1-VUS"
 	}
 	return ""
 }
@@ -185,31 +257,33 @@ var (
 		"GnomAD AF":     true,
 		"GnomAD EAS AF": true,
 	}
-	tag2Pred = map[string]bool{
-		"P":   true,
-		"LP":  true,
-		"VUS": true,
-	}
 )
 
 func 标签2(item map[string]string, info *GeneInfo) (tag string) {
-	if !compositeP(item) {
+	if !isVUS(item) {
 		return
 	}
-	if info.isAD() && item["P/LP*"] != "1" && tag2Pred[item["自动化判断"]] && info.lowADAF(item) {
-		return "2"
+	if !compositePCS(item) {
+		return
 	}
-	if info.isAR() && item["自动化判断"] == "VUS" && (item["Zygosity"] == "Hom" || info.HpVUS > 1) {
-		return "2"
+	if item["P/LP*"] != "1" && info.isAD() && info.lowADAF(item) {
+		return "2-AD/XL-VUS"
+	}
+	if info.isAR() && (item["Zygosity"] == "Hom" || info.VUS > 1) {
+		return "2-AR/XLR-VUS"
 	}
 	return
 }
 
 func 标签3(item map[string]string, info *GeneInfo) string {
 	if info.cnv && info.isAR() {
-		if (info.VUS == 0 && item["P/LP*"] == "1") || (item["自动化判断"] == "VUS" && compositeP(item)) {
-			info.tag3 = true
-			return "3"
+		if isVUS(item) && compositeP(item) {
+			info.tag3 = "3-VUS/CNV"
+			return "3-VUS/CNV"
+		}
+		if info.VUS == 0 && item["P/LP*"] == "1" {
+			info.tag3 = "3-P/LP/CNV"
+			return "3-P/LP/CNV"
 		}
 	}
 	return ""
@@ -224,31 +298,40 @@ func (info *GeneInfo) 标签4() {
 }
 
 func 标签5(item map[string]string) string {
-	if item["Definition"] == "P" || item["Definition"] == "LP" || LOFofPLP[item["Function"]] || isClinVar[item["ClinVar Significance"]] || (isHGMD[item["HGMD Pred"]] && !notClinVar2[item["ClinVar Significance"]]) {
+	if item["报告类别"] == "正式报告" || item["报告类别"] == "补充报告" {
 		return "5"
 	}
 	return ""
 }
 
+func 标签6(item map[string]string) string {
+	if isPLP2(item) {
+		return "6"
+	}
+	return ""
+}
+
 func (info *GeneInfo) isAD() bool {
-	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "Mi" || ((info.遗传模式 == "XL" || info.遗传模式 == "YL") && info.性别 == "M") {
+	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "Mi" || info.遗传模式 == "XLD" || (info.遗传模式 == "XLR" && info.性别 == "M") {
 		return true
 	}
 	return false
 }
 
 func (info *GeneInfo) isAR() bool {
-	if info.遗传模式 == "AR" || info.遗传模式 == "AR/AR" || (info.遗传模式 == "XL" && info.性别 == "F") {
+	if info.遗传模式 == "AR" || info.遗传模式 == "AR/AR" || (info.遗传模式 == "XLR" && info.性别 == "F") {
 		return true
 	}
 	return false
 
 }
 
+var afThreshold = 1e-4
+
 func (info *GeneInfo) lowADAF(item map[string]string) bool {
-	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "YL" {
+	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" {
 		for af := range af0List {
-			if gt(item[af], 2e-5) {
+			if gt(item[af], afThreshold) {
 				return false
 			}
 		}

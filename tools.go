@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -105,7 +106,7 @@ var (
 
 func gt(s string, tv float64) bool {
 	var af, err = strconv.ParseFloat(s, 64)
-	if err == nil && af > tv {
+	if err == nil && af >= tv {
 		return true
 	}
 	return false
@@ -613,25 +614,25 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 }
 
 func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
-	var tag3, tag4 bool
+	var tagMap = make(map[string]bool)
 	for _, gene := range genes {
 		var info, ok = SampleGeneInfo[sampleID][gene]
 		if ok {
 			info.标签4()
-			if info.tag3 {
-				tag3 = true
+			if info.tag3 != "" {
+				tagMap[info.tag3] = true
 			}
 			if info.tag4 {
-				tag4 = true
+				tagMap["4"] = true
 			}
 		}
 	}
-	if tag3 {
-		item["Database"] += "3"
+	var tags []string
+	for k := range tagMap {
+		tags = append(tags, k)
 	}
-	if tag4 {
-		item["Database"] += "4"
-	}
+	sort.Strings(tags)
+	item["Database"] = strings.Join(tags, ";")
 }
 
 func loadQC(qc string) (qcDb []map[string]string) {
