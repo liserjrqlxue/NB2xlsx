@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -21,11 +23,19 @@ var (
 )
 
 type Info struct {
-	sampleID string
-	基因检测结果   []string
-	基因       []GeneInfo
-	geneList []string
-	geneMap  map[string]GeneInfo
+	sampleID   string
+	基因检测结果     []string
+	基因         []GeneInfo
+	geneList   []string
+	geneMap    map[string]GeneInfo
+	样本快递日期     string
+	新筛编号       string
+	华大基因检测编号   string
+	性别         string
+	生化筛查结果     string
+	生化筛查结果拟诊   string
+	基因检测结果报告日期 string
+	基因检测结果总结   string
 }
 
 type GeneInfo struct {
@@ -121,91 +131,91 @@ func main() {
 		info.geneMap[geneSymbol] = geneInfo
 		db[sampleID] = info
 	}
+
+	// load sample info
+	var fileInfos = simpleUtil.HandleError(ioutil.ReadDir(*infoDir)).([]os.FileInfo)
+	sort.Slice(fileInfos, func(i, j int) bool {
+		return fileInfos[i].ModTime().After(fileInfos[j].ModTime())
+
+	})
+	var sampleCount = len(sampleList)
+	var count = 0
+	for _, fileInfo := range fileInfos {
+		var strSlice = simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(
+					filepath.Join(*infoDir, fileInfo.Name()),
+				),
+			).(*excelize.File).GetRows("159基因结果汇总"),
+		).([][]string)
+		for i, strArray := range strSlice {
+			if i < 4 {
+				continue
+			}
+			var sampleID = strArray[3]
+			var info, ok = db[sampleID]
+			if !ok {
+				continue
+			}
+			if info.华大基因检测编号 == sampleID {
+				continue
+			}
+			count++
+			info.样本快递日期 = strArray[1]
+			info.新筛编号 = strArray[2]
+			info.华大基因检测编号 = strArray[3]
+			info.性别 = strArray[4]
+			info.生化筛查结果 = strArray[5]
+			info.生化筛查结果拟诊 = strArray[6]
+			info.基因检测结果报告日期 = strArray[7]
+			info.基因检测结果总结 = strArray[8]
+			if count >= sampleCount {
+				break
+			}
+		}
+		if count >= sampleCount {
+			break
+		}
+	}
+
+	// write
 	var rIdx = 5
 	var sheetName = "159基因结果汇总"
-	for _, sampleID := range sampleList {
+	for n, sampleID := range sampleList {
 		var item = db[sampleID]
 		for _, geneSymbol := range item.geneList {
 			var geneInfo = item.geneMap[geneSymbol]
 			item.基因 = append(item.基因, geneInfo)
 			item.基因检测结果 = append(item.基因检测结果, geneInfo.疾病)
 		}
-		simpleUtil.CheckErr(
-			outExcel.SetCellValue(
-				sheetName,
-				simpleUtil.HandleError(excelize.CoordinatesToCellName(4, rIdx)).(string),
-				sampleID,
-			),
-		)
+		WriteCellInt(outExcel, sheetName, 1, rIdx, n+1)
+		WriteCellStr(outExcel, sheetName, 2, rIdx, item.样本快递日期)
+		WriteCellStr(outExcel, sheetName, 3, rIdx, item.新筛编号)
+		WriteCellStr(outExcel, sheetName, 4, rIdx, item.华大基因检测编号)
+		WriteCellStr(outExcel, sheetName, 5, rIdx, item.性别)
+		WriteCellStr(outExcel, sheetName, 6, rIdx, item.生化筛查结果)
+		WriteCellStr(outExcel, sheetName, 7, rIdx, item.生化筛查结果拟诊)
+		WriteCellStr(outExcel, sheetName, 8, rIdx, item.基因检测结果报告日期)
+		WriteCellStr(outExcel, sheetName, 9, rIdx, item.基因检测结果总结)
 		for i, v := range item.基因检测结果 {
-			simpleUtil.CheckErr(
-				outExcel.SetCellValue(
-					sheetName,
-					simpleUtil.HandleError(excelize.CoordinatesToCellName(10+i, rIdx)).(string),
-					v,
-				),
-			)
+			WriteCellStr(outExcel, sheetName, 10+i, rIdx, v)
 		}
 		// 15
 		for i, geneInfo := range item.基因 {
 			if i > 4 {
 				break
 			}
-			fmt.Printf("%s\t%d\t%s\n", sampleID, i, geneInfo.基因名称)
-			simpleUtil.CheckErr(
-				outExcel.SetCellValue(
-					sheetName,
-					simpleUtil.HandleError(excelize.CoordinatesToCellName(15+i*10, rIdx)).(string),
-					geneInfo.基因名称,
-				),
-			)
-			simpleUtil.CheckErr(
-				outExcel.SetCellValue(
-					sheetName,
-					simpleUtil.HandleError(excelize.CoordinatesToCellName(22+i*10, rIdx)).(string),
-					geneInfo.疾病,
-				),
-			)
-			simpleUtil.CheckErr(
-				outExcel.SetCellValue(
-					sheetName,
-					simpleUtil.HandleError(excelize.CoordinatesToCellName(23+i*10, rIdx)).(string),
-					geneInfo.患病风险,
-				),
-			)
-			simpleUtil.CheckErr(
-				outExcel.SetCellValue(
-					sheetName,
-					simpleUtil.HandleError(excelize.CoordinatesToCellName(24+i*10, rIdx)).(string),
-					geneInfo.遗传方式,
-				),
-			)
+			WriteCellStr(outExcel, sheetName, 15+i*10, rIdx, geneInfo.基因名称)
+			WriteCellStr(outExcel, sheetName, 22+i*10, rIdx, geneInfo.疾病)
+			WriteCellStr(outExcel, sheetName, 23+i*10, rIdx, geneInfo.患病风险)
+			WriteCellStr(outExcel, sheetName, 24+i*10, rIdx, geneInfo.遗传方式)
 			for j, mutInfo := range geneInfo.变异 {
 				if j > 1 {
 					break
 				}
-				fmt.Printf("\t%d:%d\t%s\n", i, j, mutInfo.碱基改变)
-				simpleUtil.CheckErr(
-					outExcel.SetCellValue(
-						sheetName,
-						simpleUtil.HandleError(excelize.CoordinatesToCellName(16+i*10+j*3, rIdx)).(string),
-						mutInfo.外显子,
-					),
-				)
-				simpleUtil.CheckErr(
-					outExcel.SetCellValue(
-						sheetName,
-						simpleUtil.HandleError(excelize.CoordinatesToCellName(17+i*10+j*3, rIdx)).(string),
-						mutInfo.碱基改变,
-					),
-				)
-				simpleUtil.CheckErr(
-					outExcel.SetCellValue(
-						sheetName,
-						simpleUtil.HandleError(excelize.CoordinatesToCellName(18+i*10+j*3, rIdx)).(string),
-						mutInfo.氨基酸改变,
-					),
-				)
+				WriteCellStr(outExcel, sheetName, 16+i*10+j*3, rIdx, mutInfo.外显子)
+				WriteCellStr(outExcel, sheetName, 17+i*10+j*3, rIdx, mutInfo.碱基改变)
+				WriteCellStr(outExcel, sheetName, 18+i*10+j*3, rIdx, mutInfo.氨基酸改变)
 			}
 		}
 		rIdx++
