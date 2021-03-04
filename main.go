@@ -72,7 +72,7 @@ var (
 	)
 	localDbExcel = flag.String(
 		"db",
-		filepath.Join(etcPath, "已解读数据库-2021.1.15.xlsx"),
+		filepath.Join(etcPath, "已解读数据库.xlsx"),
 		"已解读数据库",
 	)
 	localDbSheetName = flag.String(
