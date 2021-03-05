@@ -438,7 +438,10 @@ func updateDmd(item map[string]string) {
 		item["primerDesign"] = "-"
 	}
 	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
-	updateP(item, "P1", "P2")
+	var info, ok = sampleInfos[item["SampleID"]]
+	if ok {
+		updateP(item, info.p0, info.p1, info.p2, info.p3)
+	}
 }
 
 func updateP(item map[string]string, P ...string) {
@@ -645,6 +648,8 @@ func loadQC(qc string) (qcDb []map[string]string) {
 			for j := range title {
 				item[title[j]] = rows[i][j]
 			}
+			var info = newSampleInfo(item)
+			sampleInfos[info.sampleID] = info
 			qcDb = append(qcDb, item)
 		}
 	}

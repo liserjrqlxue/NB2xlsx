@@ -215,11 +215,35 @@ var (
 	// BatchCnvTitle : titles of batch cnv
 	BatchCnvTitle []string
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
-	SampleGeneInfo                                                                                   = make(map[string]map[string]*GeneInfo)
-	limsInfo                                                                                         map[string]map[string]string
-	qcMap                                                                                            map[string]string
-	formalStyleID, supplementaryStyleID, checkStyleID, formalCheckStyleID, supplementaryCheckStyleID int
+	SampleGeneInfo                      = make(map[string]map[string]*GeneInfo)
+	limsInfo                            map[string]map[string]string
+	qcMap                               map[string]string
+	formalStyleID, supplementaryStyleID int
+	//checkStyleID int
+	formalCheckStyleID, supplementaryCheckStyleID int
 )
+
+type SampleInfo struct {
+	sampleID string
+	gender   string
+	p0       string
+	p1       string
+	p2       string
+	p3       string
+}
+
+func newSampleInfo(item map[string]string) SampleInfo {
+	return SampleInfo{
+		sampleID: item["sampleID"],
+		gender:   item["gender_analysed"],
+		p0:       item["P0"],
+		p1:       item["P1"],
+		p2:       item["P2"],
+		p3:       item["P3"],
+	}
+}
+
+var sampleInfos = make(map[string]SampleInfo)
 
 var colorRGB map[string]string
 var (
@@ -299,7 +323,9 @@ func main() {
 	}
 
 	// CNV
+	// QC -> DMD
 	{
+		runQC <- true
 		runDmd <- true
 		WriteDmd(excel, runDmd)
 	}
@@ -346,7 +372,6 @@ func main() {
 	}
 
 	{
-		runQC <- true
 		runAe <- true
 		saveMain <- true
 		go func() {
