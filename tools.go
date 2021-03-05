@@ -396,7 +396,8 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string) {
 }
 
 func updateDmd(item map[string]string) {
-	item["SampleID"] = item["#Sample"]
+	var sampleID = item["#Sample"]
+	item["SampleID"] = sampleID
 	updateABC(item)
 	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
@@ -440,7 +441,13 @@ func updateDmd(item map[string]string) {
 	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
 	var info, ok = sampleInfos[item["SampleID"]]
 	if ok {
-		updateP(item, info.p0, info.p1, info.p2, info.p3)
+		item["P0"] = info.p0
+		item["P1"] = info.p1
+		item["P2"] = info.p2
+		item["P3"] = info.p3
+		updateP(item, info.p1, info.p2, info.p3)
+	} else {
+		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
 	}
 }
 
