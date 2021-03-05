@@ -27,7 +27,13 @@ func loadLimsInfo() map[string]map[string]string {
 }
 
 func updateABC(item map[string]string) {
-	var info = limsInfo[item["SampleID"]]
+	var sampleID = item["SampleID"]
+	if *gender == "M" || genderMap[sampleID] == "M" {
+		item["Sex"] = "M"
+	} else if *gender == "F" || genderMap[sampleID] == "F" {
+		item["Sex"] = "F"
+	}
+	var info = limsInfo[sampleID]
 	item["期数"] = info["HYBRID_LIBRARY_NUM"]
 	item["flow ID"] = info["FLOW_ID"]
 	var productName, err = simplifiedchinese.GB18030.NewDecoder().String(info["PRODUCT_NAME"])
