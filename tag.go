@@ -168,7 +168,6 @@ type GeneInfo struct {
 	遗传模式                    string
 	性别                      string
 	PLP, hetPLP, VUS, HpVUS int
-	VUSnoPLP                int
 	cnv, cnv0               bool
 	tag3                    string
 	tag4                    bool
@@ -177,7 +176,6 @@ type GeneInfo struct {
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 	info.基因 = item["Gene Symbol"]
 	info.遗传模式 = geneInheritance[info.基因]
-	info.count(item)
 	return info
 }
 
@@ -191,15 +189,9 @@ func (info *GeneInfo) count(item map[string]string) {
 	if isPLP(item) {
 		item["P/LP*"] = "1"
 		info.PLP++
-		if item["Zygosity"] == "Het" {
-			info.hetPLP++
-		}
-	}
-	if isVUS(item) {
+	} else if isVUS(item) {
+		item["VUS*"] = "1"
 		info.VUS++
-		if item["P/LP*"] != "1" {
-			info.VUSnoPLP++
-		}
 	}
 }
 
@@ -237,12 +229,12 @@ func 标签1(item map[string]string, info *GeneInfo) string {
 				if info.PLP > 1 {
 					return "1-P/LP"
 				}
-				if info.VUSnoPLP > 0 {
+				if info.VUS > 0 {
 					return "1-VUS"
 				}
 			}
 		}
-	} else if isVUS(item) && info.hetPLP > 0 && info.isAR() {
+	} else if item["VUS*"] == "1" && info.PLP > 0 && info.isAR() {
 		return "1-VUS"
 	}
 	return ""
@@ -260,13 +252,13 @@ var (
 )
 
 func 标签2(item map[string]string, info *GeneInfo) (tag string) {
-	if !isVUS(item) {
+	if item["VUS*"] != "1" {
 		return
 	}
 	if !compositePCS(item) {
 		return
 	}
-	if item["P/LP*"] != "1" && info.isAD() && info.lowADAF(item) {
+	if info.isAD() && info.lowADAF(item) {
 		return "2-AD/XL-VUS"
 	}
 	if info.isAR() && (item["Zygosity"] == "Hom" || info.VUS > 1) {
@@ -277,13 +269,14 @@ func 标签2(item map[string]string, info *GeneInfo) (tag string) {
 
 func 标签3(item map[string]string, info *GeneInfo) string {
 	if info.cnv && info.isAR() {
-		if isVUS(item) && compositeP(item) {
-			info.tag3 = "3-VUS/CNV"
-			return "3-VUS/CNV"
-		}
-		if info.VUS == 0 && item["P/LP*"] == "1" {
+		if item["P/LP*"] == "1" {
 			info.tag3 = "3-P/LP/CNV"
 			return "3-P/LP/CNV"
+		} else if item["VUS*"] == "1" && compositeP(item) {
+			if info.tag3 == "" {
+				info.tag3 = "3-VUS/CNV"
+			}
+			return "3-VUS/CNV"
 		}
 	}
 	return ""
