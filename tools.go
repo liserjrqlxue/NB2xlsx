@@ -77,6 +77,7 @@ var hyperLinkTitle = map[string]bool{
 	"P0":            true,
 	"P1":            true,
 	"P2":            true,
+	"P3":            true,
 }
 
 var (
@@ -442,22 +443,19 @@ func updateDmd(item map[string]string) {
 	var info, ok = sampleInfos[item["SampleID"]]
 	if ok {
 		item["P0"] = info.p0
-		item["P1"] = info.p1
-		item["P2"] = info.p2
-		item["P3"] = info.p3
-		updateP(item, info.p1, info.p2, info.p3)
+		updateP(item, "P1", info.p1)
+		updateP(item, "P2", info.p2)
+		updateP(item, "P3", info.p3)
 	} else {
 		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
 	}
 }
 
-func updateP(item map[string]string, P ...string) {
-	for _, p := range P {
-		var ps = strings.Split(item[p], ",")
-		var sampleID = ps[0]
-		item[p] = strings.Join(ps[1:], ",")
-		item[p+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+".DMD.NM_004006.2.png")
-	}
+func updateP(item map[string]string, k, v string) {
+	var ps = strings.Split(v, ",")
+	var sampleID = ps[0]
+	item[k] = strings.Join(ps[1:], ",")
+	item[k+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+".DMD.NM_004006.2.png")
 }
 
 func updateDipin(item map[string]string, db map[string]map[string]string) {
