@@ -180,6 +180,7 @@ func updateDisease(item map[string]string) {
 	if ok {
 		item["疾病中文名"] = disease["疾病"]
 		item["遗传模式"] = disease["遗传模式"]
+		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
 	}
 }
