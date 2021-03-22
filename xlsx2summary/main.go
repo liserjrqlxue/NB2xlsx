@@ -3,23 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
-	"sort"
+	"strings"
+	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/version"
-)
-
-// os
-var (
-	ex, _        = os.Executable()
-	exPath       = filepath.Dir(ex)
-	dbPath       = filepath.Join(exPath, "..", "db")
-	etcPath      = filepath.Join(exPath, "..", "etc")
-	templatePath = filepath.Join(exPath, "..", "template")
 )
 
 type Info struct {
@@ -53,156 +43,137 @@ type MutInfo struct {
 
 // flag
 var (
+	anno = flag.String(
+		"anno",
+		"",
+		"anno excel, comma as sep",
+	)
 	input = flag.String(
 		"input",
 		"",
-		"input excel",
-	)
-	infoDir = flag.String(
-		"infoDir",
-		"",
 		"info dir",
 	)
-	output = flag.String(
-		"output",
+	prefix = flag.String(
+		"prefix",
 		"",
-		"output excel, default is -input.结果汇总.xlsx")
-	template = flag.String(
-		"template",
-		filepath.Join(templatePath, "结果汇总.xlsx"),
-		"template of 结果汇总",
+		"prefix of output, output -prefix.date.xlsx",
 	)
 )
 
 func main() {
 	version.LogVersion()
 	flag.Parse()
-	if *input == "" || *infoDir == "" {
+	if *anno == "" || *input == "" {
 		flag.Usage()
-		fmt.Printf("-input/-infoDir required!")
+		fmt.Printf("-anno/-input/-prefix required!")
 		os.Exit(1)
 	}
-	if *output == "" {
-		*output = *input + ".结果汇总.xlsx"
+	if *prefix == "" {
+		*prefix = *input
 	}
 
-	var inExcel = simpleUtil.HandleError(excelize.OpenFile(*input)).(*excelize.File)
-	var outExcel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-	var strSlice = simpleUtil.HandleError(inExcel.GetRows("All variants data")).([][]string)
-	var sampleList []string
+	var outExcel = simpleUtil.HandleError(excelize.OpenFile(*input)).(*excelize.File)
+
 	var db = make(map[string]Info)
-	var title []string
-	for i, strArray := range strSlice {
-		if i == 0 {
-			title = strArray
-			continue
-		}
-		var item = make(map[string]string)
-		for j := range title {
-			item[title[j]] = strArray[j]
-		}
-		var sampleID = item["SampleID"]
-		var info, ok1 = db[sampleID]
-		if !ok1 {
-			info = Info{
-				sampleID: sampleID,
-				geneMap:  make(map[string]GeneInfo),
+	// 读解读表
+	for _, in := range strings.Split(*anno, ",") {
+		var inExcel = simpleUtil.HandleError(excelize.OpenFile(in)).(*excelize.File)
+		var strSlice = simpleUtil.HandleError(inExcel.GetRows("All variants data")).([][]string)
+
+		var title []string
+		for i, strArray := range strSlice {
+			if i == 0 {
+				title = strArray
+				continue
 			}
-			sampleList = append(sampleList, sampleID)
-		}
-		var geneSymbol = item["Gene Symbol"]
-		var geneInfo, ok2 = info.geneMap[geneSymbol]
-		if !ok2 {
-			geneInfo = GeneInfo{
-				基因名称: geneSymbol,
-				变异:   []MutInfo{},
-				疾病:   item["疾病中文名"],
-				患病风险: item["遗传模式判读"],
-				遗传方式: item["遗传模式"],
+			var item = make(map[string]string)
+			for j := range title {
+				if j < len(strArray) {
+					item[title[j]] = strArray[j]
+				}
 			}
-			info.geneList = append(info.geneList, geneSymbol)
+			if item["报告类别"] != "正式报告" {
+				continue
+			}
+			var sampleID = item["SampleID"]
+			var info, ok1 = db[sampleID]
+			if !ok1 {
+				info = Info{
+					sampleID: sampleID,
+					geneMap:  make(map[string]GeneInfo),
+				}
+			}
+			var geneSymbol = item["Gene Symbol"]
+			var geneInfo, ok2 = info.geneMap[geneSymbol]
+			if !ok2 {
+				geneInfo = GeneInfo{
+					基因名称: geneSymbol,
+					变异:   []MutInfo{},
+					疾病:   item["疾病中文名"],
+					患病风险: item["遗传模式判读"],
+					遗传方式: item["遗传模式"],
+				}
+				info.geneList = append(info.geneList, geneSymbol)
+			}
+			var mutInfo = MutInfo{
+				外显子:   item["ExIn_ID"],
+				碱基改变:  item["cHGVS"],
+				氨基酸改变: item["pHGVS"],
+			}
+			geneInfo.变异 = append(geneInfo.变异, mutInfo)
+			info.geneMap[geneSymbol] = geneInfo
+			db[sampleID] = info
 		}
-		var mutInfo = MutInfo{
-			外显子:   item["ExIn_ID"],
-			碱基改变:  item["cHGVS"],
-			氨基酸改变: item["pHGVS"],
-		}
-		geneInfo.变异 = append(geneInfo.变异, mutInfo)
-		info.geneMap[geneSymbol] = geneInfo
-		db[sampleID] = info
 	}
 
 	// load sample info
-	var fileInfos = simpleUtil.HandleError(ioutil.ReadDir(*infoDir)).([]os.FileInfo)
-	sort.Slice(fileInfos, func(i, j int) bool {
-		return fileInfos[i].ModTime().After(fileInfos[j].ModTime())
-
-	})
-	var sampleCount = len(sampleList)
-	var count = 0
-	for _, fileInfo := range fileInfos {
-		var strSlice = simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(
-					filepath.Join(*infoDir, fileInfo.Name()),
-				),
-			).(*excelize.File).GetRows("159基因结果汇总"),
-		).([][]string)
-		for i, strArray := range strSlice {
-			if i < 4 {
-				continue
-			}
-			var sampleID = strArray[3]
-			var info, ok = db[sampleID]
-			if !ok {
-				continue
-			}
-			if info.华大基因检测编号 == sampleID {
-				continue
-			}
-			count++
-			info.样本快递日期 = strArray[1]
-			info.新筛编号 = strArray[2]
-			info.华大基因检测编号 = strArray[3]
-			info.性别 = strArray[4]
-			info.生化筛查结果 = strArray[5]
-			info.生化筛查结果拟诊 = strArray[6]
-			info.基因检测结果报告日期 = strArray[7]
-			info.基因检测结果总结 = strArray[8]
-			if count >= sampleCount {
-				break
-			}
-		}
-		if count >= sampleCount {
-			break
-		}
-	}
-
-	// write
-	var rIdx = 5
 	var sheetName = "159基因结果汇总"
-	for n, sampleID := range sampleList {
-		var item = db[sampleID]
+	simpleUtil.CheckErr(
+		outExcel.SetColWidth(
+			sheetName,
+			"BM",
+			"BM",
+			10,
+		),
+	)
+	simpleUtil.CheckErr(
+		outExcel.SetColStyle(
+			sheetName,
+			"BM",
+			simpleUtil.HandleError(outExcel.NewStyle(`{"fill":{"type":"pattern","color":["#E0EBF5"],"pattern":1}, "number_format": 14}`)).(int),
+		),
+	)
+	var strSlice = simpleUtil.HandleError(
+		simpleUtil.HandleError(
+			excelize.OpenFile(*input),
+		).(*excelize.File).GetRows(sheetName),
+	).([][]string)
+	for rIdx, strArray := range strSlice {
+		if rIdx < 4 {
+			continue
+		}
+		rIdx++
+		var sampleID = strArray[3]
+		if len(strArray) > 64 && strArray[64] != "" {
+			fmt.Printf("警告：样品[%s]已有时间戳，跳过\n", sampleID)
+			continue
+		}
+		var item, ok = db[sampleID]
+		if !ok {
+			fmt.Printf("警告：样品[%s]无解读信息，跳过\n", sampleID)
+			continue
+		}
 		for _, geneSymbol := range item.geneList {
 			var geneInfo = item.geneMap[geneSymbol]
 			item.基因 = append(item.基因, geneInfo)
 			item.基因检测结果 = append(item.基因检测结果, geneInfo.疾病)
 		}
-		WriteCellInt(outExcel, sheetName, 1, rIdx, n+1)
-		WriteCellStr(outExcel, sheetName, 2, rIdx, item.样本快递日期)
-		WriteCellStr(outExcel, sheetName, 3, rIdx, item.新筛编号)
-		WriteCellStr(outExcel, sheetName, 4, rIdx, item.华大基因检测编号)
-		WriteCellStr(outExcel, sheetName, 5, rIdx, item.性别)
-		WriteCellStr(outExcel, sheetName, 6, rIdx, item.生化筛查结果)
-		WriteCellStr(outExcel, sheetName, 7, rIdx, item.生化筛查结果拟诊)
-		WriteCellStr(outExcel, sheetName, 8, rIdx, item.基因检测结果报告日期)
-		WriteCellStr(outExcel, sheetName, 9, rIdx, item.基因检测结果总结)
 		for i, v := range item.基因检测结果 {
 			WriteCellStr(outExcel, sheetName, 10+i, rIdx, v)
 		}
-		// 15
 		for i, geneInfo := range item.基因 {
 			if i > 4 {
+				fmt.Printf("警告：样品[%s]检出基因超出5个，基因[%s]跳过\n", sampleID, geneInfo.基因名称)
 				break
 			}
 			WriteCellStr(outExcel, sheetName, 15+i*10, rIdx, geneInfo.基因名称)
@@ -211,6 +182,7 @@ func main() {
 			WriteCellStr(outExcel, sheetName, 24+i*10, rIdx, geneInfo.遗传方式)
 			for j, mutInfo := range geneInfo.变异 {
 				if j > 1 {
+					fmt.Printf("警告：样品[%s]在基因[%s]检出变异超出2个，变异[%s]跳过", sampleID, geneInfo.基因名称, mutInfo.碱基改变)
 					break
 				}
 				WriteCellStr(outExcel, sheetName, 16+i*10+j*3, rIdx, mutInfo.外显子)
@@ -218,7 +190,8 @@ func main() {
 				WriteCellStr(outExcel, sheetName, 18+i*10+j*3, rIdx, mutInfo.氨基酸改变)
 			}
 		}
-		rIdx++
+		WriteCellValue(outExcel, sheetName, 65, rIdx, time.Now().UTC())
 	}
-	simpleUtil.CheckErr(outExcel.SaveAs(*output))
+
+	simpleUtil.CheckErr(outExcel.SaveAs(fmt.Sprintf("%s.%s.xlsx", *prefix, time.Now().Format("2006-01-02"))))
 }
