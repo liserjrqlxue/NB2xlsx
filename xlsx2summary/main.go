@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -56,7 +57,12 @@ var (
 	prefix = flag.String(
 		"prefix",
 		"",
-		"prefix of output, output -prefix.date.xlsx",
+		"prefix of output, output -prefix.-tag.xlsx",
+	)
+	tag = flag.String(
+		"tag",
+		time.Now().Format("2006-01-02"),
+		"tag of output, default is date[2006-01-02]",
 	)
 )
 
@@ -65,7 +71,7 @@ func main() {
 	flag.Parse()
 	if *anno == "" || *input == "" {
 		flag.Usage()
-		fmt.Printf("-anno/-input/-prefix required!")
+		log.Printf("-anno/-input required!")
 		os.Exit(1)
 	}
 	if *prefix == "" {
@@ -73,7 +79,6 @@ func main() {
 	}
 
 	var outExcel = simpleUtil.HandleError(excelize.OpenFile(*input)).(*excelize.File)
-
 	var db = make(map[string]Info)
 	// 读解读表
 	for _, in := range strings.Split(*anno, ",") {
@@ -153,14 +158,15 @@ func main() {
 			continue
 		}
 		rIdx++
+		var index = rIdx - 4
 		var sampleID = strArray[3]
 		if len(strArray) > 64 && strArray[64] != "" {
-			fmt.Printf("警告：样品[%s]已有时间戳，跳过\n", sampleID)
+			log.Printf("警告：样品%3d[%11s]已有时间戳，跳过\n", index, sampleID)
 			continue
 		}
 		var item, ok = db[sampleID]
 		if !ok {
-			fmt.Printf("警告：样品[%s]无解读信息，跳过\n", sampleID)
+			log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
 			continue
 		}
 		for _, geneSymbol := range item.geneList {
@@ -173,7 +179,7 @@ func main() {
 		}
 		for i, geneInfo := range item.基因 {
 			if i > 4 {
-				fmt.Printf("警告：样品[%s]检出基因超出5个，基因[%s]跳过\n", sampleID, geneInfo.基因名称)
+				log.Printf("警告：样品%3d[%11s]检出基因超出5个，基因[%s]跳过\n", index, sampleID, geneInfo.基因名称)
 				break
 			}
 			WriteCellStr(outExcel, sheetName, 15+i*10, rIdx, geneInfo.基因名称)
@@ -182,7 +188,7 @@ func main() {
 			WriteCellStr(outExcel, sheetName, 24+i*10, rIdx, geneInfo.遗传方式)
 			for j, mutInfo := range geneInfo.变异 {
 				if j > 1 {
-					fmt.Printf("警告：样品[%s]在基因[%s]检出变异超出2个，变异[%s]跳过", sampleID, geneInfo.基因名称, mutInfo.碱基改变)
+					log.Printf("警告：样品%3d[%11s]在基因[%s]检出变异超出2个，变异[%s]跳过", index, sampleID, geneInfo.基因名称, mutInfo.碱基改变)
 					break
 				}
 				WriteCellStr(outExcel, sheetName, 16+i*10+j*3, rIdx, mutInfo.外显子)
@@ -191,7 +197,9 @@ func main() {
 			}
 		}
 		WriteCellValue(outExcel, sheetName, 65, rIdx, time.Now().UTC())
+		log.Printf("信息：样品%3d[%11s]已写入\n", index, sampleID)
 	}
-
-	simpleUtil.CheckErr(outExcel.SaveAs(fmt.Sprintf("%s.%s.xlsx", *prefix, time.Now().Format("2006-01-02"))))
+	var outputPath = fmt.Sprintf("%s.%s.xlsx", *prefix, *tag)
+	simpleUtil.CheckErr(outExcel.SaveAs(outputPath))
+	log.Printf("信息：保存到[%s]\n", outputPath)
 }
