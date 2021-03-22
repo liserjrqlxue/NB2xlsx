@@ -5,9 +5,9 @@ import (
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 )
 
-func WriteCellInt(excel *excelize.File, sheetName string, col, row int, value int) {
+func WriteCellStr(excel *excelize.File, sheetName string, col, row int, value string) {
 	simpleUtil.CheckErr(
-		excel.SetCellInt(
+		excel.SetCellStr(
 			sheetName,
 			simpleUtil.HandleError(excelize.CoordinatesToCellName(col, row)).(string),
 			value,
@@ -15,9 +15,9 @@ func WriteCellInt(excel *excelize.File, sheetName string, col, row int, value in
 	)
 }
 
-func WriteCellStr(excel *excelize.File, sheetName string, col, row int, value string) {
+func WriteCellValue(excel *excelize.File, sheetName string, col, row int, value interface{}) {
 	simpleUtil.CheckErr(
-		excel.SetCellStr(
+		excel.SetCellValue(
 			sheetName,
 			simpleUtil.HandleError(excelize.CoordinatesToCellName(col, row)).(string),
 			value,
