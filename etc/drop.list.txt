@@ -1,7 +1,7 @@
-β地贫_最终结果	阴性,SEA-HPFH,Chinese,SEA-HPFH;SEA-HPFH,Chinese;Chinese,SEA-HPFH;Chinese
+β地贫_最终结果	阴性,SEA-HPFH,Chinese,Taiwanese,SEA-HPFH;SEA-HPFH,Chinese;Chinese,Taiwanese;Taiwanese,SEA-HPFH;Chinese,SEA-HPFH;Taiwanese,Taiwanese;Chinese,
 α地贫_最终结果	阴性,3.7,SEA,4.2,THAI,FIL,3.7;3.7,4.2;4.2,SEA;SEA,3.7;4.2,3.7;SEA,3.7;THAI,3.7;FIL,4.2;SEA,4.2;THAI,4.2;FIL,SEA;THAI,SEA;FIL,THAI;THAI,THAI;FIL,FIL;FIL
 SMN1 EX7 del最终结果	阴性,杂合阳性,纯合阳性,杂合灰区,纯合灰区
-报告类别	补充报告,正式报告
+报告类别	补充报告,正式报告,不报-验证为假
 杂合性	Hom,Het,Hemi
 disGroup	A,B
 突变类型	Pathogenic,Likely pathogenic,VUS
