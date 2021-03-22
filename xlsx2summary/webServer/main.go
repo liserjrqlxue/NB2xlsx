@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -22,6 +23,15 @@ var (
 	templatePath = filepath.Join(exPath, "template")
 )
 
+// flag
+var (
+	port = flag.String(
+		"port",
+		":9091",
+		"port for server",
+	)
+)
+
 func main() {
 	// 设置访问路由
 	http.HandleFunc("/summary", summary)
@@ -33,7 +43,7 @@ func main() {
 			return
 		},
 	)
-	simpleUtil.CheckErr(http.ListenAndServe(":9091", nil))
+	simpleUtil.CheckErr(http.ListenAndServe(*port, nil))
 }
 
 func summary(w http.ResponseWriter, r *http.Request) {
