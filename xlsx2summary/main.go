@@ -81,10 +81,11 @@ func main() {
 	var outExcel = simpleUtil.HandleError(excelize.OpenFile(*input)).(*excelize.File)
 	var db = make(map[string]Info)
 	// 读解读表
-	for _, in := range strings.Split(*anno, ",") {
-		var inExcel = simpleUtil.HandleError(excelize.OpenFile(in)).(*excelize.File)
-		var strSlice = simpleUtil.HandleError(inExcel.GetRows("All variants data")).([][]string)
+	for n, annoFile := range strings.Split(*anno, ",") {
+		log.Printf("信息：开始读取解读表%d[%s]\n", n+1, annoFile)
+		var annoExcel = simpleUtil.HandleError(excelize.OpenFile(annoFile)).(*excelize.File)
 
+		var strSlice = simpleUtil.HandleError(annoExcel.GetRows("All variants data")).([][]string)
 		var title []string
 		for i, strArray := range strSlice {
 			if i == 0 {
@@ -123,12 +124,49 @@ func main() {
 			var mutInfo = MutInfo{
 				外显子:   item["ExIn_ID"],
 				碱基改变:  item["cHGVS"],
-				氨基酸改变: item["pHGVS"],
+				氨基酸改变: getAfterVerticalbar(item["pHGVS"]),
 			}
 			geneInfo.变异 = append(geneInfo.变异, mutInfo)
 			info.geneMap[geneSymbol] = geneInfo
 			db[sampleID] = info
 		}
+		/*
+			strSlice = simpleUtil.HandleError(annoExcel.GetRows("All variants data")).([][]string)
+			for i,strArray:=range strSlice{
+				if i==0{
+					title=strArray
+					continue
+				}
+				var item=make(map[string]string)
+				for j:=range title{
+					if j<len(strArray){
+						item[title[j]]=strArray[j]
+					}
+				}
+				if item["报告类别"] != "正式报告" {
+					continue
+				}
+				var sampleID = item["#sample"]
+				var info,ok1=db[sampleID]
+				if !ok1{
+					info=Info{
+						sampleID:   sampleID,
+						geneMap:    make(map[string]GeneInfo),
+					}
+				}
+				var geneSymbol = item["gene"]
+				var geneInfo,ok2=info.geneMap[geneSymbol]
+				if !ok2{
+					geneInfo=GeneInfo{
+						基因名称: geneSymbol,
+						变异:   []MutInfo,
+						疾病:   item[""],
+						患病风险: "",
+						遗传方式: "",
+					}
+				}
+			}
+		*/
 	}
 
 	// load sample info
@@ -202,4 +240,9 @@ func main() {
 	var outputPath = fmt.Sprintf("%s.%s.xlsx", *prefix, *tag)
 	simpleUtil.CheckErr(outExcel.SaveAs(outputPath))
 	log.Printf("信息：保存到[%s]\n", outputPath)
+}
+
+func getAfterVerticalbar(str string) string {
+	var s = strings.Split(str, "|")
+	return strings.TrimSpace(s[len(s)-1])
 }
