@@ -117,12 +117,13 @@ func main() {
 	var colLength = 64
 	var titleRowIndex = 4
 	var sampleIDCIdx = 4
-	var resultCIdx = 10
-	var geneNameCIdx = 15
-	var geneLimit = 5
+	var resultCIdx = 15
+	var resultTitle = "基因检测结果拟诊疾病（疾病/风险）"
+	var geneLimit = 6
+	var geneNameCIdx = resultCIdx + geneLimit
 	var geneColCount = 4
 	var mutLit = 2
-	var mutColCount = 3
+	var mutColCount = 5
 	var geneColLength = geneColCount + mutLit*mutColCount
 
 	var appendColName = simpleUtil.HandleError(excelize.ColumnNumberToName(colLength + 1)).(string)
@@ -152,7 +153,7 @@ func main() {
 			}
 			continue
 		} else if rIdx == titleRowIndex-2 {
-			checkTitleName(strArray, "基因检测结果", rIdx+1, resultCIdx)
+			checkTitleName(strArray, resultTitle, rIdx+1, resultCIdx)
 			checkTitleName(strArray, "基因名称", rIdx+1, geneNameCIdx)
 			checkTitleName(strArray, "变异一", rIdx+1, geneNameCIdx+1)
 			checkTitleName(strArray, "疾病", rIdx+1, geneNameCIdx+mutLit*mutColCount+1)
