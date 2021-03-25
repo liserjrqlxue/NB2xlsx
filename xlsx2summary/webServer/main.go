@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"html/template"
@@ -136,7 +137,7 @@ func summaryResult(w http.ResponseWriter, r *http.Request) {
 		var cmd = exec.Command(filepath.Join("..", "xlsx2summary"), "-input", result.Summary.Href, "-anno", strings.Join(annos, ","), "-prefix", "output/"+result.Summary.Message)
 		output, e := cmd.CombinedOutput()
 		if e != nil {
-			handleError(w, e, cmd.String(), string(output))
+			handleError(w, e, cmd.String(), "\n", string(output))
 			return
 		}
 		result.Message = string(output)
@@ -152,7 +153,12 @@ func summaryResult(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadFile(r *http.Request, key string) (infos []Info, e error) {
-	for _, fh := range r.MultipartForm.File[key] {
+	var fhs, ok = r.MultipartForm.File[key]
+	if !ok {
+		e = errors.New(key + "not found!")
+		return
+	}
+	for _, fh := range fhs {
 		var f io.ReadCloser
 		f, e = fh.Open()
 		if e != nil {
