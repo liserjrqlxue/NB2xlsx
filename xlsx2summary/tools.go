@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -193,4 +194,10 @@ func getInfoFromCNV(db map[string]Info, annoExcel *excelize.File) {
 
 func getInfoFromAVD(db map[string]Info, annoExcel *excelize.File) {
 	GetInfo(db, annoExcel, "All variants data", updateInfoDBfromAVD)
+}
+
+func checkTitleName(strArray []string, name string, r, c int) {
+	if strArray[c-1] != name {
+		log.Fatalf("错误：表头(%d,%d)[%s]!=%s\n", r, c, strArray[c-1], name)
+	}
 }
