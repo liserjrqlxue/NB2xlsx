@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
@@ -46,7 +45,6 @@ func updateInfoDB(db map[string]Info, geneInfo0 GeneInfo, mutInfo MutInfo, sampl
 	}
 
 	geneInfo.变异 = append(geneInfo.变异, mutInfo)
-	fmt.Printf("[%9s]\t[%s]\t%+v\n", sampleID, geneInfo.基因名称, geneInfo.变异)
 
 	info.geneMap[geneSymbol] = geneInfo
 
@@ -141,8 +139,9 @@ func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 
 func updateInfoDBfromSMA(db map[string]Info, item map[string]string) {
 	var 最终结果 = "SMN1 EX7 del最终结果"
+	var sampleID = item["SampleID"]
+	sampleCount[sampleID]++
 	if item[最终结果] == "纯合阳性" || item[最终结果] == "杂合阳性" {
-		var sampleID = item["SampleID"]
 		var geneSymbol = "SMN1"
 		var geneInfo = GeneInfo{
 			基因名称: geneSymbol,

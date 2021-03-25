@@ -77,6 +77,8 @@ var (
 
 var 患病风险 map[string]string
 
+var sampleCount = make(map[string]int)
+
 func main() {
 	version.LogVersion()
 	flag.Parse()
@@ -176,6 +178,9 @@ func main() {
 		if !ok {
 			log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
 			continue
+		}
+		if sampleCount[sampleID] > 1 {
+			log.Printf("警告：样品%3d[%11s]解读信息重复%d次\n", index, sampleID, sampleCount[sampleID])
 		}
 		// 按患病风险排序基因
 		var head, tail []string
