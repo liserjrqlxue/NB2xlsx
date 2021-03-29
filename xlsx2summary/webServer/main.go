@@ -255,7 +255,7 @@ func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var result = Result{
-			Title:   batchName,
+			Title:   "NB2xlsx",
 			Tag:     batchName,
 			Href:    "",
 			Message: msgStr,

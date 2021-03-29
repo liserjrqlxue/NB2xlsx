@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh">
 <head>
-    <title>{{.Title}}</title>
+    <title>{{.Title}}-{{.Tag}}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 </head>
 <body>
@@ -20,7 +20,7 @@
                 批次名
             </div>
             <div class="col-10">
-                {{.Input}}
+                {{.Tag}}
             </div>
         </div>
     </div>
@@ -33,7 +33,7 @@
                 解读表
             </div>
             <div class="col-10">
-                <a href="/public/NBS/{{.Input}}.NB2xlsx.xlsx">{{.Input}}.NB2xlsx.xlsx</a>
+                <a href="/output/NBS/{{.Tag}}.NB2xlsx.xlsx">{{.Tag}}.NB2xlsx.xlsx</a>
             </div>
         </div>
         <div class="row">
@@ -41,7 +41,7 @@
                 batchCNV表
             </div>
             <div class="col-10">
-                <a href="/public/NBS/{{.Input}}.NB2xlsx.batchCNV.xlsx">{{.Input}}.NB2xlsx.batchCNV.xlsx</a>
+                <a href="/output/NBS/{{.Tag}}.NB2xlsx.batchCNV.xlsx">{{.Tag}}.NB2xlsx.batchCNV.xlsx</a>
             </div>
         </div>
     </div>
