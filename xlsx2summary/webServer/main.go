@@ -85,6 +85,7 @@ func handleError(w http.ResponseWriter, e error, msg ...string) {
 }
 
 type Info struct {
+	Input   string
 	Href    string
 	Message string
 }
@@ -120,11 +121,7 @@ func summaryResult(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		logRequest(r)
-		log.Printf("Form:%+v\n", r.Form)
-		log.Printf("PostForm:%+v\n", r.PostForm)
-		log.Printf("MultipartForm:%+v\n", r.MultipartForm)
-		log.Printf("File:%+v\n", r.MultipartForm.File)
-		log.Printf("Value:%+v\n", r.MultipartForm.Value)
+
 		summaryInfos, e := uploadFile(r, "summary")
 		if e != nil {
 			handleError(w, e)
@@ -222,7 +219,17 @@ func logRequest(r *http.Request) {
 
 func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		var e = r.ParseMultipartForm(31 << 20)
+		var t, e = template.ParseFiles(filepath.Join(templatePath, "NB2xlsx.result.html"))
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		e = os.MkdirAll("output/NBS", 0755)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		e = r.ParseMultipartForm(31 << 20)
 		if e != nil {
 			handleError(w, e)
 			return
@@ -231,18 +238,24 @@ func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
 		var batchName = r.Form["batchName"][0]
 		var cmd = exec.Command(
 			"bash",
-			"/ifs9/B2C_COM_P2/pub/sgd/Pipeline/NewbornScreening/test/NB2xlsx.sh",
+			"NB2xlsx.sh",
 			batchName,
 		)
-		var msg, err = cmd.CombinedOutput()
-		fmt.Printf("%+v\n", string(msg))
-		if err != nil {
-			handleError(w, err, "\ncmd:\t", cmd.String(), "\nlog:\t", string(msg))
+		msg, e := cmd.CombinedOutput()
+		var msgStr = string(msg)
+		fmt.Printf("%s\n", msgStr)
+		if e != nil {
+			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
 			return
 		}
-		_, e = fmt.Fprintln(w, "<pre>%s</pre>", msg)
+		var info = Info{
+			Input:   batchName,
+			Href:    "",
+			Message: msgStr,
+		}
+		e = t.Execute(w, info)
 		if e != nil {
-			handleError(w, e)
+			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
 			return
 		}
 	} else {

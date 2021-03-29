@@ -8,50 +8,43 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/summary">Summary</a></li>
+        <li class="breadcrumb-item"><a href="/NB2xlsx">NB2xlsx</a></li>
         <li class="breadcrumb-item active" aria-current="page">Result</li>
     </ol>
 </nav>
 <div class="container">
     <h3>输入</h3>
     <div>
-        {{with .Summary}}
         <div class="row">
             <div class="col-2">
-                汇总表
+                批次名
             </div>
             <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
+                {{.Input}}
             </div>
         </div>
-        {{end}}
-        {{with .Anno}}
-        {{range .}}
-        <div class="row">
-            <div class="col-2">
-                解读表
-            </div>
-            <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
-            </div>
-        </div>
-        {{end}}
         {{end}}
     </div>
 </div>
 <div class="container">
     <h3>输出</h3>
     <div>
-        {{with .Result}}
         <div class="row">
             <div class="col-2">
-                汇总解读表
+                解读表
             </div>
             <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
+                <a href="/public/NBS/{{.Input}}.NB2xlsx.xlsx">{{.Input}}.NB2xlsx.xlsx</a>
             </div>
         </div>
-        {{end}}
+        <div class="row">
+            <div class="col-2">
+                batchCNV表
+            </div>
+            <div class="col-10">
+                <a href="/public/NBS/{{.Input}}.NB2xlsx.batchCNV.xlsx">{{.Input}}.NB2xlsx.batchCNV.xlsx</a>
+            </div>
+        </div>
     </div>
 </div>
 <div class="container">
