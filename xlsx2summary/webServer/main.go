@@ -85,7 +85,13 @@ func handleError(w http.ResponseWriter, e error, msg ...string) {
 }
 
 type Info struct {
-	Input   string
+	Href    string
+	Message string
+}
+
+type Result struct {
+	Title   string
+	Tag     string
 	Href    string
 	Message string
 }
@@ -248,12 +254,13 @@ func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
 			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
 			return
 		}
-		var info = Info{
-			Input:   batchName,
+		var result = Result{
+			Title:   batchName,
+			Tag:     batchName,
 			Href:    "",
 			Message: msgStr,
 		}
-		e = t.Execute(w, info)
+		e = t.Execute(w, result)
 		if e != nil {
 			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
 			return
