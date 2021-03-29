@@ -37,18 +37,22 @@ func main() {
 	// 设置访问路由
 	http.HandleFunc("/summary", summary)
 	http.HandleFunc("/summaryResult", summaryResult)
-	http.HandleFunc("/",
-		func(w http.ResponseWriter, r *http.Request) {
-			// static file server
-			http.ServeFile(w, r, strings.TrimPrefix(r.URL.Path, "/"))
-			return
-		},
-	)
+	http.HandleFunc("/NB2xlsx", NB2xlsx)
+	http.HandleFunc("/NB2xlsxResult", NB2xlsxResult)
+	http.HandleFunc("/", index)
 	simpleUtil.CheckErr(http.ListenAndServe(*port, nil))
 }
 
-func summary(w http.ResponseWriter, r *http.Request) {
-	var t, e = template.ParseFiles(filepath.Join(templatePath, "summary.html"))
+func index(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		generalGet(w, r, "index.html")
+	} else {
+		http.ServeFile(w, r, strings.TrimPrefix(r.URL.Path, "/"))
+	}
+}
+
+func generalGet(w http.ResponseWriter, r *http.Request, html string) {
+	var t, e = template.ParseFiles(filepath.Join(templatePath, html))
 	if e != nil {
 		handleError(w, e)
 		return
@@ -61,6 +65,15 @@ func summary(w http.ResponseWriter, r *http.Request) {
 		handleError(w, e)
 		return
 	}
+}
+
+func summary(w http.ResponseWriter, r *http.Request) {
+	generalGet(w, r, "summary.html")
+}
+
+func NB2xlsx(w http.ResponseWriter, r *http.Request) {
+	generalGet(w, r, "NB2xlsx.html")
+
 }
 
 func handleError(w http.ResponseWriter, e error, msg ...string) {
@@ -204,5 +217,36 @@ func logRequest(r *http.Request) {
 		} else {
 			log.Printf("key:[%s]\tval: large data!\n", k)
 		}
+	}
+}
+
+func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var e = r.ParseMultipartForm(31 << 20)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		logRequest(r)
+		var batchName = r.Form["batchName"][0]
+		var cmd = exec.Command(
+			"bash",
+			"/ifs9/B2C_COM_P2/pub/sgd/Pipeline/NewbornScreening/test/NB2xlsx.sh",
+			batchName,
+		)
+		var msg, err = cmd.CombinedOutput()
+		fmt.Printf("%+v\n", string(msg))
+		if err != nil {
+			handleError(w, err, "\ncmd:\t", cmd.String(), "\nlog:\t", string(msg))
+			return
+		}
+		_, e = fmt.Fprintln(w, "<pre>%s</pre>", msg)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+	} else {
+		var _, e = fmt.Fprintln(w, "only support POST method")
+		log.Printf("%+v", e)
 	}
 }
