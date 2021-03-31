@@ -114,7 +114,7 @@ func main() {
 		).(*excelize.File).GetRows(sheetName),
 	).([][]string)
 
-	var colLength = 64
+	var colLength = 105
 	var titleRowIndex = 4
 	var sampleIDCIdx = 4
 	var resultCIdx = 15

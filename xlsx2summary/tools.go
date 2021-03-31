@@ -123,7 +123,7 @@ func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 		var geneInfo = GeneInfo{
 			基因名称: geneSymbol,
 			变异:   []MutInfo{},
-			疾病:   "β地中海贫血",
+			疾病:   "α地中海贫血",
 			患病风险: 患病风险[item[最终结果]],
 			遗传方式: "AR",
 		}
