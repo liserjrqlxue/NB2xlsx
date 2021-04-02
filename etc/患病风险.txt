@@ -1,12 +1,12 @@
 SMN1 EX7 del最终结果	患病风险
-杂合阳性	携带
+杂合阳性	携带者
 纯合阳性	可能患病
 α地贫_最终结果	患病风险
-3.7	携带
-SEA	携带
-4.2	携带
-THAI	携带
-FIL	携带
+3.7	携带者
+SEA	携带者
+4.2	携带者
+THAI	携带者
+FIL	携带者
 3.7;3.7	可能患病
 4.2;4.2	可能患病
 SEA;SEA	可能患病
@@ -23,9 +23,9 @@ THAI;THAI	可能患病
 THAI;FIL	可能患病
 FIL;FIL	可能患病
 β地贫_最终结果	患病风险
-SEA-HPFH	携带
-Chinese	携带
-Taiwanese	携带
+SEA-HPFH	携带者
+Chinese	携带者
+Taiwanese	携带者
 SEA-HPFH;SEA-HPFH	可能患病
 Chinese;Chinese	可能患病
 Taiwanese;Taiwanese	可能患病

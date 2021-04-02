@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"regexp"
+	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -64,7 +66,7 @@ func updateInfoDBfromAVD(db map[string]Info, item map[string]string) {
 		}
 		var mutInfo = MutInfo{
 			外显子:   item["ExIn_ID"],
-			碱基改变:  item["cHGVS"],
+			碱基改变:  cHgvsAlt(item["cHGVS"]),
 			氨基酸改变: getAfterVerticalbar(item["pHGVS"]),
 		}
 		updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
@@ -79,7 +81,7 @@ func updateInfoDBfromCNV(db map[string]Info, item map[string]string) {
 			基因名称: geneSymbol,
 			变异:   []MutInfo{},
 			疾病:   "杜氏肌营养不良",
-			患病风险: "携带",
+			患病风险: "携带者",
 			遗传方式: "XLR",
 		}
 		if (item["gender"] == "M" && item["杂合性"] == "Hemi") || (item["gender"] == "F" && item["杂合性"] == "Hom") {
@@ -115,6 +117,17 @@ func updateInfoDBfromHBB(db map[string]Info, item map[string]string) {
 	}
 }
 
+var prefixHBA = map[string]string{
+	"3.7":  "-α",
+	"4.2":  "-α",
+	"SEA":  "- -",
+	"THAI": "- -",
+	"FIL":  "- -",
+}
+
+func addPrefixHBA(result string) string {
+	return prefixHBA[result] + result
+}
 func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 	var 最终结果 = "α地贫_最终结果"
 	if item[最终结果] != "阴性" {
@@ -129,7 +142,7 @@ func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 		}
 		var mutInfo = MutInfo{
 			外显子:   ".",
-			碱基改变:  item[最终结果],
+			碱基改变:  addPrefixHBA(item[最终结果]),
 			氨基酸改变: ".",
 		}
 		updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
@@ -199,4 +212,21 @@ func checkTitleName(strArray []string, name string, r, c int) {
 	if strArray[c-1] != name {
 		log.Fatalf("错误：表头(%d,%d)[%s]!=%s\n", r, c, strArray[c-1], name)
 	}
+}
+
+func getAfterVerticalbar(str string) string {
+	var s = strings.Split(str, "|")
+	return strings.TrimSpace(s[len(s)-1])
+}
+
+// regexp
+var (
+	cHGVSalt = regexp.MustCompile(`alt: (\S+) \)`)
+)
+
+func cHgvsAlt(cHgvs string) string {
+	if m := cHGVSalt.FindStringSubmatch(cHgvs); m != nil {
+		return m[1]
+	}
+	return cHgvs
 }
