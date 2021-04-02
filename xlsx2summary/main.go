@@ -186,8 +186,16 @@ func main() {
 		}
 		var item, ok = db[sampleID]
 		if !ok {
-			log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
-			continue
+			if sampleCount[sampleID] == 0 {
+				log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
+				continue
+			} else {
+				log.Printf("信息：样品%3d[%11s]无疾病\n", index, sampleID)
+				item = Info{
+					sampleID: sampleID,
+					基因检测结果总结: "无疾病",
+				}
+			}
 		}
 		if sampleCount[sampleID] > 1 {
 			log.Printf("警告：样品%3d[%11s]解读信息重复%d次\n", index, sampleID, sampleCount[sampleID])
@@ -225,6 +233,9 @@ func main() {
 				item.基因检测结果总结 = "无疾病"
 			}
 		}
+		if len(item.geneList) == 0 {
+			item.基因检测结果总结 = "无疾病"
+		}
 
 		WriteCellStr(outExcel, sheetName, summaryCIdx, rIdx, item.基因检测结果总结)
 		// 填充 基因检测结果
@@ -245,7 +256,7 @@ func main() {
 			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+1+i*geneColLength, rIdx, geneInfo.疾病)
 			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+2+i*geneColLength, rIdx, geneInfo.患病风险)
 			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+3+i*geneColLength, rIdx, geneInfo.遗传方式)
-			fmt.Printf("\t\t\t%8s\t%s\n", geneInfo.基因名称, geneInfo.患病风险)
+			fmt.Printf("\t\t\t%-8s\t%s\n", geneInfo.基因名称, geneInfo.患病风险)
 			for j, mutInfo := range geneInfo.变异 {
 				if j > 1 {
 					log.Printf("警告：样品%3d[%11s]在基因[%s]检出变异超出2个，变异[%s]跳过", index, sampleID, geneInfo.基因名称, mutInfo.碱基改变)
