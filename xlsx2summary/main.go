@@ -17,6 +17,7 @@ import (
 
 type Info struct {
 	sampleID   string
+	可疑, 携带     int
 	基因检测结果     []string
 	基因         []GeneInfo
 	geneList   []string
@@ -93,7 +94,11 @@ func main() {
 
 	患病风险 = simpleUtil.HandleError(textUtil.File2Map(filepath.Join(etcPath, "患病风险.txt"), "\t", false)).(map[string]string)
 
-	var outExcel = simpleUtil.HandleError(excelize.OpenFile(*input)).(*excelize.File)
+	var outExcel, err = excelize.OpenFile(*input)
+	if err != nil {
+		log.Fatalf("can not load [%s]\n", *input)
+	}
+
 	var db = make(map[string]Info)
 	// 读解读表
 	for n, annoFile := range strings.Split(*anno, ",") {
@@ -117,6 +122,9 @@ func main() {
 	var colLength = 105
 	var titleRowIndex = 4
 	var sampleIDCIdx = 4
+	var sampleIDTitle = "华大基因检测编号"
+	var summaryCIdx = 14
+	var summaryTitle = "基因检测结果总结"
 	var resultCIdx = 15
 	var resultTitle = "基因检测结果拟诊疾病（疾病/风险）"
 	var geneLimit = 6
@@ -161,7 +169,8 @@ func main() {
 			checkTitleName(strArray, "遗传方式", rIdx+1, geneNameCIdx+mutLit*mutColCount+3)
 			continue
 		} else if rIdx == titleRowIndex-1 {
-			checkTitleName(strArray, "华大基因检测编号", rIdx+1, sampleIDCIdx)
+			checkTitleName(strArray, sampleIDTitle, rIdx+1, sampleIDCIdx)
+			checkTitleName(strArray, summaryTitle, rIdx+1, summaryCIdx)
 			checkTitleName(strArray, "疾病一", rIdx+1, resultCIdx)
 			checkTitleName(strArray, "外显子", rIdx+1, geneNameCIdx+1)
 			checkTitleName(strArray, "碱基改变", rIdx+1, geneNameCIdx+2)
@@ -198,9 +207,26 @@ func main() {
 		for _, geneSymbol := range item.geneList {
 			var geneInfo = item.geneMap[geneSymbol]
 			item.基因 = append(item.基因, geneInfo)
-			item.基因检测结果 = append(item.基因检测结果, geneInfo.疾病)
+			switch geneInfo.患病风险 {
+			case "可能患病":
+				item.可疑++
+				item.基因检测结果 = append(item.基因检测结果, geneInfo.疾病+"/可疑")
+			case "携带者":
+				item.携带++
+				item.基因检测结果 = append(item.基因检测结果, geneInfo.疾病+"/携带")
+			}
+			if item.可疑 > 0 && item.携带 > 0 {
+				item.基因检测结果总结 = fmt.Sprintf("%d个疾病可疑+%d个疾病携带", item.可疑, item.携带)
+			} else if item.可疑 > 0 {
+				item.基因检测结果总结 = fmt.Sprintf("%d个疾病可疑", item.可疑)
+			} else if item.携带 > 0 {
+				item.基因检测结果总结 = fmt.Sprintf("%d个疾病携带", item.携带)
+			} else {
+				item.基因检测结果总结 = "无疾病"
+			}
 		}
 
+		WriteCellStr(outExcel, sheetName, summaryCIdx, rIdx, item.基因检测结果总结)
 		// 填充 基因检测结果
 		for i, 疾病 := range item.基因检测结果 {
 			if i > geneLimit {
@@ -237,9 +263,4 @@ func main() {
 	var outputPath = fmt.Sprintf("%s.%s.xlsx", *prefix, *tag)
 	simpleUtil.CheckErr(outExcel.SaveAs(outputPath))
 	log.Printf("信息：保存到[%s]\n", outputPath)
-}
-
-func getAfterVerticalbar(str string) string {
-	var s = strings.Split(str, "|")
-	return strings.TrimSpace(s[len(s)-1])
 }
