@@ -143,20 +143,22 @@ func summaryResult(w http.ResponseWriter, r *http.Request) {
 			Anno:    annoInfos,
 			Result:  Info{},
 		}
-		result.Result.Message = fmt.Sprintf("%s.%s.xlsx", result.Summary.Message, time.Now().Format("2006-01-02"))
+		result.Result.Message = fmt.Sprintf("%s.%s.xlsx", strings.TrimSuffix(result.Summary.Message, ".xlsx"), time.Now().Format("2006-01-02"))
 		result.Title = result.Result.Message
 		result.Result.Href = "output/" + result.Result.Message
 		var annos []string
 		for _, anno := range result.Anno {
 			annos = append(annos, anno.Href)
 		}
-		var cmd = exec.Command(filepath.Join("..", "xlsx2summary"), "-input", result.Summary.Href, "-anno", strings.Join(annos, ","), "-prefix", "output/"+result.Summary.Message)
+		var cmd = exec.Command(filepath.Join("..", "xlsx2summary"), "-input", result.Summary.Href, "-anno", strings.Join(annos, ","), "-prefix", filepath.Join("output", strings.TrimSuffix(result.Summary.Message, ".xlsx")))
+		log.Println(cmd.String())
 		output, e := cmd.CombinedOutput()
+		log.Printf("%s", output)
 		if e != nil {
 			handleError(w, e, cmd.String(), "\n", string(output))
 			return
 		}
-		result.Message = string(output)
+		result.Message = cmd.String() + "\n" + string(output)
 		e = t.Execute(w, result)
 		if e != nil {
 			handleError(w, e)
@@ -199,12 +201,16 @@ func uploadFile(r *http.Request, key string) (infos []Info, e error) {
 }
 
 func upload(file io.Reader, dest string) error {
-	var f, err = os.OpenFile(dest, os.O_WRONLY|os.O_CREATE, 0666)
+	var f, err = os.Create(dest)
 	if err != nil {
 		return err
 	}
-	defer simpleUtil.DeferClose(f)
 	_, err = io.Copy(f, file)
+	if err == nil {
+		err = f.Close()
+	} else {
+		f.Close()
+	}
 	return err
 }
 
