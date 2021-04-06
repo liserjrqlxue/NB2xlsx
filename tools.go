@@ -221,6 +221,10 @@ func updateAf(item map[string]string) {
 
 func updateAvd(item map[string]string) {
 	updateABC(item)
+	item["HGMDorClinvar"] = "否"
+	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
+		item["HGMDorClinvar"] = "是"
+	}
 	item["ClinVar星级"] = item["ClinVar Number of gold stars"]
 	item["1000Gp3 AF"] = item["1000G AF"]
 	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
