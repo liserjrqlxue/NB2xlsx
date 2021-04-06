@@ -295,7 +295,7 @@ func (info *GeneInfo) 标签4() {
 }
 
 func 标签5(item map[string]string) string {
-	if item["报告类别"] == "正式报告" || item["报告类别"] == "补充报告" {
+	if item["isReport"] == "Y" {
 		return "5"
 	}
 	return ""

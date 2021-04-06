@@ -241,6 +241,7 @@ func updateAvd(item map[string]string) {
 		if db["是否是包装位点"] == "是" {
 			item["Database"] = "NBS-in"
 			item["报告类别"] = "正式报告"
+			item["isReport"] = "Y"
 		} else {
 			item["Database"] = "NBS-out"
 		}
@@ -253,6 +254,7 @@ func updateAvd(item map[string]string) {
 		item["Database"] = "."
 		if item["LOF"] == "YES" {
 			item["报告类别"] = "补充报告"
+			item["isReport"] = "Y"
 		}
 	}
 	anno.UpdateFunction(item)
@@ -307,7 +309,7 @@ func readsPicture(item map[string]string) {
 }
 
 func ifPlotReads(item map[string]string) bool {
-	if item["报告类别"] == "正式报告" || item["报告类别"] == "补充报告" {
+	if item["isReport"] == "Y" {
 		return true
 	}
 	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
@@ -391,7 +393,7 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 
 // UpdateGeneHash : update geneHash
 func UpdateGeneHash(geneHash, item map[string]string, gender string) {
-	if item["报告类别"] != "正式报告" && item["报告类别"] != "补充报告" {
+	if item["isReport"] != "Y" {
 		return
 	}
 	var gene = item["Gene Symbol"]
