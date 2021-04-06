@@ -391,7 +391,7 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 
 // UpdateGeneHash : update geneHash
 func UpdateGeneHash(geneHash, item map[string]string, gender string) {
-	if item["Definition"] != "P" && item["Definition"] != "LP" {
+	if item["报告类别"] != "正式报告" && item["报告类别"] != "补充报告" {
 		return
 	}
 	var gene = item["Gene Symbol"]
