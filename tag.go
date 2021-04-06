@@ -209,6 +209,10 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	if tag3 != "" {
 		tags = append(tags, tag3)
 	}
+	var tag5 = 标签5(item)
+	if tag5 != "" {
+		tags = append(tags, tag5)
+	}
 	var tag6 = 标签6(item)
 	if tag6 != "" {
 		tags = append(tags, tag6)
