@@ -11,6 +11,7 @@
   * [x] [已解读数据库](#已解读数据库)
   * [ ] [Other Columns](#other-columns)
     - [x] [LOF](#lof)
+    - [x] [HGMDorClinvar](#HGMDorClinvar)
     - [ ] [遗传模式判读](#遗传模式判读)
 - [x] [lims.info](#limsinfo)
 - [ ] [QC](#qc)
@@ -138,6 +139,15 @@ ClinVar星级|ClinVar Number of gold stars|
 key|value
 -|-
 LOF|['YES','NO']
+
+#### HGMDorClinvar
+```go
+	item["HGMDorClinvar"] = "否"
+	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
+		item["HGMDorClinvar"] = "是"
+	}
+```
+
 #### 遗传模式判读
 ```text
  遗传模式判读列输出两种：携带者和可能患病
