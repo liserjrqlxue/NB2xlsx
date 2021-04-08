@@ -179,6 +179,10 @@ func main() {
 		}
 		rIdx++
 		var index = rIdx - titleRowIndex
+		if len(strArray) < sampleIDCIdx || strArray[sampleIDCIdx-1] == "" {
+			log.Printf("信息：样品%3d为空，跳过\n", index)
+			continue
+		}
 		var sampleID = strArray[sampleIDCIdx-1]
 		if len(strArray) > colLength && strArray[colLength] != "" {
 			log.Printf("警告：样品%3d[%11s]已有时间戳，跳过\n", index, sampleID)
