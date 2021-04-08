@@ -100,9 +100,12 @@ Gene Symbol|基因|main key
 第五附件1中的BW列报告类别，同孕前，数据库内包装的变异（BS列Database标记NBS-in）标记正式报告；数据库外的烈性（LOF列为YES）且低频(GnomAD≤1%，且千人≤1%)：标记补充报告
 ```
 ```text
+对于已解读数据库的“是否是包装位点”列为“是”以外的烈性低频（条件未改变）标记补充报告
+```
+```text
 sheet1里面的CC列“参考文献”，提取的是已解读数据库中的DM列“Reference”的内容
 ```
-```shell script
+```text
 2. 模板excel的CE列“位点关联疾病”匹配位点数据库CU列“Disease“
 3. 模板excel的CF列“位点关联遗传模式“匹配位点数据库CV列” 遗传模式“
 4. 模板excel的CG列“Evidence New + Check“匹配位点数据库DU列” 证据项“
