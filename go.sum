@@ -73,6 +73,7 @@ github.com/liserjrqlxue/version v1.0.1 h1:2j1+oyK1nPLHlxnBC0PTzxjydimuoAzrogh2Bk
 github.com/liserjrqlxue/version v1.0.1/go.mod h1:8HKdYCXeG5iBSqcqgV77IP68cLV8ycnd+/PUZN3Aq/k=
 github.com/liserjrqlxue/version v1.0.2 h1:PNwICMgimBYUTUPtDbSKzGQvzQe9/ZOlNkg2kryAEfs=
 github.com/liserjrqlxue/version v1.0.2/go.mod h1:8HKdYCXeG5iBSqcqgV77IP68cLV8ycnd+/PUZN3Aq/k=
+github.com/liserjrqlxue/version v1.1.0 h1:wN/cbVQA7/IWWtiHw0mkGLuDGuYiY7YeUqjM9zM8PD0=
 github.com/liserjrqlxue/version v1.1.0/go.mod h1:ehGb4dnPYw3TyHsCE/Fna5pOiWYUB1I3PPiZYE5Kc4I=
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 h1:RWengNIwukTxcDr9M+97sNutRR1RKhG96O6jWumTTnw=
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826/go.mod h1:TaXosZuwdSHYgviHp1DAtfrULt5eUgsSMsZf+YrPgl8=

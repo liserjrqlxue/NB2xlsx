@@ -244,6 +244,10 @@ func updateAvd(item map[string]string) {
 			item["isReport"] = "Y"
 		} else {
 			item["Database"] = "NBS-out"
+			if item["LOF"] == "YES" {
+				item["报告类别"] = "补充报告"
+				item["isReport"] = "Y"
+			}
 		}
 		item["参考文献"] = db["Reference"]
 		item["位点关联疾病"] = db["Disease"]
