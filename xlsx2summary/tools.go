@@ -120,9 +120,9 @@ func updateInfoDBfromHBB(db map[string]Info, item map[string]string) {
 var prefixHBA = map[string]string{
 	"3.7":  "-α",
 	"4.2":  "-α",
-	"SEA":  "- -",
-	"THAI": "- -",
-	"FIL":  "- -",
+	"SEA":  "--",
+	"THAI": "-- ",
+	"FIL":  "-- ",
 }
 
 func addPrefixHBA(result string) string {
