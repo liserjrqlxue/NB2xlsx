@@ -86,7 +86,7 @@
 模板excel的CD列“疾病简介“疾病库中的的“疾病简介”
 ```
 key1|key2|note
--|-|-
+---|---|---
 Gene Symbol|基因|main key
 疾病中文名|疾病|
 遗传模式|遗传模式|
@@ -113,22 +113,22 @@ sheet1里面的CC列“参考文献”，提取的是已解读数据库中的DM�
 6. 位点数据库中的DV列“是否是包装位点“为“是”的在注释表中是正式报告
 ```
 
-key1|key2|note
--|-|-
-Transcript|Transcript|main key 1
-cHGVS|cHGVS|main key 2
-参考文献|Reference|
-位点关联疾病|Disease|
-位点关联遗传模式|遗传模式|
-Evidence New + Check|证据项|
-Definition|Definition|
-Database||NBS-in\|NBS-out\|.
-报告类别||正式报告\|补充报告
-||是否是包装位点|
+|key1|key2|note|
+|---|---|---|
+|Transcript|Transcript|main key 1|
+|cHGVS|cHGVS|main key 2|
+|参考文献|Reference||
+|位点关联疾病|Disease||
+|位点关联遗传模式|遗传模式||
+|Evidence New + Check|证据项||
+|Definition|Definition||
+|Database| |[NBS-in,NBS-out,.]|
+|报告类别| |[正式报告,补充报告]|
+| |是否是包装位点||
 
 ### Other Columns
 key1|key2|note
--|-|-
+---|---|---
 ClinVar星级|ClinVar Number of gold stars|
 1000Gp3 AF|1000G AF|
 1000Gp3 EAS AF|1000G EAS AF|
@@ -139,8 +139,9 @@ ClinVar星级|ClinVar Number of gold stars|
 第二附件1中的BL列LOF同孕前：nonsense、frameshift、splice-3、splice-5类型且低频(GnomAD≤1%，且千人≤1%)，标记YES，否则标记NO。
 ```
 [`updateLOF`](../367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
+
 key|value
--|-
+---|---
 LOF|['YES','NO']
 
 #### HGMDorClinvar
@@ -179,7 +180,7 @@ LOF|['YES','NO']
 ```
 
 遗传模式|杂合性|个数|样品性别|遗传模式判读
--|-|-|-|-
+---|---|---|---|---
 ['AR','AR/AR']|Hom|>=1||可能患病
 ['AR','AR/AR']|Het|=1||携带者
 ['AR','AR/AR']|Het|>1||可能患病
@@ -190,7 +191,7 @@ LOF|['YES','NO']
 ## lims.info
 
 key1|key2|note
--|-|-
+---|---|---
 SampleID|MAIN_SAMPLE_NUM|main key
 期数|HYBRID_LIBRARY_NUM|
 flow ID|FLOW_ID|
@@ -227,7 +228,7 @@ flow ID|FLOW_ID|
 
 ### others
 title|key|note
--|-|-
+---|---|---
 Order|i+1|index+1
 产品编号|lims["PRODUCT_CODE"]|from `lims.info`
 RESULT|RESULT|
