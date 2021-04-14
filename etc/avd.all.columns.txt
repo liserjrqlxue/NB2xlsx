@@ -15,7 +15,6 @@ A.Depth
 A.Ratio
 reads_picture
 引物设计
-Filter
 Zygosity
 Gene Symbol
 Strand
@@ -48,7 +47,6 @@ ExAC EAS AF
 ExAC HomoAlt Count
 ExAC AF
 rsID
-filter
 PhyloP Vertebrates Pred
 PhyloP Placental Mammals Pred
 GERP++_RS_pred
@@ -68,27 +66,35 @@ HGMD Pred
 ClinVar Significance
 ClinVar review status
 ClinVar conflicting clinical significance
-ClinVar Number of gold stars
+ClinVar星级
 HGMDorClinvar
 LOF
 MIM Gene ID
 MIM Pheno IDs
 MIM Inheritance
-Disease*
-疾病中文名
-遗传模式
-Database
-autoRuleName
-自动化判断
-Definition
-遗传模式判读
-报告类别
-中文-突变详情
 gene+cHGVS
 gene+pHGVS3
 gene+pHGVS1
+autoRuleName
+自动化判断
+疾病中文名
+遗传模式
+疾病简介
+位点关联疾病
+位点关联遗传模式
 Evidence New + Check
+Definition
 参考文献
+遗传模式判读
+报告类别-原始
+中文-突变详情
+Database
 解读人
 checkdate
 审核人
+报告类别
+解读备注
+解读日期
+审核备注
+审核日期
+是否新增解读
