@@ -35,7 +35,7 @@ func loadDb() {
 				GetRows(*diseaseSheetName),
 		).([][]string),
 		"基因",
-		"/",
+		";",
 	)
 	for gene, info := range diseaseDb {
 		geneInheritance[gene] = info["遗传模式"]
