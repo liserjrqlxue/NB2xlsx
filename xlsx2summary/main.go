@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
@@ -71,40 +70,15 @@ func main() {
 		log.Fatalf("can not load [%s]\n", *input)
 	}
 
-	var db = make(map[string]Info)
-	// 读解读表
-	for n, annoFile := range strings.Split(*anno, ",") {
-		log.Printf("信息：开始读取解读表%d[%s]\n", n+1, annoFile)
-		var annoExcel = simpleUtil.HandleError(excelize.OpenFile(annoFile)).(*excelize.File)
-
-		getInfoFromAVD(db, annoExcel)
-		getInfoFromCNV(db, annoExcel)
-		getInfoFromAE(db, annoExcel)
-	}
+	var db = loadDB()
 
 	// load sample info
 	var sheetName = "159基因结果汇总"
-
 	var strSlice = simpleUtil.HandleError(
 		simpleUtil.HandleError(
 			excelize.OpenFile(*input),
 		).(*excelize.File).GetRows(sheetName),
 	).([][]string)
-
-	var colLength = 105
-	var titleRowIndex = 4
-	var sampleIDCIdx = 4
-	var sampleIDTitle = "华大基因检测编号"
-	var summaryCIdx = 14
-	var summaryTitle = "基因检测结果总结"
-	var resultCIdx = 15
-	var resultTitle = "基因检测结果拟诊疾病（疾病/风险）"
-	var geneLimit = 6
-	var geneNameCIdx = resultCIdx + geneLimit
-	var geneColCount = 4
-	var mutLit = 2
-	var mutColCount = 5
-	var geneColLength = geneColCount + mutLit*mutColCount
 
 	var appendColName = simpleUtil.HandleError(excelize.ColumnNumberToName(colLength + 1)).(string)
 	simpleUtil.CheckErr(
@@ -123,97 +97,8 @@ func main() {
 		),
 	)
 
-	for rIdx, strArray := range strSlice {
-		if rIdx < titleRowIndex-3 {
-			continue
-		} else if rIdx == titleRowIndex-3 {
-			checkTitleName(strArray, "基因一", rIdx+1, geneNameCIdx)
-			if len(strArray) > colLength && strArray[colLength] != "" {
-				log.Fatalf("错误：表头(%d,%d)[%s]!=\"\"", rIdx+1, colLength+1, strArray[colLength])
-			}
-			continue
-		} else if rIdx == titleRowIndex-2 {
-			checkTitleName(strArray, resultTitle, rIdx+1, resultCIdx)
-			checkTitleName(strArray, "基因名称", rIdx+1, geneNameCIdx)
-			checkTitleName(strArray, "变异一", rIdx+1, geneNameCIdx+1)
-			checkTitleName(strArray, "疾病", rIdx+1, geneNameCIdx+mutLit*mutColCount+1)
-			checkTitleName(strArray, "患病风险", rIdx+1, geneNameCIdx+mutLit*mutColCount+2)
-			checkTitleName(strArray, "遗传方式", rIdx+1, geneNameCIdx+mutLit*mutColCount+3)
-			continue
-		} else if rIdx == titleRowIndex-1 {
-			checkTitleName(strArray, sampleIDTitle, rIdx+1, sampleIDCIdx)
-			checkTitleName(strArray, summaryTitle, rIdx+1, summaryCIdx)
-			checkTitleName(strArray, "疾病一", rIdx+1, resultCIdx)
-			checkTitleName(strArray, "外显子", rIdx+1, geneNameCIdx+1)
-			checkTitleName(strArray, "碱基改变", rIdx+1, geneNameCIdx+2)
-			checkTitleName(strArray, "氨基酸改变", rIdx+1, geneNameCIdx+3)
-			continue
-		}
-		rIdx++
-		var index = rIdx - titleRowIndex
-		if len(strArray) < sampleIDCIdx || strArray[sampleIDCIdx-1] == "" {
-			log.Printf("信息：样品%3d为空，跳过\n", index)
-			continue
-		}
-		var sampleID = strArray[sampleIDCIdx-1]
-		if len(strArray) > colLength && strArray[colLength] != "" {
-			log.Printf("警告：样品%3d[%11s]已有时间戳，跳过\n", index, sampleID)
-			continue
-		}
-		var item, ok = db[sampleID]
-		if !ok {
-			if sampleCount[sampleID] == 0 {
-				log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
-				continue
-			} else {
-				log.Printf("信息：样品%3d[%11s]无疾病\n", index, sampleID)
-				item = Info{
-					sampleID: sampleID,
-					基因检测结果总结: "无疾病",
-				}
-			}
-		}
-		if sampleCount[sampleID] > 1 {
-			log.Printf("警告：样品%3d[%11s]解读信息重复%d次\n", index, sampleID, sampleCount[sampleID])
-		}
+	fillExcel(strSlice, db, outExcel, sheetName)
 
-		item.sortGene()
-		item.resumeGene()
-
-		WriteCellStr(outExcel, sheetName, summaryCIdx, rIdx, item.基因检测结果总结)
-		// 填充 基因检测结果
-		for i, 疾病 := range item.基因检测结果 {
-			if i > geneLimit {
-				log.Printf("警告：样品%3d[%11s]检出疾病超出%d个，疾病[%s]跳过\n", index, sampleID, geneLimit, 疾病)
-				break
-			}
-			WriteCellStr(outExcel, sheetName, resultCIdx+i, rIdx, 疾病)
-		}
-		fmt.Printf("\t%s\n", sampleID)
-		for i, geneInfo := range item.基因 {
-			if i > geneLimit {
-				log.Printf("警告：样品%3d[%11s]检出基因超出%d个，基因[%s]跳过\n", index, sampleID, geneLimit, geneInfo.基因名称)
-				break
-			}
-			WriteCellStr(outExcel, sheetName, geneNameCIdx+i*geneColLength, rIdx, geneInfo.基因名称)
-			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+1+i*geneColLength, rIdx, geneInfo.疾病)
-			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+2+i*geneColLength, rIdx, geneInfo.患病风险)
-			WriteCellStr(outExcel, sheetName, geneNameCIdx+mutLit*mutColCount+3+i*geneColLength, rIdx, geneInfo.遗传方式)
-			fmt.Printf("\t\t\t%-8s\t%s\n", geneInfo.基因名称, geneInfo.患病风险)
-			for j, mutInfo := range geneInfo.变异 {
-				if j > 1 {
-					log.Printf("警告：样品%3d[%11s]在基因[%s]检出变异超出2个，变异[%s]跳过", index, sampleID, geneInfo.基因名称, mutInfo.碱基改变)
-					break
-				}
-				WriteCellStr(outExcel, sheetName, geneNameCIdx+1+i*geneColLength+j*mutColCount, rIdx, mutInfo.外显子)
-				WriteCellStr(outExcel, sheetName, geneNameCIdx+2+i*geneColLength+j*mutColCount, rIdx, mutInfo.碱基改变)
-				WriteCellStr(outExcel, sheetName, geneNameCIdx+3+i*geneColLength+j*mutColCount, rIdx, mutInfo.氨基酸改变)
-				fmt.Printf("\t\t\t\t\t%s\n", mutInfo.碱基改变)
-			}
-		}
-		WriteCellValue(outExcel, sheetName, colLength+1, rIdx, time.Now().UTC())
-		log.Printf("信息：样品%3d[%11s]已写入\n", index, sampleID)
-	}
 	var outputPath = fmt.Sprintf("%s.%s.xlsx", *prefix, *tag)
 	simpleUtil.CheckErr(outExcel.SaveAs(outputPath))
 	log.Printf("信息：保存到[%s]\n", outputPath)
