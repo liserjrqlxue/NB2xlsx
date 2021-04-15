@@ -240,12 +240,12 @@ func updateAvd(item map[string]string) {
 	if ok {
 		if db["是否是包装位点"] == "是" {
 			item["Database"] = "NBS-in"
-			item["报告类别"] = "正式报告"
+			item["报告类别-原始"] = "正式报告"
 			item["isReport"] = "Y"
 		} else {
 			item["Database"] = "NBS-out"
 			if item["LOF"] == "YES" {
-				item["报告类别"] = "补充报告"
+				item["报告类别-原始"] = "补充报告"
 				item["isReport"] = "Y"
 			}
 		}
@@ -257,7 +257,7 @@ func updateAvd(item map[string]string) {
 	} else {
 		item["Database"] = "."
 		if item["LOF"] == "YES" {
-			item["报告类别"] = "补充报告"
+			item["报告类别-原始"] = "补充报告"
 			item["isReport"] = "Y"
 		}
 	}
@@ -571,7 +571,7 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 		formalID = formalStyleID
 		supplementaryID = supplementaryStyleID
 	}
-	switch item["报告类别"] {
+	switch item["报告类别-原始"] {
 	case "正式报告":
 		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, formalID), sheetName, axis0, axis1)
 	case "补充报告":
