@@ -90,7 +90,7 @@ func updateInfoDBfromCNV(db map[string]Info, item map[string]string) {
 			geneInfo.患病风险 = "可能患病"
 		}
 		var mutInfo = MutInfo{
-			外显子:   item["exon"],
+			外显子:   strings.Split(item["核苷酸变化"], " ")[0],
 			碱基改变:  item["核苷酸变化"],
 			氨基酸改变: ".",
 		}
@@ -166,7 +166,7 @@ func updateInfoDBfromSMA(db map[string]Info, item map[string]string) {
 			遗传方式: "AR",
 		}
 		var mutInfo = MutInfo{
-			外显子:   ".",
+			外显子:   "EX7",
 			碱基改变:  "EX7 DEL",
 			氨基酸改变: ".",
 		}
