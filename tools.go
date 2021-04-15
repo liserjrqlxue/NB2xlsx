@@ -10,8 +10,10 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
+	AES "github.com/liserjrqlxue/crypto/aes"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
+	simple_util "github.com/liserjrqlxue/simple-util"
 )
 
 func loadDb() {
@@ -52,15 +54,19 @@ func loadDb() {
 func loadLocalDb(throttle chan bool) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
-	localDb, _ = simpleUtil.Slice2MapMapArray(
-		simpleUtil.HandleError(
+	if simple_util.FileExists(*mutDb) {
+		localDb = simple_util.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
+	} else {
+		localDb, _ = simpleUtil.Slice2MapMapArray(
 			simpleUtil.HandleError(
-				excelize.OpenFile(*localDbExcel),
-			).(*excelize.File).
-				GetRows(*localDbSheetName),
-		).([][]string),
-		"Transcript", "cHGVS",
-	)
+				simpleUtil.HandleError(
+					excelize.OpenFile(*localDbExcel),
+				).(*excelize.File).
+					GetRows(*localDbSheetName),
+			).([][]string),
+			"Transcript", "cHGVS",
+		)
+	}
 	log.Println("Load LocalDb Done")
 	<-throttle
 }
