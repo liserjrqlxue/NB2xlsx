@@ -54,19 +54,7 @@ func loadDb() {
 func loadLocalDb(throttle chan bool) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
-	if simple_util.FileExists(*mutDb) {
-		localDb = simple_util.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
-	} else {
-		localDb, _ = simpleUtil.Slice2MapMapArray(
-			simpleUtil.HandleError(
-				simpleUtil.HandleError(
-					excelize.OpenFile(*localDbExcel),
-				).(*excelize.File).
-					GetRows(*localDbSheetName),
-			).([][]string),
-			"Transcript", "cHGVS",
-		)
-	}
+	localDb = simple_util.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
 	log.Println("Load LocalDb Done")
 	<-throttle
 }
