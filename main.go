@@ -13,7 +13,7 @@ import (
 	"github.com/liserjrqlxue/version"
 )
 
-func main() {
+func init() {
 	version.LogVersion()
 	// flag
 	flag.Parse()
@@ -26,7 +26,9 @@ func main() {
 			os.Exit(1)
 		}
 	}
+}
 
+func main() {
 	if osUtil.FileExists(*gender) {
 		log.Printf("load gender map from %s", *gender)
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
