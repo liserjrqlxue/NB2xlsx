@@ -52,6 +52,11 @@ var (
 		"Sheet1",
 		"sheet name of disease database excel",
 	)
+	mutDb = flag.String(
+		"mut",
+		filepath.Join(etcPath, "已解读数据库.json.aes"),
+		"加密 已解读数据库",
+	)
 	localDbExcel = flag.String(
 		"db",
 		filepath.Join(etcPath, "已解读数据库.xlsx"),
