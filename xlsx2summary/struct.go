@@ -8,6 +8,7 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
+// Info recode sample info and summary
 type Info struct {
 	sampleID   string
 	可疑, 携带     int
@@ -25,6 +26,7 @@ type Info struct {
 	基因检测结果总结   string
 }
 
+// GeneInfo record gene info
 type GeneInfo struct {
 	基因名称 string
 	变异   []MutInfo
@@ -32,6 +34,8 @@ type GeneInfo struct {
 	患病风险 string
 	遗传方式 string
 }
+
+// MutInfo recorde mutaiton info
 type MutInfo struct {
 	外显子   string
 	碱基改变  string
