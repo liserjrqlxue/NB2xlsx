@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"path/filepath"
 	"strconv"
@@ -144,7 +143,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	for avd := range dbChan {
 		for _, item := range avd {
 			rIdx++
-			updateINDEX(item, rIdx)
+			updateINDEX(item, false)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
 		count++
@@ -200,7 +199,7 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
-			updateINDEX(item, rIdx)
+			updateINDEX(item, true)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
@@ -238,7 +237,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 	for _, item := range db {
 		rIdx++
 		updateAe(item)
-		updateINDEX(item, rIdx)
+		updateINDEX(item, true)
 		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
 }
@@ -259,7 +258,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	for i, item := range db {
 		rIdx++
 		updateQC(item, qcMap, i)
-		updateINDEX(item, rIdx)
+		updateINDEX(item, false)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
 }
@@ -274,9 +273,14 @@ func updateQC(item, qcMap map[string]string, i int) {
 	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 }
 
-func updateINDEX(item map[string]string, rIdx int) {
-	item["解读人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!O:O,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
-	item["审核人"] = fmt.Sprintf("=INDEX('任务单（空sheet）'!P:P,MATCH(D%d&MID($C%d,1,6),'任务单（空sheet）'!$R:$R,0),1)", rIdx, rIdx)
+func updateINDEX(item map[string]string, rangeLookup bool) {
+	if rangeLookup {
+		item["解读人"] = "=VLOOKUP(@D:D,任务单!A:G,3)"
+		item["审核人"] = "=VLOOKUP(@D:D,任务单!A:G,4)"
+	} else {
+		item["解读人"] = "=VLOOKUP(@D:D,任务单!A:G,3,FALSE)"
+		item["审核人"] = "=VLOOKUP(@D:D,任务单!A:G,4,FALSE)"
+	}
 }
 
 var (
