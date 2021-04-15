@@ -4,6 +4,7 @@
 
 安馨可生信注释格式
 
+- [x] [编译安装](#编译安装)
 - [ ] [All variants data](#all-variants-data)
   * [x] [过滤](#过滤)
   * [X] [标签](#标签)
@@ -20,6 +21,17 @@
 - [ ] [excel 格式](#excel-格式)
   * [x] [DataValidation](#datavalidation)
   * [ ] [Background Color](#background-color)
+
+## 编译安装
+
+```shell
+git clone https://github.com/liserjrqlxue/NB2xlsx.git
+cd NB2xlsx
+go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要替换对应AES密钥
+```
+
+### 注意
+部分数据库文件不在`git repo`内，需要拷贝到对应位置
 
 ## All variants data
 
