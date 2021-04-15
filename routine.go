@@ -242,6 +242,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 	}
 }
 
+// WriteQC wirte QC sheet to excel
 func WriteQC(excel *excelize.File, throttle chan bool) {
 	log.Println("Write QC Start")
 	writeQC(excel, loadQC(*qc))

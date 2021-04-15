@@ -71,6 +71,7 @@ func summary(w http.ResponseWriter, r *http.Request) {
 	generalGet(w, r, "summary.html")
 }
 
+// NB2xlsx use NB2xlsx to get result excel
 func NB2xlsx(w http.ResponseWriter, r *http.Request) {
 	generalGet(w, r, "NB2xlsx.html")
 
@@ -84,11 +85,13 @@ func handleError(w http.ResponseWriter, e error, msg ...string) {
 	}
 }
 
+// Info contain Href and Message
 type Info struct {
 	Href    string
 	Message string
 }
 
+// Result contain Title Tag Href and Message
 type Result struct {
 	Title   string
 	Tag     string
@@ -96,6 +99,7 @@ type Result struct {
 	Message string
 }
 
+// SummaryResult contain Title Message and Info of Suumary Result []Anno
 type SummaryResult struct {
 	Title   string
 	Message string
@@ -229,6 +233,7 @@ func logRequest(r *http.Request) {
 	}
 }
 
+// NB2xlsxResult use NB2xlsx create result excel and return result page
 func NB2xlsxResult(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var t, e = template.ParseFiles(filepath.Join(templatePath, "NB2xlsx.result.html"))

@@ -9,6 +9,7 @@ import (
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 )
 
+// WriteCellStr write string to cell
 func WriteCellStr(excel *excelize.File, sheetName string, col, row int, value string) {
 	simpleUtil.CheckErr(
 		excel.SetCellStr(
@@ -19,6 +20,7 @@ func WriteCellStr(excel *excelize.File, sheetName string, col, row int, value st
 	)
 }
 
+// WriteCellValue write value to cell, warp of excelize.File.SetCellValue()
 func WriteCellValue(excel *excelize.File, sheetName string, col, row int, value interface{}) {
 	simpleUtil.CheckErr(
 		excel.SetCellValue(
@@ -178,6 +180,7 @@ func updateInfoDBfromAE(db map[string]Info, item map[string]string) {
 	updateInfoDBfromSMA(db, item)
 }
 
+// GetInfo updateInfo db from sheetName of annoExcel
 func GetInfo(db map[string]Info, annoExcel *excelize.File, sheetName string, fn updateInfo) {
 	var strSlice = simpleUtil.HandleError(annoExcel.GetRows(sheetName)).([][]string)
 	var title []string

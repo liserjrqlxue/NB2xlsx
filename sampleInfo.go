@@ -1,5 +1,6 @@
 package main
 
+// SampleInfo record gender and p0-p3
 type SampleInfo struct {
 	sampleID string
 	gender   string
