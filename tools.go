@@ -340,51 +340,60 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	}
 }
 
-func updateGeneHashAR(item map[string]string, genePred string) string {
-	if item["Zygosity"] == "Hom" {
+func updateGeneHashAD(item map[string]string) string {
+	switch item["Zygosity"] {
+	case "Hom", "Het":
 		return "可能患病"
-	} else if item["Zygosity"] == "Het" {
+	default:
+		return ""
+	}
+}
+
+func updateGeneHashXLD(item map[string]string) string {
+	switch item["Zygosity"] {
+	case "Hom", "Het", "Hemi":
+		return "可能患病"
+	default:
+		return ""
+	}
+}
+
+func updateGeneHashAR(item map[string]string, genePred string) string {
+	switch item["Zygosity"] {
+	case "Hom":
+		return "可能患病"
+	case "Het":
 		if genePred == "" {
 			return "携带者"
-		} else if genePred == "携带者" {
+		} else {
 			return "可能患病"
 		}
+	default:
+		return ""
 	}
-	return ""
 }
 
-func updateGeneHashAD(item map[string]string) string {
-	if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-		return "可能患病"
+func updateGeneHashXLR(item map[string]string, genePred, gender string) string {
+	switch gender {
+	case "M":
+		return updateGeneHashXLD(item)
+	case "F":
+		return updateGeneHashAR(item, genePred)
+	default:
+		return ""
 	}
-	return ""
-}
-
-func updateGeneHashXL(item map[string]string, gender string) string {
-	if gender == "M" {
-		if item["Zygosity"] == "Hemi" {
-			return "可能患病"
-		}
-	} else if gender == "F" {
-		if item["Zygosity"] == "Hom" || item["Zygosity"] == "Het" {
-			return "可能患病"
-		}
-	}
-	return ""
 }
 
 func updateGeneHash(item map[string]string, genePred, gender string) string {
 	switch item["遗传模式"] {
-	case "AR":
+	case "AR", "AR;AR", "AR;AR;AR", "AR;AR;AR;AR":
 		return updateGeneHashAR(item, genePred)
-	case "AR/AR":
-		return updateGeneHashAR(item, genePred)
-	case "AD":
+	case "AD", "AD,AR", "AD,AR;AD,AR", "AD;AD", "AD;AD,AR":
 		updateGeneHashAD(item)
-	case "AD,AR":
-		updateGeneHashAD(item)
-	case "XL":
-		updateGeneHashXL(item, gender)
+	case "XLD":
+		updateGeneHashXLD(item)
+	case "XLR":
+		updateGeneHashXLR(item, genePred, gender)
 	}
 	return ""
 }
