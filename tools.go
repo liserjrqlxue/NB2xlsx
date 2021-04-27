@@ -389,13 +389,14 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 	case "AR", "AR;AR", "AR;AR;AR", "AR;AR;AR;AR":
 		return updateGeneHashAR(item, genePred)
 	case "AD", "AD,AR", "AD,AR;AD,AR", "AD;AD", "AD;AD,AR":
-		updateGeneHashAD(item)
+		return updateGeneHashAD(item)
 	case "XLD":
-		updateGeneHashXLD(item)
+		return updateGeneHashXLD(item)
 	case "XLR":
-		updateGeneHashXLR(item, genePred, gender)
+		return updateGeneHashXLR(item, genePred, gender)
+	default:
+		return ""
 	}
-	return ""
 }
 
 // UpdateGeneHash : update geneHash
