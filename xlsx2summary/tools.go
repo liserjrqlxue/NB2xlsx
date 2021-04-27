@@ -72,6 +72,10 @@ func updateInfoDBfromAVD(db map[string]Info, item map[string]string) {
 			氨基酸改变: getAfterVerticalbar(item["pHGVS"]),
 		}
 		updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
+		// dup mutInfo for Hom
+		if item["Zygosity"] == "Hom" {
+			updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
+		}
 	}
 }
 
@@ -110,12 +114,14 @@ func updateInfoDBfromHBB(db map[string]Info, item map[string]string) {
 			患病风险: 患病风险[item[最终结果]],
 			遗传方式: "AR",
 		}
-		var mutInfo = MutInfo{
-			外显子:   ".",
-			碱基改变:  item[最终结果],
-			氨基酸改变: ".",
+		for _, mut := range strings.Split(item[最终结果], ";") {
+			var mutInfo = MutInfo{
+				外显子:   ".",
+				碱基改变:  mut,
+				氨基酸改变: ".",
+			}
+			updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
 		}
-		updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
 	}
 }
 
@@ -142,12 +148,14 @@ func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 			患病风险: 患病风险[item[最终结果]],
 			遗传方式: "AR",
 		}
-		var mutInfo = MutInfo{
-			外显子:   ".",
-			碱基改变:  addPrefixHBA(item[最终结果]),
-			氨基酸改变: ".",
+		for _, mut := range strings.Split(addPrefixHBA(item[最终结果]), ";") {
+			var mutInfo = MutInfo{
+				外显子:   ".",
+				碱基改变:  mut,
+				氨基酸改变: ".",
+			}
+			updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
 		}
-		updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
 	}
 
 }
