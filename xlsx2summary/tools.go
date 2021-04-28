@@ -148,10 +148,10 @@ func updateInfoDBfromHBA(db map[string]Info, item map[string]string) {
 			患病风险: 患病风险[item[最终结果]],
 			遗传方式: "AR",
 		}
-		for _, mut := range strings.Split(addPrefixHBA(item[最终结果]), ";") {
+		for _, mut := range strings.Split(item[最终结果], ";") {
 			var mutInfo = MutInfo{
 				外显子:   ".",
-				碱基改变:  mut,
+				碱基改变:  addPrefixHBA(mut),
 				氨基酸改变: ".",
 			}
 			updateInfoDB(db, geneInfo, mutInfo, sampleID, geneSymbol)
