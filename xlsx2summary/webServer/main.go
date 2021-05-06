@@ -41,6 +41,8 @@ func main() {
 	http.HandleFunc("/NB2xlsxResult", NB2xlsxResult)
 	http.HandleFunc("/snvRatio", snvRatio)
 	http.HandleFunc("/snvRatioResult", snvRatioResult)
+	http.HandleFunc("/xyRatio", xyRatio)
+	http.HandleFunc("/xyRatioResult", xyRatioResult)
 	http.HandleFunc("/", index)
 	simpleUtil.CheckErr(http.ListenAndServe(*port, nil))
 }
@@ -80,6 +82,10 @@ func NB2xlsx(w http.ResponseWriter, r *http.Request) {
 
 func snvRatio(w http.ResponseWriter, r *http.Request) {
 	generalGet(w, r, "snvRatio.html")
+}
+
+func xyRatio(w http.ResponseWriter, r *http.Request) {
+	generalGet(w, r, "xyRatio.html")
 }
 
 func handleError(w http.ResponseWriter, e error, msg ...string) {
@@ -323,6 +329,49 @@ func snvRatioResult(w http.ResponseWriter, r *http.Request) {
 			filepath.Join(
 				"output", "snvRatio",
 				fmt.Sprintf("%s.%s.%s.ratio.pdf", batchName, sampleID, chromosome),
+			),
+			http.StatusFound,
+		)
+	} else {
+		var _, e = fmt.Fprintln(w, "only support POST method")
+		log.Printf("%+v", e)
+	}
+}
+
+func xyRatioResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var e = os.MkdirAll("output/xyRatio", 0755)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		e = r.ParseMultipartForm(31 << 20)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		logRequest(r)
+		var batchName = r.Form["batchName"][0]
+		var sampleID = r.Form["sampleID"][0]
+		var cmd = exec.Command(
+			"bash",
+			"XYratio/cal.batch.sh",
+			batchName,
+			sampleID,
+		)
+		msg, e := cmd.CombinedOutput()
+		var msgStr = string(msg)
+		fmt.Printf("%s\n", msgStr)
+		if e != nil {
+			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
+			return
+		}
+		http.Redirect(
+			w,
+			r,
+			filepath.Join(
+				"output", "xyRatio",
+				sampleID+".XYratio.pdf",
 			),
 			http.StatusFound,
 		)
