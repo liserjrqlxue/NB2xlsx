@@ -174,7 +174,7 @@ LOF|['YES','NO']
 ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Hom']|>=1| |可能患病|
 ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Het']|=1| |携带者
 ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Het']|>1| |可能患病
-['AD','AD,AR','AD,AR;AD,AR','AD;AD','AD;AD,AR']|['Hom','Het']|>=1| |可能患病
+['AD','AD,AR','AD,AR;AD,AR','AD;AD','AD;AD,AR','Mi']|['Hom','Het']|>=1| |可能患病
 ['XLD']|['Hom','Het','Hemi']|>=1| |可能患病
 ['XLR']|['Hom','Het','Hemi']|>=1|Male|可能患病
 ['XLR']|['Hom']|>=1|Female|可能患病
