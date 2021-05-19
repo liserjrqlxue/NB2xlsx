@@ -49,7 +49,7 @@ var (
 	)
 	diseaseSheetName = flag.String(
 		"diseaseSheetName",
-		"Sheet1",
+		"Sheet2",
 		"sheet name of disease database excel",
 	)
 	mutDb = flag.String(
