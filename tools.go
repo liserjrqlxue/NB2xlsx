@@ -388,7 +388,7 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 	switch item["遗传模式"] {
 	case "AR", "AR;AR", "AR;AR;AR", "AR;AR;AR;AR":
 		return updateGeneHashAR(item, genePred)
-	case "AD", "AD,AR", "AD,AR;AD,AR", "AD;AD", "AD;AD,AR":
+	case "AD", "AD,AR", "AD,AR;AD,AR", "AD;AD", "AD;AD,AR", "Mi":
 		return updateGeneHashAD(item)
 	case "XLD":
 		return updateGeneHashXLD(item)
