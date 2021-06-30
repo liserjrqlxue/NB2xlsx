@@ -516,7 +516,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	}
 	switch Categorization {
 	case "0":
-		result = "纯阳性"
+		result = "纯合阳性"
 	case "0.5":
 		result = "纯合灰区"
 	case "1":
