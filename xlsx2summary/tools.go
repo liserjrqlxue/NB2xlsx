@@ -256,6 +256,50 @@ func loadDB() map[string]Info {
 	return db
 }
 
+func fillExcel2(strSlice [][]string, db map[string]Info, outExcel *excelize.File, sheetName string) {
+	var title []string
+	for index, strArray := range strSlice {
+		if index == 0 {
+			title = strArray
+			continue
+		}
+
+		var info = make(map[string]string)
+		for j := range title {
+			info[title[j]] = strArray[j]
+		}
+
+		var sampleID = info["华大样本编号"]
+		var item, ok = db[sampleID]
+		if !ok {
+			if sampleCount[sampleID] == 0 {
+				log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
+				continue
+			} else {
+				log.Printf("信息：样品%3d[%11s]无疾病\n", index, sampleID)
+				item = Info{
+					sampleID: sampleID,
+					基因检测结果总结: "无疾病",
+				}
+			}
+		}
+		if sampleCount[sampleID] > 1 {
+			log.Printf("警告：样品%3d[%11s]解读信息重复%d次\n", index, sampleID, sampleCount[sampleID])
+		}
+
+		item.sortGene()
+		item.resumeGene()
+
+		WriteCellValue(outExcel, sheetName, 1, index+4, index)
+		WriteCellStr(outExcel, sheetName, 2, index+4, info["样本寄送时间"])
+		WriteCellStr(outExcel, sheetName, 3, index+4, info["原样品编号"])
+		WriteCellStr(outExcel, sheetName, 4, index+4, info["华大样本编号"])
+		WriteCellStr(outExcel, sheetName, 7, index+4, info["性别"])
+		WriteCellStr(outExcel, sheetName, 8, index+4, info["生化筛查结果"])
+		item.fillExcel(outExcel, sampleID, sheetName, index, index+4)
+	}
+}
+
 func fillExcel(strSlice [][]string, db map[string]Info, outExcel *excelize.File, sheetName string) {
 	for rIdx, strArray := range strSlice {
 		if rIdx < titleRowIndex-3 {
