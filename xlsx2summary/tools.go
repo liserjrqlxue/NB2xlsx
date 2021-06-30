@@ -296,6 +296,7 @@ func fillExcel2(strSlice [][]string, db map[string]Info, outExcel *excelize.File
 		WriteCellStr(outExcel, sheetName, 4, index+4, info["华大样本编号"])
 		WriteCellStr(outExcel, sheetName, 7, index+4, info["性别"])
 		WriteCellStr(outExcel, sheetName, 8, index+4, info["生化筛查结果"])
+		WriteCellStr(outExcel, sheetName, 106, index+4, info["送检单位"])
 		item.fillExcel(outExcel, sampleID, sheetName, index, index+4)
 	}
 }
