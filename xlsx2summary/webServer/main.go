@@ -43,6 +43,8 @@ func main() {
 	http.HandleFunc("/snvRatioResult", snvRatioResult)
 	http.HandleFunc("/xyRatio", xyRatio)
 	http.HandleFunc("/xyRatioResult", xyRatioResult)
+	http.HandleFunc("/QC", QC)
+	http.HandleFunc("/QcResult", QcResult)
 	http.HandleFunc("/", index)
 	simpleUtil.CheckErr(http.ListenAndServe(*port, nil))
 }
@@ -86,6 +88,11 @@ func snvRatio(w http.ResponseWriter, r *http.Request) {
 
 func xyRatio(w http.ResponseWriter, r *http.Request) {
 	generalGet(w, r, "xyRatio.html")
+}
+
+// QC use combine.sh to get QC result excel
+func QC(w http.ResponseWriter, r *http.Request) {
+	generalGet(w, r, "QC.html")
 }
 
 func handleError(w http.ResponseWriter, e error, msg ...string) {
@@ -375,6 +382,55 @@ func xyRatioResult(w http.ResponseWriter, r *http.Request) {
 			),
 			http.StatusFound,
 		)
+	} else {
+		var _, e = fmt.Fprintln(w, "only support POST method")
+		log.Printf("%+v", e)
+	}
+}
+
+// QcResult create QC result excel and return result page
+func QcResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		var t, e = template.ParseFiles(filepath.Join(templatePath, "QC.result.html"))
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		e = os.MkdirAll("output/QC", 0755)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		e = r.ParseMultipartForm(31 << 20)
+		if e != nil {
+			handleError(w, e)
+			return
+		}
+		logRequest(r)
+		var prefix = r.Form["prefix"][0]
+		var cmd = exec.Command(
+			"bash",
+			"combine.sh",
+			filepath.Join("output", "QC", prefix),
+		)
+		msg, e := cmd.CombinedOutput()
+		var msgStr = string(msg)
+		fmt.Printf("%s\n", msgStr)
+		if e != nil {
+			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
+			return
+		}
+		var result = Result{
+			Title:   "QC",
+			Tag:     prefix,
+			Href:    "",
+			Message: msgStr,
+		}
+		e = t.Execute(w, result)
+		if e != nil {
+			handleError(w, e, "\ncmd:\t", cmd.String(), "\nlog:\t", msgStr)
+			return
+		}
 	} else {
 		var _, e = fmt.Fprintln(w, "only support POST method")
 		log.Printf("%+v", e)

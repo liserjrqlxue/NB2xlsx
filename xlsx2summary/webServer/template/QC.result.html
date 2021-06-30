@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <title>{{.Title}}-{{.Tag}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/QC">QC</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Result</li>
+    </ol>
+</nav>
+<div class="container">
+        <div class="row">
+            <div class="col-2">
+                Prefix
+            </div>
+            <div class="col-10">
+                {{.Tag}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <h3>输出</h3>
+    <div>
+        <div class="row">
+            <div class="col-2">
+                namehash
+            </div>
+            <div class="col-10">
+                <a href="/output/QC/{{.Tag}}.IDTnbs.namehash.xlsx">{{.Tag}}.IDTnbs.namehash.xlsx</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                QC
+            </div>
+            <div class="col-10">
+                <a href="/output/QC/{{.Tag}}.IDTnbs.QC.xlsx">{{.Tag}}.IDTnbs.QC.xlsx</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                mail_format
+            </div>
+            <div class="col-10">
+                <a href="/output/QC/{{.Tag}}.IDTnbs.QC.mail_format.xlsx">{{.Tag}}.IDTnbs.QC.mail_format.xlsx</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <h3>记录</h3>
+    <div>
+        <pre>{{.Message}}</pre>
+    </div>
+</div>
+</body>
+</html>
