@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
@@ -87,7 +86,7 @@ func (item *Info) fillExcel(outExcel *excelize.File, sampleID, sheetName string,
 	WriteCellStr(outExcel, sheetName, summaryCIdx, rIdx, item.基因检测结果总结)
 	item.fillGeneResult(outExcel, sampleID, sheetName, index, rIdx)
 	item.fillGeneInfo(outExcel, sampleID, sheetName, index, rIdx)
-	WriteCellValue(outExcel, sheetName, colLength+1, rIdx, time.Now().UTC())
+	//WriteCellValue(outExcel, sheetName, colLength+1, rIdx, time.Now().UTC())
 	log.Printf("信息：样品%3d[%11s]已写入\n", index, sampleID)
 }
 
