@@ -365,9 +365,8 @@ func updateGeneHashAR(item map[string]string, genePred string) string {
 	case "Het":
 		if genePred == "" {
 			return "携带者"
-		} else {
-			return "可能患病"
 		}
+		return "可能患病"
 	default:
 		return ""
 	}
