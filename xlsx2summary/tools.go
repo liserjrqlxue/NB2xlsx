@@ -292,15 +292,17 @@ func fillExcel2(strSlice [][]string, db map[string]Info, outExcel *excelize.File
 		item.resumeGene()
 
 		WriteCellValue(outExcel, sheetName, 1, index+4, index)
-		WriteCellValue(
-			outExcel,
-			sheetName,
-			2,
-			index+4,
-			simpleUtil.HandleError(
-				time.Parse("01-02-06", info["样本寄送时间"]),
-			).(time.Time),
-		)
+		var sendTime, err = time.Parse("01-02-06", info["样本寄送时间"])
+		if err != nil {
+			WriteCellStr(outExcel, sheetName, 2, index+4, info["样本寄送时间"])
+			log.Printf("ERROR: can not parse 样本寄送时间[%s]:[%v]\n", info["样本寄送时间"], err)
+		} else {
+			WriteCellValue(outExcel, sheetName, 2, index+4, sendTime)
+		}
+		if info["样本寄送时间"] == "" {
+			WriteCellStr(outExcel, sheetName, 3, index+4, info["原样品编号"])
+		} else {
+		}
 		WriteCellStr(outExcel, sheetName, 3, index+4, info["原样品编号"])
 		WriteCellStr(outExcel, sheetName, 4, index+4, info["华大样本编号"])
 		WriteCellStr(outExcel, sheetName, 7, index+4, info["性别"])
