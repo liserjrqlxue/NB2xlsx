@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -254,6 +255,59 @@ func loadDB() map[string]Info {
 		getInfoFromAE(db, annoExcel)
 	}
 	return db
+}
+
+func fillExcel2(strSlice [][]string, db map[string]Info, outExcel *excelize.File, sheetName string) {
+	var title []string
+	for index, strArray := range strSlice {
+		if index == 0 {
+			title = strArray
+			continue
+		}
+
+		var info = make(map[string]string)
+		for j := range title {
+			info[title[j]] = strArray[j]
+		}
+
+		var sampleID = info["华大样本编号"]
+		var item, ok = db[sampleID]
+		if !ok {
+			if sampleCount[sampleID] == 0 {
+				log.Printf("警告：样品%3d[%11s]无解读信息，跳过\n", index, sampleID)
+				continue
+			} else {
+				log.Printf("信息：样品%3d[%11s]无疾病\n", index, sampleID)
+				item = Info{
+					sampleID: sampleID,
+					基因检测结果总结: "无疾病",
+				}
+			}
+		}
+		if sampleCount[sampleID] > 1 {
+			log.Printf("警告：样品%3d[%11s]解读信息重复%d次\n", index, sampleID, sampleCount[sampleID])
+		}
+
+		item.sortGene()
+		item.resumeGene()
+
+		WriteCellValue(outExcel, sheetName, 1, index+4, index)
+		WriteCellValue(
+			outExcel,
+			sheetName,
+			2,
+			index+4,
+			simpleUtil.HandleError(
+				time.Parse("01-02-06", info["样本寄送时间"]),
+			).(time.Time),
+		)
+		WriteCellStr(outExcel, sheetName, 3, index+4, info["原样品编号"])
+		WriteCellStr(outExcel, sheetName, 4, index+4, info["华大样本编号"])
+		WriteCellStr(outExcel, sheetName, 7, index+4, info["性别"])
+		WriteCellStr(outExcel, sheetName, 8, index+4, info["生化筛查结果"])
+		WriteCellStr(outExcel, sheetName, 106, index+4, info["送检单位"])
+		item.fillExcel(outExcel, sampleID, sheetName, index, index+4)
+	}
 }
 
 func fillExcel(strSlice [][]string, db map[string]Info, outExcel *excelize.File, sheetName string) {
