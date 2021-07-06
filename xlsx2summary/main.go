@@ -86,16 +86,16 @@ func main() {
 			sheetName,
 			appendColName,
 			appendColName,
-			10,
+			20,
 		),
 	)
-	simpleUtil.CheckErr(
-		outExcel.SetColStyle(
-			sheetName,
-			appendColName,
-			simpleUtil.HandleError(outExcel.NewStyle(`{"fill":{"type":"pattern","color":["#E0EBF5"],"pattern":1}, "number_format": 14}`)).(int),
-		),
-	)
+	//simpleUtil.CheckErr(
+	//	outExcel.SetColStyle(
+	//		sheetName,
+	//		"B",
+	//		simpleUtil.HandleError(outExcel.NewStyle(`{"fill":{"type":"pattern","color":["#E0EBF5"],"pattern":1}, "number_format": 14}`)).(int),
+	//	),
+	//)
 
 	fillExcel2(strSlice, db, outExcel, sheetName)
 
