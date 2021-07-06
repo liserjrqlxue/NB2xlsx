@@ -15,12 +15,8 @@
 <form enctype="multipart/form-data" action="/summaryResult" method="post" target="_blank">
     <input type="hidden" name="token" value="{{.Token}}"/>
     <div class="mb-3">
-        <label for="formFile" class="form-label">汇总表</label>
-        <input class="form-control" type="file" id="formFile" name="summary">
-    </div>
-    <div class="mb-3">
         <label for="formFileMultiple" class="form-label">解读表</label>
-        <input class="form-control" type="file" id="formFileMultiple" name="anno" multiple>
+        <input class="form-control" type="file" id="formFileMultiple" name="anno">
     </div>
     <div class="d-grid gap-2">
         <button class="btn btn-primary" type="submit">提交</button>

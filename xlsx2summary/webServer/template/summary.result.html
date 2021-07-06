@@ -15,27 +15,17 @@
 <div class="container">
     <h3>输入</h3>
     <div>
-        {{with .Summary}}
-        <div class="row">
-            <div class="col-2">
-                汇总表
-            </div>
-            <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
-            </div>
-        </div>
-        {{end}}
         {{with .Anno}}
-        {{range .}}
-        <div class="row">
-            <div class="col-2">
-                解读表
-            </div>
-            <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
-            </div>
-        </div>
-        {{end}}
+            {{range .}}
+                <div class="row">
+                    <div class="col-2">
+                        解读表
+                    </div>
+                    <div class="col-10">
+                        <a href="{{.Href}}">{{.Message}}</a>
+                    </div>
+                </div>
+            {{end}}
         {{end}}
     </div>
 </div>
@@ -43,14 +33,14 @@
     <h3>输出</h3>
     <div>
         {{with .Result}}
-        <div class="row">
-            <div class="col-2">
-                汇总解读表
+            <div class="row">
+                <div class="col-2">
+                    汇总解读表
+                </div>
+                <div class="col-10">
+                    <a href="{{.Href}}">{{.Message}}</a>
+                </div>
             </div>
-            <div class="col-10">
-                <a href="{{.Href}}">{{.Message}}</a>
-            </div>
-        </div>
         {{end}}
     </div>
 </div>

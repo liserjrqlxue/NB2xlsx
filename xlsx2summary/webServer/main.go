@@ -150,29 +150,28 @@ func summaryResult(w http.ResponseWriter, r *http.Request) {
 		}
 		logRequest(r)
 
-		summaryInfos, e := uploadFile(r, "summary")
-		if e != nil {
-			handleError(w, e)
-			return
-		}
 		annoInfos, e := uploadFile(r, "anno")
 		if e != nil {
 			handleError(w, e)
 			return
 		}
 		var result = SummaryResult{
-			Summary: summaryInfos[0],
-			Anno:    annoInfos,
-			Result:  Info{},
+			Anno:   annoInfos,
+			Result: Info{},
 		}
-		result.Result.Message = fmt.Sprintf("%s.%s.xlsx", strings.TrimSuffix(result.Summary.Message, ".xlsx"), time.Now().Format("2006-01-02"))
+		var prefix = strings.TrimSuffix(result.Anno[0].Message, ".xlsx")
+		result.Result.Message = fmt.Sprintf("医院反馈表-%s.%s.xlsx", prefix, time.Now().Format("2006-01-02"))
 		result.Title = result.Result.Message
 		result.Result.Href = "output/" + result.Result.Message
 		var annos []string
 		for _, anno := range result.Anno {
 			annos = append(annos, anno.Href)
 		}
-		var cmd = exec.Command(filepath.Join("..", "xlsx2summary"), "-input", result.Summary.Href, "-anno", strings.Join(annos, ","), "-prefix", filepath.Join("output", strings.TrimSuffix(result.Summary.Message, ".xlsx")))
+		var cmd = exec.Command(
+			filepath.Join("..", "xlsx2summary"),
+			"-anno", strings.Join(annos, ","),
+			"-prefix", filepath.Join("output", "医院反馈表-"+prefix),
+		)
 		log.Println(cmd.String())
 		output, e := cmd.CombinedOutput()
 		log.Printf("%s", output)
