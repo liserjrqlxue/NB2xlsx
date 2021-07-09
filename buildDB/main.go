@@ -6,9 +6,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	AES "github.com/liserjrqlxue/crypto/aes"
+	"github.com/liserjrqlxue/goUtil/fmtUtil"
+	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/liserjrqlxue/version"
@@ -47,9 +50,12 @@ var (
 		"c3d112d6a47a0a04aad2b9d2d2cad266",
 		"code key for aes",
 	)
+	extract = flag.String(
+		"extract",
+		"",
+		"extract tsv, column names split by comma",
+	)
 )
-
-var code = ""
 
 func init() {
 	version.LogVersion()
@@ -65,6 +71,19 @@ func init() {
 
 func main() {
 	var keyList = textUtil.File2Array(*keys)
+
+	var extractFile *os.File
+	var extractCols []string
+	if *extract != "" {
+		extractFile = osUtil.Create(*output + ".mut.tsv")
+		extractCols = strings.Split(*extract, ",")
+		fmtUtil.FprintStringArray(extractFile, extractCols, "\t")
+	}
+	defer func() {
+		if *extract != "" {
+			simpleUtil.DeferClose(extractFile)
+		}
+	}()
 
 	var db, _ = simpleUtil.Slice2MapMapArray(
 		simpleUtil.HandleError(
@@ -83,6 +102,14 @@ func main() {
 			liteItem[key] = item[key]
 		}
 		liteDb[mainKey] = liteItem
+
+		if *extract != "" {
+			var strArray []string
+			for _, col := range extractCols {
+				strArray = append(strArray, item[col])
+			}
+			fmtUtil.FprintStringArray(extractFile, strArray, "\t")
+		}
 	}
 
 	var d = simpleUtil.HandleError(json.MarshalIndent(liteDb, "", "  ")).([]byte)
