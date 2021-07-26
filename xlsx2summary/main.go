@@ -78,6 +78,7 @@ func main() {
 			excelize.OpenFile(*anno),
 		).(*excelize.File).GetRows(infoSheetName),
 	).([][]string)
+	log.Printf("load %d rows from %s", len(strSlice), infoSheetName)
 
 	var sheetName = "159基因结果汇总"
 	var appendColName = simpleUtil.HandleError(excelize.ColumnNumberToName(colLength + 1)).(string)

@@ -57,7 +57,7 @@ func updateInfoDB(db map[string]Info, geneInfo0 GeneInfo, mutInfo MutInfo, sampl
 }
 
 func updateInfoDBfromAVD(db map[string]Info, item map[string]string) {
-	if item["报告类别"] == "正式报告" {
+	if item["报告类别"] == "正式报告" || item["报告类别"] == "补充报告" {
 		var sampleID = item["SampleID"]
 		var geneSymbol = item["Gene Symbol"]
 		var geneInfo = GeneInfo{
@@ -307,7 +307,8 @@ func fillExcel2(strSlice [][]string, db map[string]Info, outExcel *excelize.File
 		WriteCellStr(outExcel, sheetName, 4, index+4, info["华大样本编号"])
 		WriteCellStr(outExcel, sheetName, 7, index+4, info["性别"])
 		WriteCellStr(outExcel, sheetName, 8, index+4, info["生化筛查结果"])
-		WriteCellStr(outExcel, sheetName, 106, index+4, info["送检单位"])
+		WriteCellStr(outExcel, sheetName, 106, index+4, info["核型分析-整理"])
+		WriteCellStr(outExcel, sheetName, 115, index+4, info["送检单位"])
 		item.fillExcel(outExcel, sampleID, sheetName, index, index+4)
 	}
 }
