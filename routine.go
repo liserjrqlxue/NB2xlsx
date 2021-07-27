@@ -154,9 +154,9 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	<-throttle
 }
 
-// WriteDmd write DMD sheet to excel
-func WriteDmd(excel *excelize.File, throttle chan bool) {
-	log.Println("Write DMD Start")
+// LoadDmd load DMD sheet to excel
+func LoadDmd(excel *excelize.File, throttle chan bool) {
+	log.Println("Load DMD Start")
 	var dmdArray []string
 	if *dmdFiles != "" {
 		dmdArray = strings.Split(*dmdFiles, ",")
@@ -165,18 +165,18 @@ func WriteDmd(excel *excelize.File, throttle chan bool) {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		writeDmd(excel, dmdArray)
+		loadDmd(excel, dmdArray)
 	} else {
-		log.Println("Write DMD Skip")
+		log.Println("Load DMD Skip")
 	}
-	log.Println("Write DMD Done")
+	log.Println("Load DMD Done")
 	<-throttle
 }
 
-func writeDmd(excel *excelize.File, dmdArray []string) {
+func loadDmd(excel *excelize.File, dmdArray []string) {
 	var sheetName = *dmdSheetName
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
+	//var title = rows[0]
 	var rIdx = len(rows)
 	for _, fileName := range dmdArray {
 		var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
@@ -200,9 +200,25 @@ func writeDmd(excel *excelize.File, dmdArray []string) {
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
 			updateINDEX(item, true)
-			writeRow(excel, sheetName, item, title, rIdx)
+			DmdCnv = append(DmdCnv, item)
+			//writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
+}
+
+func writeDmdCnv(excel *excelize.File, throttle chan bool) {
+	var sheetName = *dmdSheetName
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	for _, item := range DmdCnv {
+		rIdx++
+		var sampleID = item["#Sample"]
+		var gene = item["gene"]
+		updateCnvTags(item, sampleID, gene)
+		writeRow(excel, sheetName, item, title, rIdx)
+	}
+	<-throttle
 }
 
 // WriteAe write AE sheet to excel

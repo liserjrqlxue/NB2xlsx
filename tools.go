@@ -338,6 +338,7 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 		info.性别 = "F"
 		UpdateGeneHash(geneHash, item, "F")
 	}
+	geneInfo[item["Gene Symbol"]] = info
 }
 
 func updateGeneHashAD(item map[string]string) string {

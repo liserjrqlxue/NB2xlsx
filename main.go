@@ -38,7 +38,8 @@ func main() {
 		localDb      = make(chan bool, 1)
 		runAe        = make(chan bool, 1)
 		runAvd       = make(chan bool, 1)
-		runDmd       = make(chan bool, 1)
+		loadDmd      = make(chan bool, 1)
+		writeDmd     = make(chan bool, 1)
 		runQC        = make(chan bool, 1)
 		saveMain     = make(chan bool, 1)
 		saveBatchCnv = make(chan bool, 1)
@@ -84,8 +85,8 @@ func main() {
 	// QC -> DMD
 	{
 		runQC <- true
-		runDmd <- true
-		WriteDmd(excel, runDmd)
+		loadDmd <- true
+		LoadDmd(excel, loadDmd)
 	}
 
 	// 补充实验
@@ -98,7 +99,14 @@ func main() {
 	{
 		localDb <- true
 		runAvd <- true
-		WriteAvd(excel, runDmd, runAvd, *all)
+		WriteAvd(excel, loadDmd, runAvd, *all)
+	}
+
+	// write CNV after runAvd
+	{
+		runAvd <- true
+		writeDmd <- true
+		writeDmdCnv(excel, writeDmd)
 	}
 
 	// drug
@@ -124,13 +132,13 @@ func main() {
 	}
 
 	{
-		runAvd <- true
 		saveBatchCnv <- true
 		go writeBatchCnv(saveBatchCnv)
 	}
 
 	{
 		runAe <- true
+		writeDmd <- true
 		saveMain <- true
 		go func() {
 			log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")

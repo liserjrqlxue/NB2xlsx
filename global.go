@@ -22,6 +22,8 @@ var (
 	localDb            = make(map[string]map[string]string)
 	dropListMap        = make(map[string][]string)
 	genderMap          = make(map[string]string)
+	// DmdCnv : array of DMD cnv map
+	DmdCnv []map[string]string
 	// BatchCnv : array of batch cnv map
 	BatchCnv []map[string]string
 	// BatchCnvTitle : titles of batch cnv
