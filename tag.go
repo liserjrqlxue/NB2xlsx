@@ -316,7 +316,7 @@ func (info *GeneInfo) isAD() bool {
 }
 
 func (info *GeneInfo) isAR() bool {
-	if info.遗传模式 == "AR" || info.遗传模式 == "AR/AR" || (info.遗传模式 == "XLR" && info.性别 == "F") {
+	if info.遗传模式 == "AR" || info.遗传模式 == "AR;AR" || (info.遗传模式 == "XLR" && info.性别 == "F") {
 		return true
 	}
 	return false
