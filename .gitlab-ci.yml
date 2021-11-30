@@ -18,7 +18,7 @@ variables:
 # Thus, making a symbolic link corrects this.
 before_script:
   - Get-Location
-  - git remote add github git@github.com:liserjrqlxue/NB2xlsx.git
+  #- git remote add github git@github.com:liserjrqlxue/NB2xlsx.git
   #- bash #cd $CI_PROJECT_DIR
   #- #mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   #- #ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
@@ -33,6 +33,7 @@ github:
   stage: deploy
   script:
     #- ssh-keygen
+    - git config remote.github.url || git remote add github git@github.com:liserjrqlxue/NB2xlsx.git
     - git checkout master
     - git pull origin master
     - git push github --all
