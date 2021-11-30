@@ -33,7 +33,7 @@ github:
   stage: deploy
   script:
     #- ssh-keygen
-    - git config remote.github.url || git remote add github git@github.com:liserjrqlxue/NB2xlsx.git
+    - if(!(git config remote.github.url)){git remote add github git@github.com:liserjrqlxue/NB2xlsx.git}
     - git checkout master
     - git pull origin master
     - git push github --all
