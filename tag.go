@@ -1,8 +1,11 @@
 package main
 
 import (
+	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/liserjrqlxue/goUtil/textUtil"
 )
 
 //LOFofPLP : Lost Of Function for PLP
@@ -217,6 +220,10 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	if tag6 != "" {
 		tags = append(tags, tag6)
 	}
+	var tag7 = 标签7(item, info)
+	if tag7 != "" {
+		tags = append(tags, tag7)
+	}
 	return strings.Join(tags, ";")
 }
 
@@ -304,6 +311,19 @@ func 标签5(item map[string]string) string {
 func 标签6(item map[string]string) string {
 	if isPLP2(item) {
 		return "6"
+	}
+	return ""
+}
+
+func init() {
+	for _, gene := range textUtil.File2Array(filepath.Join(etcPath, "tag7.gene.txt")) {
+		tag7gene[gene] = true
+	}
+}
+
+func 标签7(item map[string]string, info *GeneInfo) string {
+	if item["P/LP*"] == "1" && tag7gene[item["Gene Symbol"]] && info.性别 == "F" && 标签1(item, info) != "1-P/LP" {
+		return "F-XLR"
 	}
 	return ""
 }
