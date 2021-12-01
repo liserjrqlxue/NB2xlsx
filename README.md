@@ -1,26 +1,32 @@
 # NB2xlsx
-[![GoDoc](https://godoc.org/github.com/liserjrqlxue/NB2xlsx?status.svg)](https://pkg.go.dev/github.com/liserjrqlxue/NB2xlsx) 
+[![GoDoc](https://godoc.org/github.com/liserjrqlxue/NB2xlsx?status.svg)](https://pkg.go.dev/github.com/liserjrqlxue/NB2xlsx)
 [![Go Report Card](https://goreportcard.com/badge/github.com/liserjrqlxue/NB2xlsx)](https://goreportcard.com/report/github.com/liserjrqlxue/NB2xlsx)
 
 安馨可生信注释格式
 
 - [x] [编译安装](#编译安装)
 - [ ] [All variants data](#all-variants-data)
-  * [x] [过滤](#过滤)
-  * [X] [标签](#标签)
-  * [x] [疾病数据库](#疾病数据库)
-  * [x] [已解读数据库](#已解读数据库)
-  * [ ] [Other Columns](#other-columns)
-    - [x] [LOF](#lof)
-    - [x] [HGMDorClinvar](#HGMDorClinvar)
-    - [ ] [遗传模式判读](#遗传模式判读)
+    * [x] [过滤](#过滤)
+    * [X] [标签](#标签)
+        - [X] [定义](#定义)
+    * [x] [疾病数据库](#疾病数据库)
+    * [x] [已解读数据库](#已解读数据库)
+    * [ ] [Other Columns](#other-columns)
+        - [x] [LOF](#lof)
+        - [x] [HGMDorClinvar](#HGMDorClinvar)
+        - [x] [遗传模式判读](#遗传模式判读)
 - [x] [lims.info](#limsinfo)
 - [ ] [QC](#qc)
-  - [x] [common](#common)
-  - [ ] [others](#others)
+    - [x] [common](#common)
+    - [ ] [others](#others)
 - [ ] [excel 格式](#excel-格式)
-  * [x] [DataValidation](#datavalidation)
-  * [ ] [Background Color](#background-color)
+    * [x] [DataValidation](#datavalidation)
+    * [x] [Background Color](#background-color)
+- [ ] [modules](#module)
+    * [x] [anno](#anno2xlsxv2annno)
+    * [x] [ACMG](#acmg2015)
+        - [x] [init](#init)
+        - [x] [use](#use)
 
 ## 编译安装
 
@@ -31,11 +37,13 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 ```
 
 ### 注意
+
 部分数据库文件不在`git repo`内，需要拷贝到对应位置
 
 ## All variants data
 
 ### 过滤
+
 ```text
 三 输出到解读表位点调整
 满足以下任一一个条件就输出到sheet1：
@@ -68,6 +76,95 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 11. **保留** 剩余
 
 ### 标签
+
+#### 定义
+
+- cnv
+
+    拷贝数异常  
+    使用batchCNV和DMD的分析流程，任一有检出≥2个连续exon
+
+    - BatCNV的copyNumber或DMD CNV有~~≥2个连续~~exon的CopyNum列不为2拷贝
+- cnv0
+
+    使用batchCNV和DMD的分析流程，任一有检出0
+
+    - BatCNV的copyNumber或DMD CNV有~~≥2个连续~~exon的CopyNum列为0拷贝
+- P/LP*
+
+    可能有害
+
+    - Definition为P/LP
+    - 烈性
+        - nonsense/frameshift/stop-gain/span/altstart/init-loss/splice-3/splice-5
+    - ClinVar收录P/LP
+    - HGMD收录P/LP
+        - ClinVar致病等级不为B/LB
+- P/LP2*
+    - Definition为P/LP
+    - 烈性
+        - nonsense/frameshift/stop-gain/span/altstart/init-loss/splice-3/splice-5
+    - ClinVar收录P/LP
+    - HGMD收录P/LP
+        - ClinVar致病等级不为B/LB/**Conflicting interpretations of pathogenicity/VUS**
+- VUS*
+
+    可能意义未明
+  
+    - 不是P/LP*
+        - ClinVar致病等级不为B/LB
+            - VUS/P/LP（自动化判断）或者VUS（Definition）变异
+
+- AD类遗传模式
+    - AD
+    - AD,AR
+    - AD,SMu
+    - Mi
+    - XLD
+    - (XLR且男性)
+- AD低频
+
+    AF列表:"ESP6500 AF","1000G AF","ExAC AF","ExAC EAS AF","GnomAD AF","GnomAD EAS AF"
+
+    - AD或AD,AR或AD,SMu
+        - AF <1e-4 或 .
+    - 其它遗传模式
+- AR类遗传模式
+    - AR
+    - AR;AR
+    - (XLR且女性)
+- CDS*
+    - cds-del/cds-ins/cds-indel/stop-loss变异
+        - RepeatTag无标签
+- Splice*
+    - splice+10/splice-10/splice+20/splice-20/intron变异  
+      
+       dbscSNV_RF_SCORE（≥0.6为有影响）、dbscSNV_ADA_SCOR（≥0.6为有影响）、spliceAI（≥0.2为有影响）
+      
+        - 有害性预测至少2个软件有预测结果，均预测有害，其他无结果，
+    - 仅spliceAI有预测结果（且结果为有害）
+- SpliceCS*
+    - splice+10/splice-10/splice+20/splice-20/intron/coding-synon变异
+      
+        dbscSNV_RF_SCORE（≥0.6为有影响）、dbscSNV_ADA_SCOR（≥0.6为有影响）、spliceAI（≥0.2为有影响）
+      
+        - 有害性预测至少2个软件有预测结果，均预测有害，其他无结果，
+        - 仅spliceAI有预测结果（且结果为有害）
+- NoSplice*
+    - 除splice+10/splice-10/splice+20/splice-20/intron以外的变异
+    - SIFT、Condel、MutationTaster、Polyphen2HVAR有害性预测至少2个软件有预测结果，均预测有害，其他无结果
+- NoSpliceCS*
+    - 除splice+10/splice-10/splice+20/splice-20/intron/coding-synon以外的变异
+        - SIFT、Condel、MutationTaster、Polyphen2HVAR有害性预测至少2个软件有预测结果，均预测有害，其他无结果
+- compositeP
+    - Splice*
+    - NoSplice*
+    - CDS*
+- compositePCS
+    - SpliceCS*
+    - NoSpliceCS*
+    - CDS*
+
 
 |遗传模式|P/LP*|compositeP|Zygosity|Function|自动化判断|Definition|ClinVar| HGMD |lowAF|VarCount| CNV |标签|CNV标签|
 |-------|-----|----------|--------|--------|---------|----------|-------|------|-----|---------|----|----|-------|
@@ -162,10 +259,10 @@ LOF|['YES','NO']
 
 #### HGMDorClinvar
 ```go
-	item["HGMDorClinvar"] = "否"
-	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
-		item["HGMDorClinvar"] = "是"
-	}
+item["HGMDorClinvar"] = "否"
+if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
+    item["HGMDorClinvar"] = "是"
+}
 ```
 
 #### 遗传模式判读
@@ -266,4 +363,35 @@ PS：之前是满足2个条件，现在改为1个，高质量位点也是需要�
 item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
 item["β地贫_最终结果_HyperLink"] = item["HyperLink"]
 item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
+```
+
+## modules
+
+### anno2xlsx/v2/annno
+
+```go
+anno.Score2Pred(item)
+anno.UpdateFunction(item)
+anno.UpdateAutoRule(item)
+item["引物设计"] = anno.PrimerDesign(item)
+```
+
+### acmg2015
+
+#### init
+
+```go
+acmg2015.AutoPVS1 = *autoPVS1
+var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
+for k, v := range acmgCfg {
+    acmgCfg[k] = filepath.Join(dbPath, v)
+}
+acmg2015.Init(acmgCfg)
+```
+
+#### use
+
+```go
+acmg2015.AddEvidences(item)
+item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 ```
