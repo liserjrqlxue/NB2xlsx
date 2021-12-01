@@ -8,7 +8,6 @@ require (
 	github.com/liserjrqlxue/anno2xlsx/v2 v2.10.0
 	github.com/liserjrqlxue/crypto v0.1.3
 	github.com/liserjrqlxue/goUtil v0.0.42
-	github.com/liserjrqlxue/simple-util v1.0.3
 	github.com/liserjrqlxue/version v1.1.1
 	golang.org/x/text v0.3.6
 )

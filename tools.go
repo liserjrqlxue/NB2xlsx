@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	AES "github.com/liserjrqlxue/crypto/aes"
+	"github.com/liserjrqlxue/goUtil/jsonUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
-	simple_util "github.com/liserjrqlxue/simple-util"
+	"github.com/xuri/excelize/v2"
 )
 
 func loadDb() {
