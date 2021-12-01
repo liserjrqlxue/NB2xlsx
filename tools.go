@@ -54,7 +54,7 @@ func loadDb() {
 func loadLocalDb(throttle chan bool) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
-	localDb = simple_util.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
+	localDb = jsonUtil.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
 	log.Println("Load LocalDb Done")
 	<-throttle
 }
