@@ -2,23 +2,10 @@ package main
 
 import (
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/liserjrqlxue/goUtil/textUtil"
 )
-
-//LOFofPLP : Lost Of Function for PLP
-var LOFofPLP = map[string]bool{
-	"nonsense":   true,
-	"frameshift": true,
-	"stop-gain":  true,
-	"span":       true,
-	"altstart":   true,
-	"init-loss":  true,
-	"splice-3":   true,
-	"splice-5":   true,
-}
 
 func isPLP(item map[string]string) bool {
 	if item["Definition"] == "P" || item["Definition"] == "LP" {
@@ -61,39 +48,6 @@ func isVUS(item map[string]string) bool {
 	}
 	return false
 }
-
-var cdsList = map[string]bool{
-	"cds-del":   true,
-	"cds-ins":   true,
-	"cds-indel": true,
-	"stop-loss": true,
-}
-
-var spliceList = map[string]bool{
-	"splice+10": true,
-	"splice-10": true,
-	"splice+20": true,
-	"splice-20": true,
-	"intron":    true,
-}
-
-var spliceCSList = map[string]bool{
-	"splice+10":    true,
-	"splice-10":    true,
-	"splice+20":    true,
-	"splice-20":    true,
-	"intron":       true,
-	"coding-synon": true,
-}
-
-var (
-	isP           = regexp.MustCompile(`P`)
-	isI           = regexp.MustCompile(`I`)
-	isD           = regexp.MustCompile(`D`)
-	isNeutral     = regexp.MustCompile(`neutral`)
-	isDeleterious = regexp.MustCompile(`deleterious`)
-	isPLPVUS      = regexp.MustCompile(`^P|^LP|^VUS`)
-)
 
 func spliceP(item map[string]string) (count int) {
 	for _, pred := range []string{
@@ -163,17 +117,6 @@ func compositePCS(item map[string]string) bool {
 		return true
 	}
 	return false
-}
-
-// GeneInfo : struct info of gene
-type GeneInfo struct {
-	基因                      string
-	遗传模式                    string
-	性别                      string
-	PLP, hetPLP, VUS, HpVUS int
-	cnv, cnv0               bool
-	tag3                    string
-	tag4                    bool
 }
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
@@ -250,17 +193,6 @@ func 标签1(item map[string]string, info *GeneInfo) string {
 	}
 	return ""
 }
-
-var (
-	af0List = map[string]bool{
-		"ESP6500 AF":    true,
-		"1000G AF":      true,
-		"ExAC AF":       true,
-		"ExAC EAS AF":   true,
-		"GnomAD AF":     true,
-		"GnomAD EAS AF": true,
-	}
-)
 
 func 标签2(item map[string]string, info *GeneInfo) (tag string) {
 	if item["VUS*"] != "1" {
@@ -342,8 +274,6 @@ func (info *GeneInfo) isAR() bool {
 	return false
 
 }
-
-var afThreshold = 1e-4
 
 func (info *GeneInfo) lowADAF(item map[string]string) bool {
 	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" {

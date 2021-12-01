@@ -144,7 +144,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	for avd := range dbChan {
 		for _, item := range avd {
 			rIdx++
-			updateINDEX(item,"D", rIdx)
+			updateINDEX(item, "D", rIdx)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
 		count++
@@ -200,7 +200,7 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
-			updateINDEX(item, "D",rIdx)
+			updateINDEX(item, "D", rIdx)
 			DmdCnv = append(DmdCnv, item)
 			//writeRow(excel, sheetName, item, title, rIdx)
 		}
@@ -254,7 +254,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 	for _, item := range db {
 		rIdx++
 		updateAe(item)
-		updateINDEX(item,"D", rIdx)
+		updateINDEX(item, "D", rIdx)
 		writeRow(excel, *aeSheetName, item, title, rIdx)
 	}
 }
@@ -276,7 +276,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	for i, item := range db {
 		rIdx++
 		updateQC(item, qcMap, i)
-		updateINDEX(item, "B",rIdx)
+		updateINDEX(item, "B", rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
 }
@@ -291,9 +291,9 @@ func updateQC(item, qcMap map[string]string, i int) {
 	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 }
 
-func updateINDEX(item map[string]string, col string,index int) {
-	item["解读人"]=fmt.Sprintf("=INDEX(任务单!O:O,MATCH(%s%d,任务单!I:I,0),1)",col,index)
-	item["审核人"]=fmt.Sprintf("=INDEX(任务单!P:P,MATCH(%s%d,任务单!I:I,0),1)",col,index)
+func updateINDEX(item map[string]string, col string, index int) {
+	item["解读人"] = fmt.Sprintf("=INDEX(任务单!O:O,MATCH(%s%d,任务单!I:I,0),1)", col, index)
+	item["审核人"] = fmt.Sprintf("=INDEX(任务单!P:P,MATCH(%s%d,任务单!I:I,0),1)", col, index)
 }
 
 var (
