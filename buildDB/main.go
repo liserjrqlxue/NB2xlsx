@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	AES "github.com/liserjrqlxue/crypto/aes"
 	"github.com/liserjrqlxue/goUtil/fmtUtil"
 	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/liserjrqlxue/version"
+	"github.com/xuri/excelize/v2"
 )
 
 // os

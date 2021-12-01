@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 // Info recode sample info and summary

@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
+	"github.com/xuri/excelize/v2"
 )
 
 func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool, all bool) {

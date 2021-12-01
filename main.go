@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/liserjrqlxue/goUtil/osUtil"
+	"github.com/xuri/excelize/v2"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
