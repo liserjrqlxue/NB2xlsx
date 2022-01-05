@@ -246,7 +246,7 @@ func updateAvd(item map[string]string) {
 		item["参考文献"] = db["Reference"]
 		item["位点关联疾病"] = db["Disease"]
 		item["位点关联遗传模式"] = db["遗传模式"]
-		item["Evidence New + Check"] = db["证据项"]
+		//item["Evidence New + Check"] = db["证据项"]
 		item["Definition"] = db["Definition"]
 	} else {
 		item["Database"] = "."
