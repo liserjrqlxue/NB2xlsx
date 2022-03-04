@@ -9,5 +9,4 @@ require (
 	github.com/liserjrqlxue/goUtil v0.0.42
 	github.com/liserjrqlxue/version v1.1.1
 	github.com/xuri/excelize/v2 v2.4.1
-	golang.org/x/text v0.3.6
 )
