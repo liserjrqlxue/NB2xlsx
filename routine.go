@@ -286,7 +286,17 @@ func updateQC(item, qcMap map[string]string, i int) {
 	for k, v := range qcMap {
 		item[k] = item[v]
 	}
-	//item["Gender"]=item[""]
+	var inputGender = "null"
+	if limsInfo[item["Sample"]]["SEX"] == "1" {
+		inputGender = "M"
+	} else if limsInfo[item["Sample"]]["SEX"] == "2" {
+		inputGender = "F"
+	} else {
+		inputGender = "null"
+	}
+	if inputGender != genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]] {
+		item["Gender"] = inputGender + "!!!Sequenced" + genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]]
+	}
 	//item["RESULT"]=item[""]
 	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 }
