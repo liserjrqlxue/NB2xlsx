@@ -82,6 +82,16 @@ var (
 		"CNV",
 		"DMD result sheet name",
 	)
+	featureList = flag.String(
+		"feature",
+		"",
+		"个特 list",
+	)
+	geneIDList = flag.String(
+		"geneID",
+		"",
+		"基因ID list",
+	)
 	dipinResult = flag.String(
 		"dipin",
 		"",
