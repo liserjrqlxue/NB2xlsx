@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/xuri/excelize/v2"
@@ -143,6 +144,7 @@ func main() {
 			var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
 			for _, item := range feature {
 				rIdx++
+				item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
 				updateABC(item)
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
