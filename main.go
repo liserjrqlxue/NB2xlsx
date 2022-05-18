@@ -131,6 +131,42 @@ func main() {
 		}
 	}
 
+	// 个特
+	if *featureList != "" {
+		log.Println("Start load Feature")
+		var sheetName = "个特"
+		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+		var title = rows[0]
+		var rIdx = len(rows)
+
+		for _, fileName := range textUtil.File2Array(*featureList) {
+			var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
+			for _, item := range feature {
+				rIdx++
+				updateABC(item)
+				writeRow(excel, sheetName, item, title, rIdx)
+			}
+		}
+	}
+
+	// 基因ID
+	if *geneIDList != "" {
+		log.Println("Start load GeneID")
+		var sheetName = "基因ID"
+		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+		var title = rows[0]
+		var rIdx = len(rows)
+
+		for _, fileName := range textUtil.File2Array(*geneIDList) {
+			var geneID, _ = textUtil.File2MapArray(fileName, "\t", nil)
+			for _, item := range geneID {
+				rIdx++
+				updateABC(item)
+				writeRow(excel, sheetName, item, title, rIdx)
+			}
+		}
+	}
+
 	{
 		saveBatchCnv <- true
 		go writeBatchCnv(saveBatchCnv)
