@@ -194,12 +194,12 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 ```text
 模板excel的CD列“疾病简介“疾病库中的的“疾病简介”
 ```
-key1|key2|note
----|---|---
-Gene Symbol|基因|main key
-疾病中文名|疾病|
-遗传模式|遗传模式|
-疾病简介|疾病简介|
+| key1        | key2 | note     |
+|-------------|------|----------|
+| Gene Symbol | 基因   | main key |
+| 疾病中文名       | 疾病   |          |
+| 遗传模式        | 遗传模式 |          |
+| 疾病简介        | 疾病简介 |          |
 
 ### 已解读数据库
 ```text
@@ -226,26 +226,27 @@ sheet1里面的CC列“参考文献”，提取的是已解读数据库中的DM�
 “正式报告”补充报告“是输出在”报告类别“列，现在需要输出到”报告类别-原始“这一列
 ```
 
-|key1|key2|note|
-|---|---|---|
-|Transcript|Transcript|main key 1|
-|cHGVS|cHGVS|main key 2|
-|参考文献|Reference||
-|位点关联疾病|Disease||
-|位点关联遗传模式|遗传模式||
-|Evidence New + Check|证据项||
-|Definition|Definition||
-|Database| |[NBS-in,NBS-out,.]|
-|报告类别-原始| |[正式报告,补充报告]|
-| |是否是包装位点||
+| key1                 | key2       | note               |
+|----------------------|------------|--------------------|
+| Transcript           | Transcript | main key 1         |
+| cHGVS                | cHGVS      | main key 2         |
+| 参考文献                 | Reference  ||
+| 位点关联疾病               | Disease    ||
+| 位点关联遗传模式             | 遗传模式       ||
+| Evidence New + Check | 证据项        ||
+| Definition           | Definition ||
+| Database             |            | [NBS-in,NBS-out,.] |
+| 报告类别-原始              |            | [正式报告,补充报告]        |
+|                      | 是否是包装位点    ||
 
 ### Other Columns
-key1|key2|note
----|---|---
-ClinVar星级|ClinVar Number of gold stars|
-1000Gp3 AF|1000G AF|
-1000Gp3 EAS AF|1000G EAS AF|
-引物设计|anno.PrimerDesign(item)|
+
+| key1           | key2                         | note |
+|----------------|------------------------------|------|
+| ClinVar星级      | ClinVar Number of gold stars |      |
+| 1000Gp3 AF     | 1000G AF                     |      |
+| 1000Gp3 EAS AF | 1000G EAS AF                 |      |
+| 引物设计           | anno.PrimerDesign(item)      |      |
 
 #### LOF
 ```text
@@ -253,9 +254,9 @@ ClinVar星级|ClinVar Number of gold stars|
 ```
 [`updateLOF`](../367051a760349aac7a4b236ca081340d086c10bd/main.go#L361)
 
-key|value
----|---
-LOF|['YES','NO']
+| key | value        |
+|-----|--------------|
+| LOF | ['YES','NO'] |
 
 #### HGMDorClinvar
 ```go
@@ -266,28 +267,30 @@ if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 ```
 
 #### 遗传模式判读
-遗传模式|杂合性|个数|样品性别|遗传模式判读
----|---|---|---|---
-['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Hom']|>=1| |可能患病|
-['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Het']|=1| |携带者
-['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']|['Het']|>1| |可能患病
-['AD','AD,AR','AD,AR;AD,AR','AD;AD','AD;AD,AR','Mi']|['Hom','Het']|>=1| |可能患病
-['XLD']|['Hom','Het','Hemi']|>=1| |可能患病
-['XLR']|['Hom','Het','Hemi']|>=1|Male|可能患病
-['XLR']|['Hom']|>=1|Female|可能患病
-['XLR']|['Het']|=1|Female|携带者
-['XLR']|['Het']|>=1|Feale|可能患病
+
+| 遗传模式                                                 | 杂合性                  | 个数   | 样品性别              | 遗传模式判读 |
+|------------------------------------------------------|----------------------|------|-------------------|--------|
+| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Hom']              | \>=1 |                   | 可能患病   |
+| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Het']              | =1   |                   | 携带者    |
+| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Het']              | \>1  |                   | 可能患病   |
+| ['AD','AD,AR','AD,AR;AD,AR','AD;AD','AD;AD,AR','Mi'] | ['Hom','Het']        | \>=1 |                   | 可能患病   |
+| ['XLD']                                              | ['Hom','Het','Hemi'] | \>=1 |                   | 可能患病   |
+| ['XLR']                                              | ['Hom','Het','Hemi'] | \>=1 | Male              | 可能患病   |
+| ['XLR']                                              | ['Hom']              | \>=1 | Female            | 可能患病   |
+| ['XLR']                                              | ['Het']              | =1   | Female            | 携带者    |
+| ['XLR']                                              | ['Het']              | \>=1 | Female            | 可能患病   |
+| ['XL'] for ['OTC','GLA','PCDH19']                    | ['Hemi','Hom',Het']  | \>=1 | ['Female','Male'] | 可能患病   |
 
 ## lims.info
 
-key1|key2|note
----|---|---
-SampleID|MAIN_SAMPLE_NUM|main key
-期数|HYBRID_LIBRARY_NUM|
-flow ID|FLOW_ID|
-产品编码|PRODUCT_CODE|
-产品名称|PRODUCT_NAME|
-产品编码_产品名称||产品编码+'_'+产品名称
+| key1      | key2               | note     |
+|-----------|--------------------|----------|
+| SampleID  | MAIN_SAMPLE_NUM    | main key |
+| 期数        | HYBRID_LIBRARY_NUM |          |
+| flow ID   | FLOW_ID            |          |
+| 产品编码      | PRODUCT_CODE       |          |
+| 产品名称      | PRODUCT_NAME       |          |
+| 产品编码_产品名称 || 产品编码+'_'+产品名称      |     |
 
 ## QC
 ```text
@@ -317,12 +320,12 @@ flow ID|FLOW_ID|
 [`etc/QC.txt`](etc/QC.txt)
 
 ### others
-title|key|note
----|---|---
-Order|i+1|index+1
-产品编号|lims["PRODUCT_CODE"]|from `lims.info`
-RESULT|RESULT|
 
+| title  | key                  | note             |
+|--------|----------------------|------------------|
+| Order  | i+1                  | index+1          |
+| 产品编号   | lims["PRODUCT_CODE"] | from `lims.info` |
+| RESULT | RESULT               |                  |
 
 ## excel 格式
 ### DataValidation

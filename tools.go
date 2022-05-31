@@ -359,6 +359,18 @@ func updateGeneHashXLD(item map[string]string) string {
 	}
 }
 
+func updateGeneHashXL(item map[string]string) string {
+	if item["Gene Symbol"] == "OTC" || item["Gene Symbol"] == "GLA" || item["Gene Symbol"] == "PCDH19" {
+		switch item["Zygosity"] {
+		case "Hom", "Het", "Hemi":
+			return "可能患病"
+		default:
+			return ""
+		}
+	}
+	return ""
+}
+
 func updateGeneHashAR(item map[string]string, genePred string) string {
 	switch item["Zygosity"] {
 	case "Hom":
@@ -394,6 +406,8 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 		return updateGeneHashXLD(item)
 	case "XLR":
 		return updateGeneHashXLR(item, genePred, gender)
+	case "XL":
+		return updateGeneHashXL(item)
 	default:
 		return ""
 	}
