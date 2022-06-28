@@ -121,6 +121,7 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
     - AD,SMu
     - Mi
     - XLD
+    - XL
     - (XLR且男性)
 - AD低频
 

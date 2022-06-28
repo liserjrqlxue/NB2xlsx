@@ -261,10 +261,18 @@ func 标签7(item map[string]string, info *GeneInfo) string {
 }
 
 func (info *GeneInfo) isAD() bool {
-	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" || info.遗传模式 == "Mi" || info.遗传模式 == "XLD" || (info.遗传模式 == "XLR" && info.性别 == "M") {
+	switch info.遗传模式 {
+	case "AD", "AD,AR", "AD,SMu", "Mi", "XLD", "XL":
 		return true
+	case "XLR":
+		if info.性别 == "M" {
+			return true
+		} else {
+			return false
+		}
+	default:
+		return false
 	}
-	return false
 }
 
 func (info *GeneInfo) isAR() bool {
