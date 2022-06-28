@@ -17,6 +17,7 @@ var (
 
 var (
 	geneListMap        = make(map[string]bool)
+	geneExcludeListMap = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
 	geneInheritance    = make(map[string]string)

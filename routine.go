@@ -56,7 +56,9 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 			if !ok {
 				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
 			} else {
-				item["Database"] = info.getTag(item)
+				if !geneExcludeListMap[item["Gene Symbol"]] {
+					item["Database"] = info.getTag(item)
+				}
 			}
 			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
 			filterAvd = append(filterAvd, item)

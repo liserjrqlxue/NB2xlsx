@@ -22,6 +22,10 @@ func loadDb() {
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
 	}
+	// load gene exclude list
+	for _, key := range textUtil.File2Array(filepath.Join(etcPath, "gene.exclude.list.txt")) {
+		geneExcludeListMap[key] = true
+	}
 	// load function exclude list
 	for _, key := range textUtil.File2Array(*functionExclude) {
 		functionExcludeMap[key] = true
@@ -238,7 +242,7 @@ func updateAvd(item map[string]string) {
 			item["isReport"] = "Y"
 		} else {
 			item["Database"] = "NBS-out"
-			if item["LOF"] == "YES" {
+			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
 				item["报告类别-原始"] = "补充报告"
 				item["isReport"] = "Y"
 			}
@@ -250,7 +254,7 @@ func updateAvd(item map[string]string) {
 		item["Definition"] = db["Definition"]
 	} else {
 		item["Database"] = "."
-		if item["LOF"] == "YES" {
+		if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
 			item["报告类别-原始"] = "补充报告"
 			item["isReport"] = "Y"
 		}

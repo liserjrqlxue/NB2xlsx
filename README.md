@@ -41,6 +41,21 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 
 部分数据库文件不在`git repo`内，需要拷贝到对应位置
 
+## etc
+
+### gene.exclude.list.txt
+
+```text
+1.	新生儿升级流程中以下10个基因不给“补充报告“的标签
+PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
+2.	新生儿流程中的标签
+2.1	 PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR这10个基因上的变异不给标签
+```
+
+列表内基因：
+1. "报告类别-原始"=="补充报告"时"报告类别-原始"置空
+2. "Database"置空
+
 ## All variants data
 
 ### 过滤
@@ -150,7 +165,7 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 - SpliceCS*
   - splice+10/splice-10/splice+20/splice-20/intron/coding-synon变异
 
-        dbscSNV_RF_SCORE（≥0.6为有影响）、dbscSNV_ADA_SCOR（≥0.6为有影响）、spliceAI（≥0.2为有影响）
+       dbscSNV_RF_SCORE（≥0.6为有影响）、dbscSNV_ADA_SCOR（≥0.6为有影响）、spliceAI（≥0.2为有影响）
 
     - 有害性预测至少2个软件有预测结果，均预测有害，其他无结果，
     - 仅spliceAI有预测结果（且结果为有害）
