@@ -46,13 +46,14 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 ### gene.exclude.list.txt
 
 ```text
-1.	新生儿升级流程中以下10个基因不给“补充报告“的标签
+1. 新生儿升级流程中以下10个基因不给“补充报告“的标签
 PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
-2.	新生儿流程中的标签
-2.1	 PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR这10个基因上的变异不给标签
+2. 新生儿流程中的标签
+2.1  PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR这10个基因上的变异不给标签
 ```
 
 列表内基因：
+
 1. "报告类别-原始"=="补充报告"时"报告类别-原始"置空
 2. "Database"置空
 
