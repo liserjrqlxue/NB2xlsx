@@ -216,6 +216,10 @@ PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
 模板excel的CD列“疾病简介“疾病库中的的“疾病简介”
 ```
 
+```text
+使用'$$'分隔疾病信息
+```
+
 | key1        | key2 | note     |
 |-------------|------|----------|
 | Gene Symbol | 基因   | main key |
