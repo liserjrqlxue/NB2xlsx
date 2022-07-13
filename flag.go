@@ -162,6 +162,11 @@ var (
 		"",
 		"lims.info",
 	)
+	detail = flag.String(
+		"detail",
+		"",
+		"sample info",
+	)
 	qc = flag.String(
 		"qc",
 		"",

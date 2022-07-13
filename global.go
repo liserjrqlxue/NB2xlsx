@@ -17,6 +17,7 @@ var (
 
 var (
 	geneListMap        = make(map[string]bool)
+	geneSubListMap     = make(map[string]bool)
 	geneExcludeListMap = make(map[string]bool)
 	functionExcludeMap = make(map[string]bool)
 	diseaseDb          = make(map[string]map[string]string)
@@ -39,6 +40,7 @@ var (
 	formalCheckStyleID, supplementaryCheckStyleID int
 )
 
+var sampleDetail = make(map[string]map[string]string)
 var sampleInfos = make(map[string]SampleInfo)
 
 var colorRGB map[string]string

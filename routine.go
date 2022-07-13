@@ -44,8 +44,13 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	if !ok {
 		geneInfo = make(map[string]*GeneInfo)
 	}
+	var details, ok1 = sampleDetail[sampleID]
+	var subFlag = false
+	if ok1 && details["productCode"] == "DX1968" && details["hospital"] == "南京市妇幼保健院" {
+		subFlag = true
+	}
 	for _, item := range avd {
-		updateAvd(item)
+		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
 	}
 

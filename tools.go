@@ -22,6 +22,11 @@ func loadDb() {
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
 	}
+	// load gene sub list
+	var geneSubs, _ = textUtil.File2MapArray(filepath.Join(etcPath, "gene.sub.list.txt"), "\t", nil)
+	for _, item := range geneSubs {
+		geneSubListMap[item["基因"]] = true
+	}
 	// load gene exclude list
 	for _, key := range textUtil.File2Array(filepath.Join(etcPath, "gene.exclude.list.txt")) {
 		geneExcludeListMap[key] = true
@@ -53,6 +58,18 @@ func loadDb() {
 		dropListMap[k] = strings.Split(v, ",")
 	}
 	log.Println("Load Database Done")
+
+	// load sample detail
+	if *detail != "" {
+		var details = textUtil.File2Slice(*detail, "\t")
+		for _, line := range details {
+			var info = make(map[string]string)
+			var sampleID = line[0]
+			info["productCode"] = line[1]
+			info["hospital"] = line[2]
+			sampleDetail[sampleID] = info
+		}
+	}
 }
 
 func loadLocalDb(throttle chan bool) {
@@ -217,7 +234,7 @@ func updateAf(item map[string]string) {
 	}
 }
 
-func updateAvd(item map[string]string) {
+func updateAvd(item map[string]string, subFlag bool) {
 	updateABC(item)
 	item["HGMDorClinvar"] = "否"
 	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
@@ -238,13 +255,22 @@ func updateAvd(item map[string]string) {
 	if ok {
 		if db["是否是包装位点"] == "是" {
 			item["Database"] = "NBS-in"
-			item["报告类别-原始"] = "正式报告"
 			item["isReport"] = "Y"
+			if subFlag {
+				if geneSubListMap[item["Gene Symbol"]] {
+					item["报告类别-原始"] = "正式报告"
+				} else {
+					item["报告类别-原始"] = "补充报告"
+				}
+
+			} else {
+				item["报告类别-原始"] = "正式报告"
+			}
 		} else {
 			item["Database"] = "NBS-out"
 			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-				item["报告类别-原始"] = "补充报告"
 				item["isReport"] = "Y"
+				item["报告类别-原始"] = "补充报告"
 			}
 		}
 		item["参考文献"] = db["Reference"]
