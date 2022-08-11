@@ -201,14 +201,16 @@ func updateDisease(item map[string]string) {
 }
 
 func addDiseases2Cnv(item map[string]string, sep string, genes ...string) {
-	var diseaseCN, inherit []string
+	var diseaseCN, inherit, diseaseInfo []string
 	for _, gene := range genes {
 		var info = diseaseDb[gene]
 		diseaseCN = append(diseaseCN, info["疾病"])
 		inherit = append(inherit, info["遗传模式"])
+		diseaseInfo = append(diseaseInfo, info["疾病简介"])
 	}
 	item["疾病中文名"] = strings.Join(diseaseCN, sep)
 	item["遗传模式"] = strings.Join(inherit, sep)
+	item["中文-疾病背景"] = strings.Join(diseaseInfo, sep)
 }
 
 var afList = []string{
