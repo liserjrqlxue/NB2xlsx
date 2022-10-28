@@ -22,6 +22,11 @@ var (
 		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
 		"template to be used",
 	)
+	bcTemplate = flag.String(
+		"bcTemplate",
+		filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx"),
+		"template to be used",
+	)
 	dropList = flag.String(
 		"dropList",
 		filepath.Join(etcPath, "drop.list.txt"),

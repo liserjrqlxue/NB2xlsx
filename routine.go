@@ -314,27 +314,33 @@ func updateINDEX(item map[string]string, col string, index int) {
 }
 
 var (
-	multiDiseaseSep      = "\n"
-	batchCnvDiseaseTitle = []string{
-		"疾病中文名",
-		"遗传模式",
-	}
+	multiDiseaseSep = "\n"
+	//batchCnvDiseaseTitle = []string{
+	//	"疾病中文名",
+	//	"遗传模式",
+	//}
 )
 
 func writeBatchCnv(throttle chan bool) {
-	BatchCnvTitle = append(BatchCnvTitle, "Database")
-	BatchCnvTitle = append(BatchCnvTitle, batchCnvDiseaseTitle...)
 	var sheetName = "Sheet1"
-	var bcExcel = excelize.NewFile()
-	writeTitle(bcExcel, sheetName, BatchCnvTitle)
-	for i, item := range BatchCnv {
+	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(*bcTemplate)).(*excelize.File)
+	var rows = simpleUtil.HandleError(bcExcel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	//BatchCnvTitle = append(BatchCnvTitle, "Database")
+	//BatchCnvTitle = append(BatchCnvTitle, batchCnvDiseaseTitle...)
+	//writeTitle(bcExcel, sheetName, BatchCnvTitle)
+
+	for _, item := range BatchCnv {
+		rIdx++
 		var genes = strings.Split(item["gene"], ",")
 		updateCnvTags(item, item["sample"], genes...)
 		addDiseases2Cnv(item, multiDiseaseSep, genes...)
-		writeRow(bcExcel, sheetName, item, BatchCnvTitle, i+2)
+		writeRow(bcExcel, sheetName, item, title, rIdx)
 	}
-	var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
-	simpleUtil.CheckErr(bcExcel.AddTable(sheetName, "A1", lastCellName, `{"table_style":"TableStyleMedium9"}`), "bcExcel.AddTable Error!")
+	//var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
+	//simpleUtil.CheckErr(bcExcel.AddTable(sheetName, "A1", lastCellName, `{"table_style":"TableStyleMedium9"}`), "bcExcel.AddTable Error!")
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 	<-throttle
 }
