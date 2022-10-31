@@ -22,6 +22,8 @@ func loadDb() {
 	for _, key := range textUtil.File2Array(*geneList) {
 		geneListMap[key] = true
 	}
+	// load gene info list
+	geneInfoMap, _ = textUtil.File2MapMap(*geneInfoList, "Gene Symbol", "\t", nil)
 	// load gene sub list
 	var geneSubs, _ = textUtil.File2MapArray(filepath.Join(etcPath, "gene.sub.list.txt"), "\t", nil)
 	for _, item := range geneSubs {

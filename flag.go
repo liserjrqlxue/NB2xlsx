@@ -127,6 +127,11 @@ var (
 		filepath.Join(etcPath, "gene.list.txt"),
 		"gene list to filter",
 	)
+	geneInfoList = flag.String(
+		"geneInfoList",
+		filepath.Join(etcPath, "gene.info.txt"),
+		"gene info:Transcript and EntrezID",
+	)
 	functionExclude = flag.String(
 		"functionExclude",
 		filepath.Join(etcPath, "function.exclude.txt"),
