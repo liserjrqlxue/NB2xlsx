@@ -364,10 +364,18 @@ func writeBatchCnv(throttle chan bool) {
 		item["疾病名称"] = item["疾病中文名"]
 		item["疾病简介"] = item["中文-疾病背景"]
 		item["SampleID"] = item["sample"]
-		if geneListMap[item["gene"]] {
-			item["新生儿目标基因"] = item["gene"]
-			item["转录本"] = geneInfoMap[item["gene"]]["Transcript"]
+		var (
+			targetGenes       []string
+			targetTranscripts []string
+		)
+		for _, gene := range genes {
+			if geneListMap[gene] {
+				targetGenes = append(targetGenes, gene)
+				targetTranscripts = append(targetTranscripts, geneInfoMap[gene]["Transcript"])
+			}
 		}
+		item["新生儿目标基因"] = strings.Join(targetGenes, ",")
+		item["转录本"] = strings.Join(targetTranscripts, ",")
 		updateABC(item)
 		item["CNVType"] = getCNVtype(item["Sex"], item)
 		item["引物设计"] = strings.Join(
