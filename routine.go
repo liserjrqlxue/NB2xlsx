@@ -321,6 +321,30 @@ var (
 	//}
 )
 
+func getCNVtype(gender string, item map[string]string) string {
+	switch item["copyNumber"] {
+	case "", "-":
+		return ""
+	case "0":
+		return "DEL"
+	case "1":
+		if item["chr"] == "chrX" || item["chr"] == "chrY" {
+			if item["chr"] == "chrX" && gender == "F" {
+				return "DEL"
+			}
+		} else {
+			return "DEL"
+		}
+	case "2":
+		if (item["chr"] == "chrX" || item["chr"] == "chrY") && gender == "M" {
+			return "DUP"
+		}
+	default:
+		return "DUP"
+	}
+	return ""
+}
+
 func writeBatchCnv(throttle chan bool) {
 	var sheetName = "Sheet1"
 	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(*bcTemplate)).(*excelize.File)
@@ -337,6 +361,27 @@ func writeBatchCnv(throttle chan bool) {
 		var genes = strings.Split(item["gene"], ",")
 		updateCnvTags(item, item["sample"], genes...)
 		addDiseases2Cnv(item, multiDiseaseSep, genes...)
+		item["疾病名称"] = item["疾病中文名"]
+		item["疾病简介"] = item["中文-疾病背景"]
+		item["SampleID"] = item["sample"]
+		if geneListMap[item["gene"]] {
+			item["新生儿目标基因"] = item["gene"]
+			item["转录本"] = geneInfoMap[item["gene"]]["Transcript"]
+		}
+		updateABC(item)
+		item["CNVType"] = getCNVtype(item["Sex"], item)
+		item["引物设计"] = strings.Join(
+			[]string{
+				item["gene"],
+				item["转录本"],
+				item["exons"] + " " + item["CNVType"],
+				"-",
+				item["exons"],
+				item["exons"],
+				item["杂合性"],
+			},
+			"; ",
+		)
 		writeRow(bcExcel, sheetName, item, title, rIdx)
 	}
 	//var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
