@@ -14,16 +14,17 @@
   - [x] [已解读数据库](#已解读数据库)
   - [ ] [Other Columns](#other-columns)
     - [x] [LOF](#lof)
-    - [x] [HGMDorClinvar](#HGMDorClinvar)
+    - [x] [HGMDorClinvar](#hgmdorclinvar)
     - [x] [遗传模式判读](#遗传模式判读)
 - [x] [lims.info](#limsinfo)
 - [ ] [QC](#qc)
   - [x] [common](#common)
   - [ ] [others](#others)
-- [ ] [excel 格式](#excel-格式)
+- [x] [SMA_result](#sma_result)
+- [x] [excel 格式](#excel-格式)
   - [x] [DataValidation](#datavalidation)
   - [x] [Background Color](#background-color)
-- [ ] [modules](#module)
+- [ ] [modules](#modules)
   - [x] [anno](#anno2xlsxv2annno)
   - [x] [ACMG](#acmg2015)
     - [x] [init](#init)
@@ -98,6 +99,9 @@ PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
 
 #### 定义
 
+- 遗传模式
+
+  - 来源：新生儿疾病库（-disease）的"遗传模式"  
 - cnv
 
     拷贝数异常  
@@ -184,6 +188,8 @@ PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
   - SpliceCS*
   - NoSpliceCS*
   - CDS*
+
+#### 规则
 
 |遗传模式|P/LP*|compositeP|Zygosity|Function|自动化判断|Definition|ClinVar| HGMD |lowAF|VarCount| CNV |标签|CNV标签|
 |-------|-----|----------|--------|--------|---------|----------|-------|------|-----|---------|----|----|-------|
@@ -363,6 +369,11 @@ if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 | Order  | i+1                  | index+1          |
 | 产品编号   | lims["PRODUCT_CODE"] | from `lims.info` |
 | RESULT | RESULT               |                  |
+
+## SMA_result
+
+1. titles:[`etc/title.sma.txt`](etc/title.sma.txt)
+2. '产品编码_产品名称':[`updateABC`](#limsinfo)
 
 ## excel 格式
 
