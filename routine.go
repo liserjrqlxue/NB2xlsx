@@ -240,10 +240,15 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 		}
 	}
 	if *smaResult != "" {
+		var smaXlsx = excelize.NewFile()
+		var smaTitle = textUtil.File2Array(filepath.Join(etcPath, "title.sma.txt"))
 		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
-		for _, item := range sma {
+		writeTitle(smaXlsx, "Sheet1", smaTitle)
+		for i, item := range sma {
 			updateSma(item, db)
+			writeRow(smaXlsx, "Sheet1", item, smaTitle, i+2)
 		}
+		simpleUtil.CheckErr(smaXlsx.SaveAs(*prefix + ".SMA_result.xlsx"))
 	}
 	if len(db) > 0 {
 		writeAe(excel, db)
