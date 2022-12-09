@@ -21,11 +21,14 @@ var (
 	geneExcludeListMap = make(map[string]bool)
 	geneInfoMap        = make(map[string]map[string]string)
 	functionExcludeMap = make(map[string]bool)
-	diseaseDb          = make(map[string]map[string]string)
-	geneInheritance    = make(map[string]string)
-	localDb            = make(map[string]map[string]string)
-	dropListMap        = make(map[string][]string)
-	genderMap          = make(map[string]string)
+
+	diseaseSep = "$$"
+	diseaseDb  = make(map[string]map[string]string)
+
+	geneInheritance = make(map[string]string)
+	localDb         = make(map[string]map[string]string)
+	dropListMap     = make(map[string][]string)
+	genderMap       = make(map[string]string)
 	// DmdCnv : array of DMD cnv map
 	DmdCnv []map[string]string
 	// BatchCnv : array of batch cnv map
@@ -110,6 +113,7 @@ var spliceCSList = map[string]bool{
 }
 
 var (
+	isAD          = regexp.MustCompile(`AD`)
 	isP           = regexp.MustCompile(`P`)
 	isI           = regexp.MustCompile(`I`)
 	isD           = regexp.MustCompile(`D`)

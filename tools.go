@@ -16,6 +16,19 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+func mergeSep(str, sep string) string {
+	var strMap = make(map[string]string)
+	for _, s := range strings.Split(str, sep) {
+		strMap[s] = s
+	}
+	var strs []string
+	for s := range strMap {
+		strs = append(strs, s)
+	}
+	return strings.Join(strs, sep)
+
+}
+
 func loadDb() {
 	log.Println("Load Database Start")
 	// load gene list
@@ -48,9 +61,10 @@ func loadDb() {
 				GetRows(*diseaseSheetName),
 		).([][]string),
 		"基因",
-		"$$",
+		diseaseSep,
 	)
 	for gene, info := range diseaseDb {
+		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
 		geneInheritance[gene] = info["遗传模式"]
 	}
 
@@ -197,6 +211,7 @@ func updateDisease(item map[string]string) {
 	if ok {
 		item["疾病中文名"] = disease["疾病"]
 		item["遗传模式"] = disease["遗传模式"]
+		item["遗传模式merge"] = disease["遗传模式merge"]
 		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
 	}
@@ -431,10 +446,13 @@ func updateGeneHashXLR(item map[string]string, genePred, gender string) string {
 }
 
 func updateGeneHash(item map[string]string, genePred, gender string) string {
-	switch item["遗传模式"] {
-	case "AR", "AR;AR", "AR;AR;AR", "AR;AR;AR;AR":
+	if isAD.MatchString(item["遗传模式merge"]) {
+		return updateGeneHashAD(item)
+	}
+	switch item["遗传模式merge"] {
+	case "AR":
 		return updateGeneHashAR(item, genePred)
-	case "AD", "AD,AR", "AD,AR;AD,AR", "AD;AD", "AD;AD,AR", "Mi":
+	case "MI":
 		return updateGeneHashAD(item)
 	case "XLD":
 		return updateGeneHashXLD(item)
