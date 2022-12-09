@@ -449,13 +449,14 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 	if isAD.MatchString(item["遗传模式merge"]) {
 		return updateGeneHashAD(item)
 	}
+	if isXLD.MatchString(item["遗传模式merge"]) {
+		return updateGeneHashXLD(item)
+	}
 	switch item["遗传模式merge"] {
 	case "AR":
 		return updateGeneHashAR(item, genePred)
 	case "MI":
 		return updateGeneHashAD(item)
-	case "XLD":
-		return updateGeneHashXLD(item)
 	case "XLR":
 		return updateGeneHashXLR(item, genePred, gender)
 	case "XL":

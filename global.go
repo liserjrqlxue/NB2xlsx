@@ -114,6 +114,7 @@ var spliceCSList = map[string]bool{
 
 var (
 	isAD          = regexp.MustCompile(`AD`)
+	isXLD         = regexp.MustCompile(`XLD`)
 	isP           = regexp.MustCompile(`P`)
 	isI           = regexp.MustCompile(`I`)
 	isD           = regexp.MustCompile(`D`)
