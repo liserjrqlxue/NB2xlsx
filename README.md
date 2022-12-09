@@ -305,20 +305,21 @@ if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 }
 ```
 
-#### 遗传模式判读
+#### `遗传模式判读`
 
-| 遗传模式                                                 | 杂合性                  | 个数   | 样品性别              | 遗传模式判读 |
-|------------------------------------------------------|----------------------|------|-------------------|--------|
-| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Hom']              | \>=1 |                   | 可能患病   |
-| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Het']              | =1   |                   | 携带者    |
-| ['AR','AR;AR','AR;AR;AR','AR;AR;AR;AR']              | ['Het']              | \>1  |                   | 可能患病   |
-| ['AD','AD,AR','AD,AR;AD,AR','AD;AD','AD;AD,AR','Mi'] | ['Hom','Het']        | \>=1 |                   | 可能患病   |
-| ['XLD']                                              | ['Hom','Het','Hemi'] | \>=1 |                   | 可能患病   |
-| ['XLR']                                              | ['Hom','Het','Hemi'] | \>=1 | Male              | 可能患病   |
-| ['XLR']                                              | ['Hom']              | \>=1 | Female            | 可能患病   |
-| ['XLR']                                              | ['Het']              | =1   | Female            | 携带者    |
-| ['XLR']                                              | ['Het']              | \>=1 | Female            | 可能患病   |
-| ['XL'] for ['OTC','GLA','PCDH19']                    | ['Hemi','Hom',Het']  | \>=1 | ['Female','Male'] | 可能患病   |
+| 遗传模式                            | 杂合性                  | 个数   | 样品性别              | 遗传模式判读 |
+|---------------------------------|----------------------|------|-------------------|--------|
+| AR                              | ['Hom']              |      |                   | 可能患病   |
+| AR                              | ['Het']              | =1   |                   | 携带者    |
+| AR                              | ['Het']              | \>1  |                   | 可能患病   |
+| 包含 AD                           | ['Hom','Het']        |      |                   | 可能患病   |
+| Mi                              | ['Hom','Het']        |      |                   | 可能患病   |
+| 包含 XLD                          | ['Hom','Het','Hemi'] |      |                   | 可能患病   |
+| XLR                             | ['Hom','Het','Hemi'] |      | Male              | 可能患病   |
+| XLR                             | ['Hom']              |      | Female            | 可能患病   |
+| XLR                             | ['Het']              | =1   | Female            | 携带者    |
+| XLR                             | ['Het']              | \>1  | Female            | 可能患病   |
+| XL 仅当基因属于['OTC','GLA','PCDH19'] | ['Hemi','Hom',Het']  | \>=1 | ['Female','Male'] | 可能患病   |
 
 ## lims.info
 
