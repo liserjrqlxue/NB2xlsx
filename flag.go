@@ -207,4 +207,14 @@ var (
 		"bam文件路径",
 		"bamPath sheet name",
 	)
+	lumpy = flag.String(
+		"lumpy",
+		"",
+		"DMD-lumpy data",
+	)
+	nator = flag.String(
+		"nator",
+		"",
+		"DMD-nator data",
+	)
 )

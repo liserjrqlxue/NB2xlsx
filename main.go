@@ -125,6 +125,17 @@ func main() {
 		updateGeneID(excel, *geneIDList)
 	}
 
+	// DMD-lumpy
+	if *lumpy != "" {
+		updateDMD(excel, "DMD-lumpy", *lumpy)
+	}
+	// DMD-nator
+	if *nator != "" {
+		updateDMD(excel, "DMD-nator", *nator)
+	}
+
+	// DMD-nator
+
 	{
 		saveBatchCnv <- true
 		go writeBatchCnv(saveBatchCnv)

@@ -788,6 +788,23 @@ func updateFeature(excel *excelize.File, path string) {
 	}
 }
 
+func updateDMD(excel *excelize.File, sheetName, path string) {
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, fileName := range textUtil.File2Array(path) {
+		var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
+		for _, item := range feature {
+			rIdx++
+			item["#sample"] = item["Sample"]
+			updateABC(item)
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+}
+
 func updateDrug(excel *excelize.File, path string) {
 	log.Println("Start load Drug")
 	var drugDb = make(map[string]map[string]map[string]string)
