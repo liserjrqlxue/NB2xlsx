@@ -455,3 +455,18 @@ acmg2015.Init(acmgCfg)
 acmg2015.AddEvidences(item)
 item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 ```
+
+# 模板
+
+- [x] All variants data
+- [x] CNV
+- [x] DMD-lumpy
+- [x] DMD-nator
+- [x] 补充实验
+- [x] 个特
+- [x] 基因ID
+- [ ] 药物检测结果
+- [x] QC
+- [ ] 样本信息
+- [x] bam文件路径
+- [ ] 任务单
