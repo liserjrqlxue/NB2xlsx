@@ -107,7 +107,7 @@ func main() {
 	{
 		runAvd <- true
 		writeDmd <- true
-		writeDmdCnv(excel, writeDmd)
+		goUpdateCNV(excel, writeDmd)
 	}
 
 	// drug, no use
@@ -117,40 +117,33 @@ func main() {
 
 	// 个特
 	if *featureList != "" {
-		updateFeature(excel, *featureList)
+		updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
 	}
 
 	// 基因ID
 	if *geneIDList != "" {
-		updateGeneID(excel, *geneIDList)
+		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
 	}
 
 	// DMD-lumpy
 	if *lumpy != "" {
-		updateDMD(excel, "DMD-lumpy", *lumpy)
+		updateDataFile2Sheet(excel, "DMD-lumpy", *lumpy, updateDMD)
 	}
 	// DMD-nator
 	if *nator != "" {
-		updateDMD(excel, "DMD-nator", *nator)
+		updateDataFile2Sheet(excel, "DMD-nator", *nator, updateDMD)
 	}
-
-	// DMD-nator
 
 	{
 		saveBatchCnv <- true
-		go writeBatchCnv(saveBatchCnv)
+		go goWriteBatchCnv(saveBatchCnv)
 	}
 
 	{
 		runAe <- true
 		writeDmd <- true
 		saveMain <- true
-		go func() {
-			log.Printf("excel.SaveAs(\"%s\")\n", *prefix+".xlsx")
-			simpleUtil.CheckErr(excel.SaveAs(*prefix + ".xlsx"))
-			log.Println("Save main Done")
-			<-saveMain
-		}()
+		go saveMainExcel(excel, *prefix+".xlsx", saveMain)
 	}
 
 	// waite excel write done

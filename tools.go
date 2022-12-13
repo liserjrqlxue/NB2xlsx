@@ -734,6 +734,41 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	item["Database"] = strings.Join(tags, ";")
 }
 
+// QC
+func writeQC(excel *excelize.File, db []map[string]string) {
+	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+	qcMap, err = textUtil.File2Map(*qcTitle, "\t", true)
+	simpleUtil.CheckErr(err, "load qcTitle fail")
+	for i, item := range db {
+		rIdx++
+		updateQC(item, qcMap, i)
+		updateINDEX(item, "B", rIdx)
+		writeRow(excel, *qcSheetName, item, title, rIdx)
+	}
+}
+
+func updateQC(item, qcMap map[string]string, i int) {
+	item["Order"] = strconv.Itoa(i + 1)
+	for k, v := range qcMap {
+		item[k] = item[v]
+	}
+	var inputGender = "null"
+	if limsInfo[item["Sample"]]["SEX"] == "1" {
+		inputGender = "M"
+	} else if limsInfo[item["Sample"]]["SEX"] == "2" {
+		inputGender = "F"
+	} else {
+		inputGender = "null"
+	}
+	if inputGender != genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]] {
+		item["Gender"] = inputGender + "!!!Sequenced" + genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]]
+	}
+	//item["RESULT"]=item[""]
+	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
+}
+
 func loadQC(qc string) (qcDb []map[string]string) {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(qc)).(*excelize.File)
 	var rows, err = excel.GetRows("Sheet1")
@@ -753,56 +788,99 @@ func loadQC(qc string) (qcDb []map[string]string) {
 	return
 }
 
-func updateGeneID(excel *excelize.File, path string) {
-	log.Println("Start load GeneID")
-	var sheetName = "基因ID"
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
+type handleItem func(map[string]string)
 
-	for _, fileName := range textUtil.File2Array(path) {
-		var geneID, _ = textUtil.File2MapArray(fileName, "\t", nil)
-		for _, item := range geneID {
-			rIdx++
-			updateABC(item)
-			writeRow(excel, sheetName, item, title, rIdx)
-		}
-	}
-}
-
-func updateFeature(excel *excelize.File, path string) {
-	log.Println("Start load Feature")
-	var sheetName = "个特"
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, fileName := range textUtil.File2Array(path) {
-		var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
-		for _, item := range feature {
-			rIdx++
-			item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
-			updateABC(item)
-			writeRow(excel, sheetName, item, title, rIdx)
-		}
-	}
-}
-
-func updateDMD(excel *excelize.File, sheetName, path string) {
+func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleItem) {
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 
-	for _, fileName := range textUtil.File2Array(path) {
-		var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
-		for _, item := range feature {
+	for _, item := range db {
+		rIdx++
+		fn(item)
+		writeRow(excel, sheetName, item, title, rIdx)
+	}
+}
+
+func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleItem) {
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	var db, _ = textUtil.File2MapArray(path, "\t", nil)
+	for _, item := range db {
+		rIdx++
+		fn(item)
+		writeRow(excel, sheetName, item, title, rIdx)
+	}
+}
+
+func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleItem) {
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, path := range textUtil.File2Array(list) {
+		var db, _ = textUtil.File2MapArray(path, "\t", nil)
+		for _, item := range db {
 			rIdx++
-			item["#sample"] = item["Sample"]
-			updateABC(item)
+			fn(item)
 			writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
+}
+
+func updateCNV(item map[string]string) {
+	updateCnvTags(item, item["#Sample"], item["gene"])
+}
+
+func updateDMD(item map[string]string) {
+	item["#sample"] = item["Sample"]
+	item["sampleID"] = item["Sample"]
+	updateABC(item)
+}
+
+func updateFeature(item map[string]string) {
+	item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
+	updateABC(item)
+}
+
+func updateBatchCNV(item map[string]string) {
+	var genes = strings.Split(item["gene"], ",")
+	updateCnvTags(item, item["sample"], genes...)
+	addDiseases2Cnv(item, multiDiseaseSep, genes...)
+	item["疾病名称"] = item["疾病中文名"]
+	item["疾病简介"] = item["中文-疾病背景"]
+	item["SampleID"] = item["sample"]
+	var (
+		targetGenes       []string
+		targetTranscripts []string
+	)
+	for _, gene := range genes {
+		if geneListMap[gene] {
+			targetGenes = append(targetGenes, gene)
+			targetTranscripts = append(targetTranscripts, geneInfoMap[gene]["Transcript"])
+		}
+	}
+	item["新生儿目标基因"] = strings.Join(targetGenes, ",")
+	item["转录本"] = strings.Join(targetTranscripts, ",")
+	updateABC(item)
+	item["CNVType"] = getCNVtype(item["Sex"], item)
+	item["引物设计"] = strings.Join(
+		[]string{
+			item["gene"],
+			item["转录本"],
+			item["exons"] + " " + item["CNVType"],
+			"-",
+			item["exons"],
+			item["exons"],
+			item["杂合性"],
+		},
+		"; ",
+	)
 }
 
 func updateDrug(excel *excelize.File, path string) {
@@ -824,4 +902,28 @@ func updateDrug(excel *excelize.File, path string) {
 			sampleDrug[drugName] = item
 		}
 	}
+}
+
+func getCNVtype(gender string, item map[string]string) string {
+	switch item["copyNumber"] {
+	case "", "-":
+		return ""
+	case "0":
+		return "DEL"
+	case "1":
+		if item["chr"] == "chrX" || item["chr"] == "chrY" {
+			if item["chr"] == "chrX" && gender == "F" {
+				return "DEL"
+			}
+		} else {
+			return "DEL"
+		}
+	case "2":
+		if (item["chr"] == "chrX" || item["chr"] == "chrY") && gender == "M" {
+			return "DUP"
+		}
+	default:
+		return "DUP"
+	}
+	return ""
 }
