@@ -2,12 +2,10 @@ package main
 
 import (
 	"flag"
-	"log"
-	"os"
-	"strings"
-
 	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/xuri/excelize/v2"
+	"log"
+	"os"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -63,6 +61,7 @@ func main() {
 	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 	styleInit(excel)
 
+	// bam文件路径
 	if *bamPath != "" {
 		for i, path := range textUtil.File2Array(*bamPath) {
 			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
@@ -104,69 +103,26 @@ func main() {
 	}
 
 	// write CNV after runAvd
+	// CNV
 	{
 		runAvd <- true
 		writeDmd <- true
 		writeDmdCnv(excel, writeDmd)
 	}
 
-	// drug
+	// drug, no use
 	if *drugResult != "" {
-		log.Println("Start load Drug")
-		var drugDb = make(map[string]map[string]map[string]string)
-		var drug, _ = textUtil.File2MapArray(*drugResult, "\t", nil)
-		for _, item := range drug {
-			var sampleID = item["样本编号"]
-			item["SampleID"] = sampleID
-			updateABC(item)
-			var drugName = item["药物名称"]
-			var sampleDrug, ok1 = drugDb[sampleID]
-			if !ok1 {
-				sampleDrug = make(map[string]map[string]string)
-				drugDb[sampleID] = sampleDrug
-			}
-			if _, ok := sampleDrug[drugName]; !ok {
-				item["SampleID"] = sampleID
-				sampleDrug[drugName] = item
-			}
-		}
+		updateDrug(excel, *drugResult)
 	}
 
 	// 个特
 	if *featureList != "" {
-		log.Println("Start load Feature")
-		var sheetName = "个特"
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
-
-		for _, fileName := range textUtil.File2Array(*featureList) {
-			var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			for _, item := range feature {
-				rIdx++
-				item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
-				updateABC(item)
-				writeRow(excel, sheetName, item, title, rIdx)
-			}
-		}
+		updateFeature(excel, *featureList)
 	}
 
 	// 基因ID
 	if *geneIDList != "" {
-		log.Println("Start load GeneID")
-		var sheetName = "基因ID"
-		var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-		var title = rows[0]
-		var rIdx = len(rows)
-
-		for _, fileName := range textUtil.File2Array(*geneIDList) {
-			var geneID, _ = textUtil.File2MapArray(fileName, "\t", nil)
-			for _, item := range geneID {
-				rIdx++
-				updateABC(item)
-				writeRow(excel, sheetName, item, title, rIdx)
-			}
-		}
+		updateGeneID(excel, *geneIDList)
 	}
 
 	{

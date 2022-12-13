@@ -107,6 +107,11 @@ var (
 		"",
 		"sma result file",
 	)
+	sma2Result = flag.String(
+		"sma2",
+		"",
+		"sma result file",
+	)
 	aeSheetName = flag.String(
 		"aeSheetName",
 		"补充实验",

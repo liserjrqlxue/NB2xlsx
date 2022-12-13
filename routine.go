@@ -250,6 +250,12 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 		}
 		simpleUtil.CheckErr(smaXlsx.SaveAs(*prefix + ".SMA_result.xlsx"))
 	}
+	if *sma2Result != "" {
+		var sma, _ = textUtil.File2MapArray(*sma2Result, "\t", nil)
+		for _, item := range sma {
+			updateSma2(item, db)
+		}
+	}
 	if len(db) > 0 {
 		writeAe(excel, db)
 	} else {

@@ -603,6 +603,16 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	updateABC(item)
 	db[sampleID] = info
 }
+func updateSma2(item map[string]string, db map[string]map[string]string) {
+	var sampleID = item["Sample"]
+	var info, ok = db[sampleID]
+	if !ok {
+		info = item
+	}
+	info["SMN1_CN"] = item["SMN1_CN"]
+	info["SMN1_CN_raw"] = item["SMN1_CN_raw"]
+	db[sampleID] = info
+}
 
 func updateAe(item map[string]string) {
 	updateABC(item)
@@ -741,4 +751,60 @@ func loadQC(qc string) (qcDb []map[string]string) {
 		}
 	}
 	return
+}
+
+func updateGeneID(excel *excelize.File, path string) {
+	log.Println("Start load GeneID")
+	var sheetName = "基因ID"
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, fileName := range textUtil.File2Array(path) {
+		var geneID, _ = textUtil.File2MapArray(fileName, "\t", nil)
+		for _, item := range geneID {
+			rIdx++
+			updateABC(item)
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+}
+
+func updateFeature(excel *excelize.File, path string) {
+	log.Println("Start load Feature")
+	var sheetName = "个特"
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, fileName := range textUtil.File2Array(path) {
+		var feature, _ = textUtil.File2MapArray(fileName, "\t", nil)
+		for _, item := range feature {
+			rIdx++
+			item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
+			updateABC(item)
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+}
+
+func updateDrug(excel *excelize.File, path string) {
+	log.Println("Start load Drug")
+	var drugDb = make(map[string]map[string]map[string]string)
+	var drug, _ = textUtil.File2MapArray(path, "\t", nil)
+	for _, item := range drug {
+		var sampleID = item["样本编号"]
+		item["SampleID"] = sampleID
+		updateABC(item)
+		var drugName = item["药物名称"]
+		var sampleDrug, ok1 = drugDb[sampleID]
+		if !ok1 {
+			sampleDrug = make(map[string]map[string]string)
+			drugDb[sampleID] = sampleDrug
+		}
+		if _, ok := sampleDrug[drugName]; !ok {
+			item["SampleID"] = sampleID
+			sampleDrug[drugName] = item
+		}
+	}
 }
