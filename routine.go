@@ -91,8 +91,8 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	<-throttle
 }
 
-// WriteAvd write AVD sheet to excel
-func WriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
+// goWriteAvd write AVD sheet to excel
+func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	log.Println("Write AVD Start")
 	var avdArray []string
 	if *avdFiles != "" {

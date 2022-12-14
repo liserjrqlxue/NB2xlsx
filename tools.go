@@ -927,3 +927,16 @@ func getCNVtype(gender string, item map[string]string) string {
 	}
 	return ""
 }
+
+func updateBamPath(excel *excelize.File, list string) {
+	for i, path := range textUtil.File2Array(list) {
+		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
+		simpleUtil.CheckErr(
+			excel.SetCellStr(
+				*bamPathSheetName,
+				axis,
+				path,
+			),
+		)
+	}
+}

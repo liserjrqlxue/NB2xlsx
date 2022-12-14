@@ -63,16 +63,7 @@ func main() {
 
 	// bam文件路径
 	if *bamPath != "" {
-		for i, path := range textUtil.File2Array(*bamPath) {
-			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
-			simpleUtil.CheckErr(
-				excel.SetCellStr(
-					*bamPathSheetName,
-					axis,
-					path,
-				),
-			)
-		}
+		updateBamPath(excel, *bamPath)
 	}
 
 	// QC
@@ -99,7 +90,7 @@ func main() {
 	{
 		localDb <- true
 		runAvd <- true
-		WriteAvd(excel, loadDmd, runAvd, *all)
+		goWriteAvd(excel, loadDmd, runAvd, *all)
 	}
 
 	// write CNV after runAvd
