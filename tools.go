@@ -516,23 +516,24 @@ func updateDmd(item map[string]string) {
 	} else {
 		item["primerDesign"] = "-"
 	}
-	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
+	var pngSuffix = "." + item["gene"] + "." + item["NM"] + ".png"
+	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+"."+pngSuffix)
 	var info, ok = sampleInfos[item["SampleID"]]
 	if ok {
 		item["P0"] = info.p0
-		updateP(item, "P1", info.p1)
-		updateP(item, "P2", info.p2)
-		updateP(item, "P3", info.p3)
+		updateP(item, "P1", info.p1, pngSuffix)
+		updateP(item, "P2", info.p2, pngSuffix)
+		updateP(item, "P3", info.p3, pngSuffix)
 	} else {
 		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
 	}
 }
 
-func updateP(item map[string]string, k, v string) {
+func updateP(item map[string]string, k, v, suffix string) {
 	var ps = strings.Split(v, ",")
 	var sampleID = ps[0]
 	item[k] = strings.Join(ps[1:], ",")
-	item[k+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+".DMD.NM_004006.2.png")
+	item[k+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+suffix)
 }
 
 func updateDipin(item map[string]string, db map[string]map[string]string) {
