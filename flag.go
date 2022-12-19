@@ -217,4 +217,9 @@ var (
 		"",
 		"DMD-nator data",
 	)
+	wgs = flag.Bool(
+		"wgs",
+		false,
+		"if wgs mode",
+	)
 )

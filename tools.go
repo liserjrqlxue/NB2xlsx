@@ -616,7 +616,11 @@ func updateSma2(item map[string]string, db map[string]map[string]string) {
 
 func updateAe(item map[string]string) {
 	updateABC(item)
-	item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
+	if *wgs {
+		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W60S50_cne.jpg")
+	} else {
+		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
+	}
 	item["β地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
