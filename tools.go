@@ -214,6 +214,7 @@ func updateDisease(item map[string]string) {
 		item["遗传模式merge"] = disease["遗传模式merge"]
 		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
+		item["包装疾病分类"] = disease["包装疾病分类"]
 	}
 }
 
