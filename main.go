@@ -103,7 +103,7 @@ func main() {
 
 	// drug, no use
 	if *drugResult != "" {
-		updateDrug(excel, *drugResult)
+		updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateABC)
 	}
 
 	// 个特
