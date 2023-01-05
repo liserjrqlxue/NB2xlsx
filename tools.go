@@ -579,11 +579,11 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 		qcResult = "_等验证"
 	}
 	switch Categorization {
-	case "0":
+	case "0", "0.0":
 		result = "纯合阳性"
 	case "0.5":
 		result = "纯合灰区"
-	case "1":
+	case "1", "1.0":
 		result = "杂合阳性"
 	case "1.5":
 		result = "杂合灰区"
@@ -887,27 +887,6 @@ func updateBatchCNV(item map[string]string) {
 		},
 		"; ",
 	)
-}
-
-func updateDrug(excel *excelize.File, path string) {
-	log.Println("Start load Drug")
-	var drugDb = make(map[string]map[string]map[string]string)
-	var drug, _ = textUtil.File2MapArray(path, "\t", nil)
-	for _, item := range drug {
-		var sampleID = item["样本编号"]
-		item["SampleID"] = sampleID
-		updateABC(item)
-		var drugName = item["药物名称"]
-		var sampleDrug, ok1 = drugDb[sampleID]
-		if !ok1 {
-			sampleDrug = make(map[string]map[string]string)
-			drugDb[sampleID] = sampleDrug
-		}
-		if _, ok := sampleDrug[drugName]; !ok {
-			item["SampleID"] = sampleID
-			sampleDrug[drugName] = item
-		}
-	}
 }
 
 func getCNVtype(gender string, item map[string]string) string {
