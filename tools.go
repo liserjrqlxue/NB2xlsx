@@ -575,7 +575,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	var result, qcResult string
 	var Categorization = item["SMN1_ex7_cn"]
 	var QC = item["qc"]
-	if Categorization == "1.5" || Categorization == "1" || QC != "1" {
+	if Categorization == "1.5" || Categorization == "1" || Categorization == "1.0" || QC != "1" {
 		qcResult = "_等验证"
 	}
 	switch Categorization {
@@ -592,9 +592,10 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	}
 	if QC == "1" {
 		info["SMN1_质控结果"] = "Pass"
-		if Categorization == "0" || Categorization == "1" {
+		switch Categorization {
+		case "0", "0.0", "1", "1.0":
 			info["SMN1 EX7 del最终结果"] = result
-		} else {
+		default:
 			info["SMN1 EX7 del最终结果"] = result + qcResult
 		}
 	} else {
