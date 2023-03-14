@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"github.com/liserjrqlxue/goUtil/osUtil"
-	"github.com/xuri/excelize/v2"
-	"log"
-	"os"
-
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/liserjrqlxue/version"
+	"github.com/xuri/excelize/v2"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 func init() {
@@ -58,12 +58,50 @@ func main() {
 		loadBatchCNV(*batchCNV)
 	}
 
-	var excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-	styleInit(excel)
+	imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
+	var typeMode = make(map[string]bool)
+	for _, m := range imInfo {
+		typeMode[productMap[m["ProductID"]]["productType"]] = true
+	}
+	var columnName string
+	if typeMode["CN"] && typeMode["EN"] {
+		log.Fatalln("Conflict for CN or EN!")
+	} else if typeMode["CN"] {
+		columnName = "字段-一体机中文（待定）"
+	} else if typeMode["CN"] {
+		columnName = "字段-一体机英文"
+	} else {
+		log.Fatalln("No CN or EN!")
+	}
+	var excel *excelize.File
+	var imSheetList = []string{
+		"Sample",
+		"QC",
+		"SNV&INDEL",
+		"DMD CNV",
+		"THAL CNV",
+		"SMN1 CNV",
+	}
+	if *im {
+		excel = excelize.NewFile()
+		for _, s := range imSheetList {
+			excel.NewSheet(s)
+			var titleMap, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
+			var title []string
+			for _, m := range titleMap {
+				title = append(title, m[columnName])
+			}
+		}
+		styleInit(excel)
+	} else {
+		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
+		styleInit(excel)
 
-	// bam文件路径
-	if *bamPath != "" {
-		updateBamPath(excel, *bamPath)
+		// bam文件路径
+		if *bamPath != "" {
+			updateBamPath(excel, *bamPath)
+		}
 	}
 
 	// QC

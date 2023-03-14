@@ -177,6 +177,11 @@ var (
 		"",
 		"lims.info",
 	)
+	info = flag.String(
+		"info",
+		"",
+		"im info.txt",
+	)
 	detail = flag.String(
 		"detail",
 		"",
@@ -221,5 +226,10 @@ var (
 		"wgs",
 		false,
 		"if wgs mode",
+	)
+	im = flag.Bool(
+		"im",
+		false,
+		"if im mode",
 	)
 )

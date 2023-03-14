@@ -38,6 +38,7 @@ var (
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo                      = make(map[string]map[string]*GeneInfo)
 	limsInfo                            map[string]map[string]string
+	imInfo                              map[string]map[string]string
 	qcMap                               map[string]string
 	formalStyleID, supplementaryStyleID int
 	//checkStyleID int
