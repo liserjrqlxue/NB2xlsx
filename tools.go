@@ -574,6 +574,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	if !ok {
 		info = item
 	}
+	info["Official Report"] = "否"
 	var result, qcResult string
 	var Categorization = item["SMN1_ex7_cn"]
 	var QC = item["qc"]
@@ -583,6 +584,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	switch Categorization {
 	case "0", "0.0":
 		result = "纯合阳性"
+		info["Official Report"] = "是"
 	case "0.5":
 		result = "纯合灰区"
 	case "1", "1.0":
