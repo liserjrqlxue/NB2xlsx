@@ -1,0 +1,11 @@
+Raw	字段-中心实验室	字段-一体机中文	字段-一体机英文
+sampleID	sampleID	样本编号	SampleID
+gender	gender	性别	Gender
+SampleType	SampleType	样本类型	SampleType
+Date of Birth	Date of Birth	出生日期	Date of Birth
+Received Date	Received Date	收样日期	Received Date
+ProductID_ProductName	ProductID_ProductName	产品套餐编码_产品套餐名称	ProductID_ProductName
+Clinical information	Clinical information	临床表现	Clinical information
+TaskID	TaskID	任务编号	TaskID
+flow ID	flow ID	芯片ID	flow ID
+pipeline	pipeline	分析流程	pipeline
