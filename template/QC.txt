@@ -1,4 +1,4 @@
-Raw	字段-中心实验室	字段-一体机中文（待定）	字段-一体机英文
+Raw	字段-中心实验室	字段-一体机中文	字段-一体机英文
 sampleID	Sample	SampleID	SampleID
 Lane ID	无	Lane ID	Lane ID
 Barcode ID	无	Barcode ID	Barcode ID
