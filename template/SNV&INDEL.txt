@@ -1,4 +1,4 @@
-字段-中心实验室	字段-中心实验室	字段-一体机中文	字段-一体机英文
+Raw	字段-中心实验室	字段-一体机中文	字段-一体机英文
 TaskID	期数	任务编号	TaskID
 flow ID	flow ID	芯片ID	flow ID
 ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐名称	ProductID_ProductName
