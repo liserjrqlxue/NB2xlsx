@@ -1,17 +1,17 @@
-字段-中心实验室	字段-一体机中文（待定）	字段-一体机英文
-Sample	SampleID	SampleID
-Lane ID	Lane ID	Lane ID
-Barcode ID	Barcode ID	Barcode ID
-Q20(%)	Q20	Q20
-Q30(%)	Q30	Q30
-AverageDepth	AverageDepth	AverageDepth
-Target coverage >=20X percentage	Target coverage >=20X percentage	Target coverage >=20X percentage
-mitochondria Target Mean Depth[RM DUP]	mitochondria Target Mean Depth[RM DUP]	Mitochondria Target Mean Depth[RM DUP]
-contamination	contamination	Contamination
-Gender	性别	Gender
-质控	质控	QC
-无	不合格原因	Failed reason
-Depth>=10(%)	Depth>=10(%)	Depth>=10(%)
-Coverage(%)	Coverage(%)	Coverage(%)
-GC(%)	GC(%)	GC(%)
-无	操作建议	Operation Advice
+Raw	字段-中心实验室	字段-一体机中文（待定）	字段-一体机英文
+sampleID	Sample	SampleID	SampleID
+Lane ID	无	Lane ID	Lane ID
+Barcode ID	无	Barcode ID	Barcode ID
+Q20	Q20(%)	Q20	Q20
+Q30	Q30(%)	Q30	Q30
+Target Mean Depth[RM DUP]: (remove_mitochondria)	AverageDepth	AverageDepth	AverageDepth
+Target coverage >=20X percentage[RM DUP]:	Target coverage >=20X percentage	Target coverage >=20X percentage	Target coverage >=20X percentage
+Target Mean Depth[RM DUP]: (mitochondria)	mitochondria Target Mean Depth[RM DUP]	mitochondria Target Mean Depth[RM DUP]	Mitochondria Target Mean Depth[RM DUP]
+contamination	contamination	contamination	Contamination
+gender_analysed	Gender	性别	Gender
+质控	质控	质控	QC
+Failed reason	无	不合格原因	Failed reason
+Target coverage >=10X percentage[RM DUP]:	Depth>=10(%)	Depth>=10(%)	Depth>=10(%)
+Target coverage[RM DUP]:	Coverage(%)	Coverage(%)	Coverage(%)
+Total mapped GC Rate:	GC(%)	GC(%)	GC(%)
+Operation Advice	无	操作建议	Operation Advice

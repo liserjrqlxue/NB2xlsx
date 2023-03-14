@@ -64,7 +64,6 @@ func main() {
 	for _, m := range imInfo {
 		typeMode[productMap[m["ProductID"]]["productType"]] = true
 	}
-	var columnName string
 	if typeMode["CN"] && typeMode["EN"] {
 		log.Fatalln("Conflict for CN or EN!")
 	} else if typeMode["CN"] {

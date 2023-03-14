@@ -39,7 +39,8 @@ var (
 	SampleGeneInfo                      = make(map[string]map[string]*GeneInfo)
 	limsInfo                            map[string]map[string]string
 	imInfo                              map[string]map[string]string
-	qcMap                               map[string]string
+	columnName                          string
+	qcMap                               = make(map[string]string)
 	formalStyleID, supplementaryStyleID int
 	//checkStyleID int
 	formalCheckStyleID, supplementaryCheckStyleID int

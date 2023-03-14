@@ -746,8 +746,10 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
-	qcMap, err = textUtil.File2Map(*qcTitle, "\t", true)
-	simpleUtil.CheckErr(err, "load qcTitle fail")
+	var qcTemplate, _ = textUtil.File2MapArray(filepath.Join(templatePath, "QC.txt"), "\t", nil)
+	for _, m := range qcTemplate {
+		qcMap[m["Raw"]] = m[columnName]
+	}
 	for i, item := range db {
 		rIdx++
 		updateQC(item, qcMap, i)
@@ -759,21 +761,27 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 func updateQC(item, qcMap map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
 	for k, v := range qcMap {
-		item[k] = item[v]
+		item[v] = item[k]
 	}
-	var inputGender = "null"
-	if limsInfo[item["Sample"]]["SEX"] == "1" {
-		inputGender = "M"
-	} else if limsInfo[item["Sample"]]["SEX"] == "2" {
-		inputGender = "F"
+	var sampleID = item["sampleID"]
+	if *im {
+		item["Lane ID"] = imInfo[sampleID]["Lane ID"]
+		item["Barcode ID"] = imInfo[sampleID]["Barcode ID"]
 	} else {
-		inputGender = "null"
+		var inputGender = "null"
+		if limsInfo[item["Sample"]]["SEX"] == "1" {
+			inputGender = "M"
+		} else if limsInfo[item["Sample"]]["SEX"] == "2" {
+			inputGender = "F"
+		} else {
+			inputGender = "null"
+		}
+		if inputGender != genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]] {
+			item["Gender"] = inputGender + "!!!Sequenced" + genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]]
+		}
+		//item["RESULT"]=item[""]
+		item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 	}
-	if inputGender != genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]] {
-		item["Gender"] = inputGender + "!!!Sequenced" + genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]]
-	}
-	//item["RESULT"]=item[""]
-	item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 }
 
 func loadQC(qc string) (qcDb []map[string]string) {

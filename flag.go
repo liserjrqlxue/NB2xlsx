@@ -192,11 +192,6 @@ var (
 		"",
 		"qc excel",
 	)
-	qcTitle = flag.String(
-		"qcTitle",
-		filepath.Join(etcPath, "QC.txt"),
-		"qc title map",
-	)
 	qcSheetName = flag.String(
 		"qcSheet",
 		"QC",
