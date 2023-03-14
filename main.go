@@ -110,7 +110,7 @@ func main() {
 
 	// Sample
 	if *im && *info != "" {
-		updateDataFile2Sheet(excel, "Sample", *info, updateInfo)
+		updateDataFile2Sheet(excel, "Sample", *info, updateSample)
 	}
 
 	// QC
