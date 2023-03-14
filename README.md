@@ -461,7 +461,7 @@ acmg2015.AddEvidences(item)
 item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 ```
 
-# 模板
+## 模板
 
 - [x] All variants data
 - [x] CNV
@@ -475,3 +475,96 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 - [ ] 样本信息
 - [x] bam文件路径
 - [ ] 任务单
+
+## 一体机
+
+- [ ] Sample
+  - [x] 样本编号
+  - [x] 性别
+  - [ ] 样本类型
+  - [ ] 出生日期
+  - [ ] 收样日期
+  - [ ] 产品套餐编码_产品套餐名称
+  - [ ] 临床表现
+  - [ ] 任务编号
+  - [ ] 芯片ID
+  - [ ] 分析流程
+- [ ] QC
+  - [x] sampleID
+  - [x] Lane ID
+  - [x] Barcode ID
+  - [x] Q20
+  - [x] Q30
+  - [x] AverageDepth
+  - [x] Target coverage >=20X percentage
+  - [x] mitochondria Target Mean Depth[RM DUP]
+  - [x] contamination
+  - [x] 性别
+  - [x] 质控
+  - [ ] 不合格原因
+  - [x] Depth>=10(%)
+  - [x] Coverage(%)
+  - [x] GC(%)
+  - [ ] 操作建议
+- [ ] SNV&INDEL
+  - [ ] 任务编号
+  - [ ] 芯片ID
+  - [ ] 产品套餐编码_产品套餐名称
+  - [x] 样本编号
+  - [ ] 性别
+  - [x] Chr
+  - [x] 杂合性
+  - [x] 基因名称
+  - [x] 转录本
+  - [x] 碱基改变
+  - [x] 氨基酸改变
+  - [x] 外显子
+  - [x] 突变类型
+  - [x] ClinVar星级
+  - [x] Automated Pathogenicity
+  - [x] 疾病名称
+  - [x] 遗传模式
+  - [x] 疾病简介
+  - [ ] 遗传模式判读
+  - [ ] 是否报告
+  - [x] reads_picture
+  - [x] pre_quality
+  - [ ] 是否库内变异
+- [ ] DMD CNV
+  - [ ] 任务编号
+  - [ ] flow ID
+  - [ ] 产品套餐编码_产品套餐名称
+  - [x] SampleID
+  - [x] 性别
+  - [x] 染色体
+  - [x] Gene Symbol
+  - [x] 转录本
+  - [x] 外显子
+  - [x] CNVType
+  - [ ] 杂合性
+  - [ ] 是否报告
+  - [x] 核苷酸变化
+  - [ ] 突变类型
+  - [ ] 外显子图
+  - [ ] 是否在库内
+- [ ] THAL CNV
+  - [ ] 任务编号
+  - [ ] flow ID
+  - [ ] 产品套餐编码_产品套餐名称
+  - [x] SampleID
+  - [ ] 性别
+  - [x] 地贫_QC
+  - [x] β地贫自动化结果
+  - [x] α地贫自动化结果
+  - [x] β地贫_最终结果
+  - [x] α地贫_最终结果
+- [ ] SMN1 CNV
+  - [ ] 任务编号
+  - [ ] flow ID
+  - [ ] 产品套餐编码_产品套餐名称
+  - [x] SampleID
+  - [ ] 性别
+  - [x] SMN1_质控结果
+  - [x] SMN1 EX7 del最终结果
+  - [ ] 是否报告
+  - [ ] SMN2 EX7 del最终结果
