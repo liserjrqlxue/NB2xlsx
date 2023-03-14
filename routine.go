@@ -144,6 +144,9 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 
 func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, throttle chan bool) {
 	var sheetName = *avdSheetName
+	if *im {
+		sheetName = "SNV&INDEL"
+	}
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
@@ -152,7 +155,14 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 		for _, item := range avd {
 			rIdx++
 			updateINDEX(item, "D", rIdx)
-			writeRow(excel, sheetName, item, title, rIdx)
+			if *im {
+				for k, v := range sheetTitleMap[sheetName] {
+					item[v] = item[k]
+				}
+				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
+			} else {
+				writeRow(excel, sheetName, item, title, rIdx)
+			}
 		}
 		count++
 		if count == size {

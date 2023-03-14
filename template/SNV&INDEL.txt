@@ -1,0 +1,49 @@
+字段-中心实验室	字段-中心实验室	字段-一体机中文	字段-一体机英文
+TaskID	期数	任务编号	TaskID
+flow ID	flow ID	芯片ID	flow ID
+ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐名称	ProductID_ProductName
+SampleID	SampleID	样本编号	SampleID
+Sex	Sex	性别	Gender
+#Chr	#Chr	Chr	Chr
+Start	Start	Start	Start
+Stop	Stop	Stop	Stop
+Ref	Ref	Ref	Ref
+Call	Call	Call	Call
+rsID	rsID	rsID	rsID
+Depth	Depth	A.Depth	A.Depth
+A.Ratio	A.Ratio	A.Ratio	A.Ratio
+Zygosity	Zygosity	杂合性	Zygosity
+Gene Symbol	Gene Symbol	基因名称	Gene Symbol
+Transcript	Transcript	转录本	Transcript
+cHGVS	cHGVS	碱基改变	cHGVS
+pHGVS	pHGVS	氨基酸改变	pHGVS
+ExIn_ID	ExIn_ID	外显子	ExIn_ID
+RepeatTag	RepeatTag	RepeatTag	RepeatTag
+Function	Function	突变类型	Variant type
+1000G AF	1000G AF	1000G AF	1000G AF
+ESP6500 AF	ESP6500 AF	ESP6500 AF	ESP6500 AF
+ExAC AF	ExAC AF	ExAC AF	ExAC AF
+GnomAD AF	GnomAD AF	GnomAD AF	GnomAD AF
+GnomAD HemiAlt Count	GnomAD HemiAlt Count	GnomAD HemiAlt Count	GnomAD HemiAlt Count
+GnomAD HomoAlt Count	GnomAD HomoAlt Count	GnomAD HomoAlt Count	GnomAD HomoAlt Count
+Ens Condel Pred	Ens Condel Pred	Ens Condel Pred	Ens Condel Pred
+SIFT Pred	SIFT Pred	SIFT Pred	SIFT Pred
+Polyphen2 HDIV Pred	Polyphen2 HDIV Pred	Polyphen2 HDIV Pred	Polyphen2 HDIV Pred
+Polyphen2 HVAR Pred	Polyphen2 HVAR Pred	Polyphen2 HVAR Pred	Polyphen2 HVAR Pred
+MutationTaster Pred	MutationTaster Pred	MutationTaster Pred	MutationTaster Pred
+dbscSNV_ADA_pred	dbscSNV_ADA_pred	dbscSNV_ADA_pred	dbscSNV_ADA_pred
+dbscSNV_RF_pred	dbscSNV_RF_pred	dbscSNV_RF_pred	dbscSNV_RF_pred
+SpliceAI Pred	SpliceAI Pred	SpliceAI Pred	SpliceAI Pred
+ClinVar Significance	ClinVar Significance	ClinVar Significance	ClinVar Significance
+ClinVar星级	ClinVar星级	ClinVar星级	Gold stars in ClinVar
+autoRuleName	autoRuleName	autoRuleName	autoRuleName
+自动化判断	自动化判断	Automated Pathogenicity	Automated Pathogenicity
+疾病中文名	疾病中文名	疾病名称	DiseaseName
+遗传模式	遗传模式	遗传模式	Genetic Patterns
+疾病简介	疾病简介	疾病简介	Generalization
+Definition	Definition	致病性	Pathogenicity
+遗传模式判读	遗传模式判读	遗传模式判读	Risk
+报告类别	报告类别	是否报告	Official Report
+reads_picture	reads_picture	reads_picture	reads_picture
+pre_class	pre_class	pre_quality	pre_quality
+In BGI database	无	是否库内变异	In BGI database
