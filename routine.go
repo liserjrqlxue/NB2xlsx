@@ -233,7 +233,7 @@ func goUpdateCNV(excel *excelize.File, throttle chan bool) {
 	if *im {
 		*dmdSheetName = "DMD CNV"
 	}
-	updateData2Sheet(excel, *dmdSheetName, DmdCnv, updateCNV)
+	updateData2Sheet(excel, *dmdSheetName, DmdCnv, updateDMDCNV)
 	<-throttle
 }
 

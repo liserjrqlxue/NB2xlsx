@@ -476,6 +476,7 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string) {
 
 func updateDmd(item map[string]string) {
 	var sampleID = item["#Sample"]
+	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
 	updateABC(item)
 	item["#sample"] = item["#Sample"]
@@ -888,7 +889,7 @@ func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handl
 	}
 }
 
-func updateCNV(item map[string]string) {
+func updateDMDCNV(item map[string]string) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
 	updateCnvTags(item, sampleID, item["gene"])
