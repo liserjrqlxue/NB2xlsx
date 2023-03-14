@@ -903,7 +903,6 @@ func updateDMDCNV(item map[string]string) {
 }
 
 func updateSample(item map[string]string) {
-	updateInfo(item)
 	updateColumns(item, sheetTitleMap["Sample"])
 }
 
