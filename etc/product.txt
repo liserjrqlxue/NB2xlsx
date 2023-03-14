@@ -1,3 +1,3 @@
 productCode productType
-DX1968  CN  字段-一体机中文（待定）
-HW1215  EN  字段-一体机英文
+DX1968	CN	字段-一体机中文（待定）
+HW1215	EN	字段-一体机英文
