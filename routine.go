@@ -193,6 +193,9 @@ func LoadDmd(excel *excelize.File, throttle chan bool) {
 
 func loadDmd(excel *excelize.File, dmdArray []string) {
 	var sheetName = *dmdSheetName
+	if *im {
+		sheetName = "DMD CNV"
+	}
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	//var title = rows[0]
 	var rIdx = len(rows)
@@ -217,6 +220,7 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
+			updateColumns(item, sheetTitleMap[sheetName])
 			updateINDEX(item, "D", rIdx)
 			DmdCnv = append(DmdCnv, item)
 			//writeRow(excel, sheetName, item, title, rIdx)
