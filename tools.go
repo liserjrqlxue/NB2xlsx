@@ -605,6 +605,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 		info["SMN1 EX7 del最终结果"] = result + qcResult
 	}
 	info["SMN1_检测结果"] = result
+	info["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
 	updateABC(item)
 	db[sampleID] = info
 }
