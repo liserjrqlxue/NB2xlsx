@@ -889,6 +889,11 @@ func updateCNV(item map[string]string) {
 	updateCnvTags(item, sampleID, item["gene"])
 }
 
+func updateSample(item map[string]string) {
+	updateInfo(item)
+	updateColumns(item, sheetTitleMap["Sample"])
+}
+
 func updateDMD(item map[string]string) {
 	item["#sample"] = item["Sample"]
 	item["sampleID"] = item["Sample"]
