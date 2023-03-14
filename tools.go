@@ -817,7 +817,24 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 	for _, item := range db {
 		rIdx++
 		fn(item)
+		if *im {
+			updateInfo(item)
+			updateColumns(item, sheetTitleMap[sheetName])
+		}
 		writeRow(excel, sheetName, item, title, rIdx)
+	}
+}
+
+func updateInfo(item map[string]string) {
+	var sampleID = item["SampleID"]
+	for _, s := range []string{"TaskID", "flow ID", "ProductID_ProductName"} {
+		item[s] = imInfo[sampleID][s]
+	}
+}
+
+func updateColumns(item, titleMap map[string]string) {
+	for k, v := range titleMap {
+		item[v] = item[k]
 	}
 }
 

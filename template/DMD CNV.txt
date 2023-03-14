@@ -1,0 +1,17 @@
+Raw	字段-中心实验室	字段-一体机中文（字段具体名称待定）	字段-一体机英文
+TaskID	期数	任务编号	TaskID
+flow ID	flow ID	flow ID	flow ID
+ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐名称	ProductID_ProductName
+#sample	#sample	SampleID	SampleID
+gender	gender	性别	Gender
+chr	chr	染色体	Chr
+gene	gene	Gene Symbol	Gene Symbol
+NM	NM	转录本	Transcript
+exon	exon	外显子	ExIn_ID
+CNVType	CNVType	CNVType	CNVType
+	杂合性	杂合性	Zygosity
+	报告类别	是否报告	Official Report
+核苷酸变化	核苷酸变化	核苷酸变化	Variant
+	突变类型	突变类型	Pathogenicity
+	P0	外显子图	DMD Exon_picture
+	无	是否在库内	In BGI database

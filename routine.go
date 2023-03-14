@@ -225,6 +225,9 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 }
 
 func goUpdateCNV(excel *excelize.File, throttle chan bool) {
+	if *im {
+		*dmdSheetName = "DMD CNV"
+	}
 	updateData2Sheet(excel, *dmdSheetName, DmdCnv, updateCNV)
 	<-throttle
 }
