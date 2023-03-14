@@ -95,6 +95,7 @@ func main() {
 			}
 			sheetTitle[s] = title
 			sheetTitleMap[s] = titleMap
+			writeTitle(excel, s, title)
 		}
 		styleInit(excel)
 	} else {
