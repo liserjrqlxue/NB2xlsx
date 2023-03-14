@@ -1,0 +1,11 @@
+Raw	字段-中心实验室	字段-一体机中文	字段-一体机英文
+TaskID	期数	任务编号	TaskID
+flow ID	flow ID	flow ID	flow ID
+ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐名称	ProductID_ProductName
+SampleID	SampleID	SampleID	SampleID
+Sex	Sex	性别	Gender
+地贫_QC	地贫_QC	地贫_QC	THAL_QC
+β地贫_最终结果	β地贫_最终结果	β地贫自动化结果	Result_HBB CNV-auto
+α地贫_最终结果	α地贫_最终结果	α地贫自动化结果	Result_HBA1/HBA2 CNV-auto
+β地贫_最终结果	β地贫_最终结果	β地贫_最终结果	Result_HBB CNV
+α地贫_最终结果	α地贫_最终结果	α地贫_最终结果	Result_HBA1/HBA2 CNV

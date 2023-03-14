@@ -1,0 +1,10 @@
+Raw	字段-中心实验室	字段-一体机中文（字段具体名称待定）	字段-一体机英文
+TaskID	期数	任务编号	TaskID
+flow ID	flow ID	flow ID	flow ID
+ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐名称	ProductID_ProductName
+SampleID	SampleID	SampleID	SampleID
+Sex	Sex	性别	Gender
+SMN1_质控结果	SMN1_质控结果	SMN1_质控结果	SMN1_QC
+SMN1 EX7 del最终结果	SMN1 EX7 del最终结果	SMN1 EX7 del最终结果	Result_SMN1 EX7 DEL
+Official Report	无	是否报告	Official Report
+SMN2_ex7_cn	SMN2_ex7_cn	SMN2 EX7 del最终结果	Copy of SMN2 EX7
