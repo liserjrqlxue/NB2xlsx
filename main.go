@@ -142,28 +142,30 @@ func main() {
 		goUpdateCNV(excel, writeDmd)
 	}
 
-	// drug, no use
-	if *drugResult != "" {
-		updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateABC)
-	}
+	if !*im {
+		// drug, no use
+		if *drugResult != "" {
+			updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateABC)
+		}
 
-	// 个特
-	if *featureList != "" {
-		updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
-	}
+		// 个特
+		if *featureList != "" {
+			updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
+		}
 
-	// 基因ID
-	if *geneIDList != "" {
-		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
-	}
+		// 基因ID
+		if *geneIDList != "" {
+			updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
+		}
 
-	// DMD-lumpy
-	if *lumpy != "" {
-		updateDataFile2Sheet(excel, "DMD-lumpy", *lumpy, updateDMD)
-	}
-	// DMD-nator
-	if *nator != "" {
-		updateDataFile2Sheet(excel, "DMD-nator", *nator, updateDMD)
+		// DMD-lumpy
+		if *lumpy != "" {
+			updateDataFile2Sheet(excel, "DMD-lumpy", *lumpy, updateDMD)
+		}
+		// DMD-nator
+		if *nator != "" {
+			updateDataFile2Sheet(excel, "DMD-nator", *nator, updateDMD)
+		}
 	}
 
 	{
