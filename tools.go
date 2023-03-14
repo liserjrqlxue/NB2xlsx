@@ -833,7 +833,6 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 
 var infoTitle = []string{
 	"sampleID",
-	"gender",
 	"SampleType",
 	"Date of Birth",
 	"Received Date",
