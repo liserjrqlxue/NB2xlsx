@@ -271,9 +271,17 @@ func updateAvd(item map[string]string, subFlag bool) {
 	updateLOF(item)
 	updateDisease(item)
 	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
+	if *im {
+		item["报告类别"] = "否"
+		item["In BGI database"] = "否"
+	}
 	var db, ok = localDb[mainKey]
 	if ok {
 		if db["是否是包装位点"] == "是" {
+			if *im {
+				item["报告类别"] = "是"
+				item["In BGI database"] = "是"
+			}
 			item["Database"] = "NBS-in"
 			item["isReport"] = "Y"
 			if subFlag {
