@@ -839,7 +839,7 @@ var infoTitle = []string{
 }
 
 func updateInfo(item map[string]string) {
-	var sampleID = item["SampleID"]
+	var sampleID = item["sampleID"]
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
@@ -884,7 +884,9 @@ func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handl
 }
 
 func updateCNV(item map[string]string) {
-	updateCnvTags(item, item["#Sample"], item["gene"])
+	var sampleID = item["#Sample"]
+	item["sampleID"] = sampleID
+	updateCnvTags(item, sampleID, item["gene"])
 }
 
 func updateDMD(item map[string]string) {
@@ -899,8 +901,10 @@ func updateFeature(item map[string]string) {
 }
 
 func updateBatchCNV(item map[string]string) {
+	var sampleID = item["sample"]
+	item["sampleID"] = sampleID
 	var genes = strings.Split(item["gene"], ",")
-	updateCnvTags(item, item["sample"], genes...)
+	updateCnvTags(item, sampleID, genes...)
 	addDiseases2Cnv(item, multiDiseaseSep, genes...)
 	item["疾病名称"] = item["疾病中文名"]
 	item["疾病简介"] = item["中文-疾病背景"]
