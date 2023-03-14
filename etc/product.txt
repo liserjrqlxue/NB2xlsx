@@ -1,3 +1,3 @@
-productCode productType
+productCode	productType
 DX1968	CN
 HW1215	EN
