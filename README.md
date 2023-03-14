@@ -566,5 +566,5 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
   - [ ] 性别
   - [x] SMN1_质控结果
   - [x] SMN1 EX7 del最终结果
-  - [ ] 是否报告
-  - [ ] SMN2 EX7 del最终结果
+  - [x] 是否报告
+  - [x] SMN2 EX7 del最终结果
