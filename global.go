@@ -40,7 +40,8 @@ var (
 	limsInfo                            map[string]map[string]string
 	imInfo                              map[string]map[string]string
 	columnName                          string
-	qcMap                               = make(map[string]string)
+	sheetTitle                          = make(map[string][]string)
+	sheetTitleMap                       = make(map[string]map[string]string)
 	formalStyleID, supplementaryStyleID int
 	//checkStyleID int
 	formalCheckStyleID, supplementaryCheckStyleID int

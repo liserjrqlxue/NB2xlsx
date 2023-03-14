@@ -628,6 +628,12 @@ func updateAe(item map[string]string) {
 	item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
+	var sampleID = item["SampleID"]
+	if *im {
+		item["TaskID"] = imInfo[sampleID]["TaskID"]
+		item["flow ID"] = imInfo[sampleID]["flow ID"]
+		item["ProductID_ProductName"] = imInfo[sampleID]["ProductID_ProductName"]
+	}
 }
 
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
@@ -746,13 +752,9 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
-	var qcTemplate, _ = textUtil.File2MapArray(filepath.Join(templatePath, "QC.txt"), "\t", nil)
-	for _, m := range qcTemplate {
-		qcMap[m["Raw"]] = m[columnName]
-	}
 	for i, item := range db {
 		rIdx++
-		updateQC(item, qcMap, i)
+		updateQC(item, sheetTitleMap["QC"], i)
 		updateINDEX(item, "B", rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
@@ -760,14 +762,15 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 
 func updateQC(item, qcMap map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
-	for k, v := range qcMap {
-		item[v] = item[k]
-	}
 	var sampleID = item["sampleID"]
 	if *im {
 		item["Lane ID"] = imInfo[sampleID]["Lane ID"]
 		item["Barcode ID"] = imInfo[sampleID]["Barcode ID"]
-	} else {
+	}
+	for k, v := range qcMap {
+		item[v] = item[k]
+	}
+	if !*im {
 		var inputGender = "null"
 		if limsInfo[item["Sample"]]["SEX"] == "1" {
 			inputGender = "M"

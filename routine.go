@@ -256,6 +256,9 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 }
 
 func writeAe(excel *excelize.File, db map[string]map[string]string) {
+	if *im {
+		*aeSheetName = "THAL CNV"
+	}
 	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
@@ -263,7 +266,16 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		rIdx++
 		updateAe(item)
 		updateINDEX(item, "D", rIdx)
-		writeRow(excel, *aeSheetName, item, title, rIdx)
+		if *im {
+			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
+				for k, v := range sheetTitleMap[s] {
+					item[v] = item[k]
+				}
+				writeRow(excel, s, item, sheetTitle[s], rIdx)
+			}
+		} else {
+			writeRow(excel, *aeSheetName, item, title, rIdx)
+		}
 	}
 }
 

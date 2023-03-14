@@ -86,11 +86,15 @@ func main() {
 		excel = excelize.NewFile()
 		for _, s := range imSheetList {
 			excel.NewSheet(s)
-			var titleMap, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
+			var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
+			var titleMap = make(map[string]string)
 			var title []string
-			for _, m := range titleMap {
+			for _, m := range titleMaps {
 				title = append(title, m[columnName])
+				titleMap[m["Raw"]] = m[columnName]
 			}
+			sheetTitle[s] = title
+			sheetTitleMap[s] = titleMap
 		}
 		styleInit(excel)
 	} else {
