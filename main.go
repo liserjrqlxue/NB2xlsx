@@ -107,6 +107,11 @@ func main() {
 		}
 	}
 
+	// Sample
+	if *im && *info != "" {
+		updateDataFile2Sheet(excel, "Sample", *info, updateInfo)
+	}
+
 	// QC
 	if *qc != "" {
 		runQC <- true

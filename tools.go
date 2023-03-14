@@ -825,9 +825,22 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 	}
 }
 
+var infoTitle = []string{
+	"sampleID",
+	"gender",
+	"SampleType",
+	"Date of Birth",
+	"Received Date",
+	"ProductID_ProductName",
+	"Clinical information",
+	"TaskID",
+	"flow ID",
+	"pipeline",
+}
+
 func updateInfo(item map[string]string) {
 	var sampleID = item["SampleID"]
-	for _, s := range []string{"TaskID", "flow ID", "ProductID_ProductName"} {
+	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
 }
@@ -838,6 +851,7 @@ func updateColumns(item, titleMap map[string]string) {
 	}
 }
 
+// File2MapArray
 func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleItem) {
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
@@ -852,6 +866,7 @@ func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handl
 	}
 }
 
+// List of File2MapArray
 func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleItem) {
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
