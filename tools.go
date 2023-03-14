@@ -561,6 +561,8 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 	info["地贫_QC"] = item["QC"]
 	info["β地贫_chr11"] = item["chr11"]
 	info["α地贫_chr16"] = item["chr16"]
+	info["β地贫自动化结果"] = bResult + qc
+	info["α地贫自动化结果"] = aResult + qc
 	info["β地贫_最终结果"] = bResult + qc
 	info["α地贫_最终结果"] = aResult + qc
 	db[sampleID] = info

@@ -285,10 +285,9 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		updateAe(item)
 		updateINDEX(item, "D", rIdx)
 		if *im {
+			updateInfo(item)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
-				for k, v := range sheetTitleMap[s] {
-					item[v] = item[k]
-				}
+				updateColumns(item, sheetTitleMap[s])
 				writeRow(excel, s, item, sheetTitle[s], rIdx)
 			}
 		} else {

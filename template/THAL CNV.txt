@@ -5,7 +5,7 @@ ProductID_ProductName	产品编码_产品名称	产品套餐编码_产品套餐�
 SampleID	SampleID	SampleID	SampleID
 Sex	Sex	性别	Gender
 地贫_QC	地贫_QC	地贫_QC	THAL_QC
-β地贫_最终结果	β地贫_最终结果	β地贫自动化结果	Result_HBB CNV-auto
-α地贫_最终结果	α地贫_最终结果	α地贫自动化结果	Result_HBA1/HBA2 CNV-auto
+β地贫自动化结果	β地贫_最终结果	β地贫自动化结果	Result_HBB CNV-auto
+α地贫自动化结果	α地贫_最终结果	α地贫自动化结果	Result_HBA1/HBA2 CNV-auto
 β地贫_最终结果	β地贫_最终结果	β地贫_最终结果	Result_HBB CNV
 α地贫_最终结果	α地贫_最终结果	α地贫_最终结果	Result_HBA1/HBA2 CNV
