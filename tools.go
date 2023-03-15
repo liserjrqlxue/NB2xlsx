@@ -844,6 +844,8 @@ var infoTitle = []string{
 	"Clinical information",
 	"TaskID",
 	"flow ID",
+	"Lane ID",
+	"Barcode ID",
 	"pipeline",
 }
 
