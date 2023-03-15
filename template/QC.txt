@@ -8,7 +8,7 @@ Target Mean Depth[RM DUP]: (remove_mitochondria)	AverageDepth	AverageDepth	Avera
 Target coverage >=20X percentage[RM DUP]:	Target coverage >=20X percentage	Target coverage >=20X percentage	Target coverage >=20X percentage
 Target Mean Depth[RM DUP]: (mitochondria)	mitochondria Target Mean Depth[RM DUP]	mitochondria Target Mean Depth[RM DUP]	Mitochondria Target Mean Depth[RM DUP]
 contamination	contamination	contamination	Contamination
-gender_analysed	Gender	性别	Gender
+Gender	Gender	性别	Gender
 质控	质控	质控	QC
 Failed reason	无	不合格原因	Failed reason
 Target coverage >=10X percentage[RM DUP]:	Depth>=10(%)	Depth>=10(%)	Depth>=10(%)

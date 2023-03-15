@@ -796,21 +796,23 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rIdx = len(rows)
 	for i, item := range db {
 		rIdx++
-		updateQC(item, sheetTitleMap["QC"], i)
+		updateQC(item, i)
 		updateINDEX(item, "B", rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
 }
 
-func updateQC(item, qcMap map[string]string, i int) {
+func updateQC(item map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
 	if *im {
 		updateInfo(item)
-	}
-	for k, v := range qcMap {
-		item[v] = item[k]
-	}
-	if !*im {
+		if item["gender_analysed"] != item["gender"] {
+			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
+		} else {
+			item["Gender"] = item["gender_analysed"]
+		}
+		updateColumns(item, sheetTitleMap["QC"])
+	} else {
 		var inputGender = "null"
 		if limsInfo[item["Sample"]]["SEX"] == "1" {
 			inputGender = "M"
