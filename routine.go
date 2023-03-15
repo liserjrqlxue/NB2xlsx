@@ -85,7 +85,12 @@ func goWriteSampleAvd(excelName, sheetName string, title []string, data []map[st
 	excel.NewSheet(sheetName)
 	writeTitle(excel, sheetName, title)
 	for _, item := range data {
-		if geneListMap[item["Gene Symbol"]] {
+		if *im {
+			if geneIMListMap[item["Gene Symbol"]] {
+				rIdx++
+				writeRow(excel, sheetName, item, title, rIdx)
+			}
+		} else {
 			rIdx++
 			writeRow(excel, sheetName, item, title, rIdx)
 		}

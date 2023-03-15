@@ -16,10 +16,12 @@ var (
 )
 
 var (
+	geneInfoMap        = make(map[string]map[string]string)
 	geneListMap        = make(map[string]bool)
+	geneIMListMap      = make(map[string]bool)
 	geneSubListMap     = make(map[string]bool)
 	geneExcludeListMap = make(map[string]bool)
-	geneInfoMap        = make(map[string]map[string]string)
+
 	functionExcludeMap = make(map[string]bool)
 
 	diseaseSep = "$$"

@@ -31,12 +31,24 @@ func mergeSep(str, sep string) string {
 
 func loadDb() {
 	log.Println("Load Database Start")
-	// load gene list
-	for _, key := range textUtil.File2Array(*geneList) {
-		geneListMap[key] = true
-	}
 	// load gene info list
 	geneInfoMap, _ = textUtil.File2MapMap(*geneInfoList, "Gene Symbol", "\t", nil)
+	if *im {
+		for s, m := range geneInfoMap {
+			if m["一体机过滤基因"] == "TRUE" {
+				geneIMListMap[s] = true
+				if m["备注"] != "定点" {
+					geneListMap[s] = true
+				}
+			}
+		}
+	} else {
+		// load gene list
+		for _, key := range textUtil.File2Array(*geneList) {
+			geneListMap[key] = true
+		}
+	}
+
 	// load gene sub list
 	var geneSubs, _ = textUtil.File2MapArray(filepath.Join(etcPath, "gene.sub.list.txt"), "\t", nil)
 	for _, item := range geneSubs {
