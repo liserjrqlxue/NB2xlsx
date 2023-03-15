@@ -16,41 +16,41 @@ import (
 func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeAll chan bool, all bool) {
 	log.Printf("load avd[%s]\n", fileName)
 	var (
-		avd, _       = textUtil.File2MapArray(fileName, "\t", nil)
-		sampleID     = filepath.Base(fileName)
+		avd, _   = textUtil.File2MapArray(fileName, "\t", nil)
+		sampleID = filepath.Base(fileName)
+
 		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
 		allTitle     = textUtil.File2Array(*allColumns)
+
+		subFlag = false
+
+		geneHash = make(map[string]string)
+
+		filterData []map[string]string
 	)
-	if len(avd) == 0 {
-		if all {
-			writeAll <- true
-			go goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
-		}
-		dbChan <- avd
-		<-throttle
-		return
-	}
-	if avd[0]["SampleID"] != "" {
+
+	if len(avd) > 0 && avd[0]["SampleID"] != "" {
 		sampleID = avd[0]["SampleID"]
 		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
 	}
 
-	var geneHash = make(map[string]string)
+	var details, ok1 = sampleDetail[sampleID]
+	if ok1 && details["productCode"] == "DX1968" && details["hospital"] == "南京市妇幼保健院" {
+		subFlag = true
+	}
+
 	var geneInfo, ok = SampleGeneInfo[sampleID]
 	if !ok {
 		geneInfo = make(map[string]*GeneInfo)
 	}
-	var details, ok1 = sampleDetail[sampleID]
-	var subFlag = false
-	if ok1 && details["productCode"] == "DX1968" && details["hospital"] == "南京市妇幼保健院" {
-		subFlag = true
-	}
+
+	// cycle 1
 	for _, item := range avd {
 		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
 	}
 
-	var filterAvd []map[string]string
+	// cycle 2
 	for _, item := range avd {
 		if item["filterAvd"] == "Y" {
 			var info, ok = geneInfo[item["Gene Symbol"]]
@@ -62,14 +62,17 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 				}
 			}
 			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-			filterAvd = append(filterAvd, item)
+			filterData = append(filterData, item)
 		}
 	}
+
+	dbChan <- filterData
+
 	if all {
 		writeAll <- true
 		go goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
 	}
-	dbChan <- filterAvd
+
 	<-throttle
 }
 
