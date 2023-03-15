@@ -285,6 +285,8 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		updateAe(item)
 		updateINDEX(item, "D", rIdx)
 		if *im {
+			var sampleID = item["SampleID"]
+			item["sampleID"] = sampleID
 			updateInfo(item)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])

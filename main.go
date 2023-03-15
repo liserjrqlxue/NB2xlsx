@@ -98,6 +98,11 @@ func main() {
 			writeTitle(excel, s, title)
 		}
 		styleInit(excel)
+
+		// Sample
+		if *info != "" {
+			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
+		}
 	} else {
 		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 		styleInit(excel)
@@ -106,11 +111,6 @@ func main() {
 		if *bamPath != "" {
 			updateBamPath(excel, *bamPath)
 		}
-	}
-
-	// Sample
-	if *im && *info != "" {
-		updateDataFile2Sheet(excel, "Sample", *info, updateSample)
 	}
 
 	// QC

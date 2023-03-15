@@ -583,7 +583,9 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	if !ok {
 		info = item
 	}
-	info["Official Report"] = "否"
+	if *im {
+		info["Official Report"] = "否"
+	}
 	var result, qcResult string
 	var Categorization = item["SMN1_ex7_cn"]
 	var QC = item["qc"]
@@ -593,7 +595,9 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	switch Categorization {
 	case "0", "0.0":
 		result = "纯合阳性"
-		info["Official Report"] = "是"
+		if *im {
+			info["Official Report"] = "是"
+		}
 	case "0.5":
 		result = "纯合灰区"
 	case "1", "1.0":
@@ -642,12 +646,6 @@ func updateAe(item map[string]string) {
 	item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
-	var sampleID = item["SampleID"]
-	if *im {
-		item["TaskID"] = imInfo[sampleID]["TaskID"]
-		item["flow ID"] = imInfo[sampleID]["flow ID"]
-		item["ProductID_ProductName"] = imInfo[sampleID]["ProductID_ProductName"]
-	}
 }
 
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
@@ -776,10 +774,8 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 
 func updateQC(item, qcMap map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
-	var sampleID = item["sampleID"]
 	if *im {
-		item["Lane ID"] = imInfo[sampleID]["Lane ID"]
-		item["Barcode ID"] = imInfo[sampleID]["Barcode ID"]
+		updateInfo(item)
 	}
 	for k, v := range qcMap {
 		item[v] = item[k]
