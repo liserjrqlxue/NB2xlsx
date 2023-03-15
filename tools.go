@@ -241,8 +241,11 @@ func addDatabase2Cnv(item map[string]string) {
 	if ok {
 		item["新生儿一体机包装变异"] = db["新生儿一体机包装变异"]
 		item["中文-突变判定"] = db["中文-突变判定"]
-
 	}
+	if item["新生儿一体机包装变异"] == "" {
+		item["新生儿一体机包装变异"] = "否"
+	}
+	item["报告类别"] = item["新生儿一体机包装变异"]
 }
 
 func addDiseases2Cnv(item map[string]string, sep string, genes ...string) {

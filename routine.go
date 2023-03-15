@@ -221,9 +221,11 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
-			addDatabase2Cnv(item)
-			updateColumns(item, sheetTitleMap[sheetName])
 			updateINDEX(item, "D", rIdx)
+			if *im {
+				addDatabase2Cnv(item)
+				updateColumns(item, sheetTitleMap[sheetName])
+			}
 			DmdCnv = append(DmdCnv, item)
 			//writeRow(excel, sheetName, item, title, rIdx)
 		}
