@@ -489,7 +489,7 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
   - [x] 任务编号
   - [x] 芯片ID
   - [x] 分析流程
-- [ ] QC
+- [x] QC
   - [x] sampleID
   - [x] Lane ID
   - [x] Barcode ID
@@ -501,12 +501,12 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
   - [x] contamination
   - [x] 性别
   - [x] 质控
-  - [ ] 不合格原因
+  - [x] 不合格原因
   - [x] Depth>=10(%)
   - [x] Coverage(%)
   - [x] GC(%)
-  - [ ] 操作建议
-- [ ] SNV&INDEL
+  - [x] 操作建议
+- [x] SNV&INDEL
   - [x] 任务编号
   - [x] 芯片ID
   - [x] 产品套餐编码_产品套餐名称
@@ -525,12 +525,12 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
   - [x] 疾病名称
   - [x] 遗传模式
   - [x] 疾病简介
-  - [ ] 遗传模式判读
+  - [x] 遗传模式判读
   - [x] 是否报告
   - [x] reads_picture
   - [x] pre_quality
   - [x] 是否库内变异
-- [ ] DMD CNV
+- [x] DMD CNV
   - [x] 任务编号
   - [x] flow ID
   - [x] 产品套餐编码_产品套餐名称
@@ -541,12 +541,12 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
   - [x] 转录本
   - [x] 外显子
   - [x] CNVType
-  - [ ] 杂合性
-  - [ ] 是否报告
-  - [ ] 核苷酸变化
-  - [ ] 突变类型
+  - [x] 杂合性
+  - [x] 是否报告
+  - [x] 核苷酸变化
+  - [x] 突变类型
   - [x] 外显子图
-  - [ ] 是否在库内
+  - [x] 是否在库内
 - [x] THAL CNV
   - [x] 任务编号
   - [x] flow ID
