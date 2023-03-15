@@ -588,11 +588,15 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 	}
 	if item["chr11"] == "N" {
 		bResult = "阴性"
+	} else if item["chr11"] == "." {
+		bResult = "灰区"
 	} else {
 		bResult = item["chr11"]
 	}
 	if item["chr16"] == "N" {
 		aResult = "阴性"
+	} else if item["chr16"] == "." {
+		aResult = "灰区"
 	} else {
 		aResult = item["chr16"]
 	}
