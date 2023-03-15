@@ -12,6 +12,6 @@ CNVType	CNVType	CNVType	CNVType
 杂合性	杂合性	杂合性	Zygosity
 报告类别	报告类别	是否报告	Official Report
 核苷酸变化	核苷酸变化	核苷酸变化	Variant
-突变类型	突变类型	突变类型	Pathogenicity
+中文-突变判定	突变类型	突变类型	Pathogenicity
 P0	P0	外显子图	DMD Exon_picture
-In BGI database	无	是否在库内	In BGI database
+新生儿一体机包装变异	无	是否在库内	In BGI database

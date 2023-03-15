@@ -27,21 +27,24 @@ var (
 
 	geneInheritance = make(map[string]string)
 	localDb         = make(map[string]map[string]string)
+	cnvDb           = make(map[string]map[string]string)
 	dropListMap     = make(map[string][]string)
 	genderMap       = make(map[string]string)
+
 	// DmdCnv : array of DMD cnv map
 	DmdCnv []map[string]string
 	// BatchCnv : array of batch cnv map
 	BatchCnv []map[string]string
-	// BatchCnvTitle : titles of batch cnv
-	BatchCnvTitle []string
+
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
-	SampleGeneInfo                      = make(map[string]map[string]*GeneInfo)
-	limsInfo                            map[string]map[string]string
-	imInfo                              map[string]map[string]string
-	columnName                          string
-	sheetTitle                          = make(map[string][]string)
-	sheetTitleMap                       = make(map[string]map[string]string)
+	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
+	limsInfo       map[string]map[string]string
+	imInfo         map[string]map[string]string
+
+	columnName    string
+	sheetTitle    = make(map[string][]string)
+	sheetTitleMap = make(map[string]map[string]string)
+
 	formalStyleID, supplementaryStyleID int
 	//checkStyleID int
 	formalCheckStyleID, supplementaryCheckStyleID int

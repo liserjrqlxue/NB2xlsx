@@ -51,6 +51,21 @@ func loadDb() {
 		functionExcludeMap[key] = true
 	}
 
+	// load CNV database
+	log.Println("Load CNV database Start")
+	var cnvDbArray, _ = simpleUtil.Slice2MapArray(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(filepath.Join(etcPath, "CNV配置文件.xlsx")),
+			).(*excelize.File).
+				GetRows("CNV库配置文件"),
+		).([][]string),
+	)
+	for _, m := range cnvDbArray {
+		var key = m["Gene Symbol"] + " " + m["Function"]
+		cnvDb[key] = m
+	}
+
 	// load disease database
 	log.Println("Load Disease Start")
 	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
@@ -215,6 +230,18 @@ func updateDisease(item map[string]string) {
 		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
 		item["包装疾病分类"] = disease["包装疾病分类"]
+	}
+}
+
+func addDatabase2Cnv(item map[string]string) {
+	var gene = item["gene"]
+	var mut = item["核苷酸变化"]
+	var key = gene + " " + mut
+	var db, ok = cnvDb[key]
+	if ok {
+		item["新生儿一体机包装变异"] = db["新生儿一体机包装变异"]
+		item["中文-突变判定"] = db["中文-突变判定"]
+
 	}
 }
 
@@ -694,7 +721,7 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 
 func loadBatchCNV(cnv string) {
 	log.Println("Load BatchCNV Start")
-	BatchCnv, BatchCnvTitle = textUtil.File2MapArray(cnv, "\t", nil)
+	BatchCnv, _ = textUtil.File2MapArray(cnv, "\t", nil)
 	for _, item := range BatchCnv {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
