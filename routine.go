@@ -73,17 +73,22 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 		writeExcel <- true
 		go func() {
 			// all snv
-			var allExcel = excelize.NewFile()
+			var (
+				allExcel     = excelize.NewFile()
+				allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
+				allTitle     = textUtil.File2Array(*allColumns)
+			)
 			allExcel.NewSheet(*allSheetName)
-			var allTitle = textUtil.File2Array(*allColumns)
 			writeTitle(allExcel, *allSheetName, allTitle)
 			var rIdx0 = 1
 			for _, item := range avd {
-				rIdx0++
-				writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
+				if geneListMap[item["Gene Symbol"]] {
+					rIdx0++
+					writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
+				}
 			}
-			log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-			simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
+			log.Printf("excel.SaveAs(\"%s\") with %d variants\n", allExcelPath, rIdx0-1)
+			simpleUtil.CheckErr(allExcel.SaveAs(allExcelPath))
 			<-writeExcel
 		}()
 	}
