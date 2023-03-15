@@ -97,6 +97,7 @@ func main() {
 			sheetTitleMap[s] = titleMap
 			writeTitle(excel, s, title)
 		}
+		excel.DeleteSheet("Sheet1")
 		styleInit(excel)
 
 		// Sample
