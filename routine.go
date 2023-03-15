@@ -13,23 +13,18 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeExcel chan bool, all bool) {
+func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeAll chan bool, all bool) {
 	log.Printf("load avd[%s]\n", fileName)
-	var avd, _ = textUtil.File2MapArray(fileName, "\t", nil)
-	var sampleID = filepath.Base(fileName)
+	var (
+		avd, _       = textUtil.File2MapArray(fileName, "\t", nil)
+		sampleID     = filepath.Base(fileName)
+		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
+		allTitle     = textUtil.File2Array(*allColumns)
+	)
 	if len(avd) == 0 {
 		if all {
-			writeExcel <- true
-			go func() {
-				// all snv
-				var allExcel = excelize.NewFile()
-				allExcel.NewSheet(*allSheetName)
-				var allTitle = textUtil.File2Array(*allColumns)
-				writeTitle(allExcel, *allSheetName, allTitle)
-				log.Printf("excel.SaveAs(\"%s\")\n", strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, "."))
-				simpleUtil.CheckErr(allExcel.SaveAs(strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")))
-				<-writeExcel
-			}()
+			writeAll <- true
+			go goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
 		}
 		dbChan <- avd
 		<-throttle
@@ -37,6 +32,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 	}
 	if avd[0]["SampleID"] != "" {
 		sampleID = avd[0]["SampleID"]
+		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
 	}
 
 	var geneHash = make(map[string]string)
@@ -70,30 +66,30 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeE
 		}
 	}
 	if all {
-		writeExcel <- true
-		go func() {
-			// all snv
-			var (
-				allExcel     = excelize.NewFile()
-				allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
-				allTitle     = textUtil.File2Array(*allColumns)
-			)
-			allExcel.NewSheet(*allSheetName)
-			writeTitle(allExcel, *allSheetName, allTitle)
-			var rIdx0 = 1
-			for _, item := range avd {
-				if geneListMap[item["Gene Symbol"]] {
-					rIdx0++
-					writeRow(allExcel, *allSheetName, item, allTitle, rIdx0)
-				}
-			}
-			log.Printf("excel.SaveAs(\"%s\") with %d variants\n", allExcelPath, rIdx0-1)
-			simpleUtil.CheckErr(allExcel.SaveAs(allExcelPath))
-			<-writeExcel
-		}()
+		writeAll <- true
+		go goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
 	}
 	dbChan <- filterAvd
 	<-throttle
+}
+
+// goWriteSampleAvd write data to sheetName of excelName
+func goWriteSampleAvd(excelName, sheetName string, title []string, data []map[string]string, done chan bool) {
+	var (
+		excel = excelize.NewFile()
+		rIdx  = 1
+	)
+	excel.NewSheet(sheetName)
+	writeTitle(excel, sheetName, title)
+	for _, item := range data {
+		if geneListMap[item["Gene Symbol"]] {
+			rIdx++
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+	log.Printf("excel.SaveAs(\"%s\") with %d variants\n", excelName, rIdx-1)
+	simpleUtil.CheckErr(excel.SaveAs(excelName))
+	<-done
 }
 
 // goWriteAvd write AVD sheet to excel
