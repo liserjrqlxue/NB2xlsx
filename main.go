@@ -68,7 +68,7 @@ func main() {
 		log.Fatalln("Conflict for CN or EN!")
 	} else if typeMode["CN"] {
 		columnName = "字段-一体机中文"
-	} else if typeMode["CN"] {
+	} else if typeMode["EN"] {
 		columnName = "字段-一体机英文"
 	} else {
 		log.Fatalln("No CN or EN!")
