@@ -65,8 +65,6 @@ var (
 	supplementaryReportColor string
 )
 
-var err error
-
 var codeKey = "c3d112d6a47a0a04aad2b9d2d2cad266"
 
 // tag

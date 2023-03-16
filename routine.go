@@ -214,10 +214,13 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 		for _, item := range dmd {
 			rIdx++
 			updateDmd(item)
-			var sampleID = item["#Sample"]
-			var gene = item["gene"]
-			var CN = strings.Split(item["CopyNum"], ";")[0]
-			var cn float64
+			var (
+				sampleID = item["#Sample"]
+				gene     = item["gene"]
+				CN       = strings.Split(item["CopyNum"], ";")[0]
+				cn       float64
+				err      error
+			)
 			if CN == ">4" {
 				cn = 5
 				log.Printf("treat CopyNum[%s] as 5\n", item["CopyNum"])

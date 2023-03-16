@@ -369,8 +369,11 @@ func updateAvd(item map[string]string, subFlag bool) {
 }
 
 func ifCheck(item map[string]string) string {
-	var depth int
-	var ratio float64
+	var (
+		depth int
+		ratio float64
+		err   error
+	)
 	depth, err = strconv.Atoi(item["Depth"])
 	if err != nil {
 		return "Y"
