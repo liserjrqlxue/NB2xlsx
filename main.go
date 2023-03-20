@@ -58,7 +58,9 @@ func main() {
 		loadBatchCNV(*batchCNV)
 	}
 
-	imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	if *info != "" {
+		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	}
 	var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
 	var typeMode = make(map[string]bool)
 	for _, m := range imInfo {
