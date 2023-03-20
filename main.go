@@ -42,6 +42,7 @@ func main() {
 		runQC        = make(chan bool, 1)
 		saveMain     = make(chan bool, 1)
 		saveBatchCnv = make(chan bool, 1)
+		excel        *excelize.File
 	)
 
 	// load local db
@@ -58,33 +59,35 @@ func main() {
 		loadBatchCNV(*batchCNV)
 	}
 
-	if *info != "" {
-		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
-	}
-	var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
-	var typeMode = make(map[string]bool)
-	for _, m := range imInfo {
-		typeMode[productMap[m["ProductID"]]["productType"]] = true
-	}
-	if typeMode["CN"] && typeMode["EN"] {
-		log.Fatalln("Conflict for CN or EN!")
-	} else if typeMode["CN"] {
-		columnName = "字段-一体机中文"
-	} else if typeMode["EN"] {
-		columnName = "字段-一体机英文"
-	} else {
-		log.Fatalln("No CN or EN!")
-	}
-	var excel *excelize.File
-	var imSheetList = []string{
-		"Sample",
-		"QC",
-		"SNV&INDEL",
-		"DMD CNV",
-		"THAL CNV",
-		"SMN1 CNV",
-	}
 	if *im {
+		if *info != "" {
+			imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+		}
+
+		var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
+		var typeMode = make(map[string]bool)
+		for _, m := range imInfo {
+			typeMode[productMap[m["ProductID"]]["productType"]] = true
+		}
+		if typeMode["CN"] && typeMode["EN"] {
+			log.Fatalln("Conflict for CN or EN!")
+		} else if typeMode["CN"] {
+			columnName = "字段-一体机中文"
+		} else if typeMode["EN"] {
+			columnName = "字段-一体机英文"
+		} else {
+			log.Fatalln("No CN or EN!")
+		}
+
+		var imSheetList = []string{
+			"Sample",
+			"QC",
+			"SNV&INDEL",
+			"DMD CNV",
+			"THAL CNV",
+			"SMN1 CNV",
+		}
+
 		excel = excelize.NewFile()
 		for _, s := range imSheetList {
 			excel.NewSheet(s)
