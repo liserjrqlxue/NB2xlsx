@@ -70,7 +70,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 
 	if all {
 		writeAll <- true
-		go goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
+		goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
 	}
 
 	<-throttle
