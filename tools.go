@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -180,9 +181,42 @@ var avdAfList = []string{
 	"GnomAD EAS AF",
 }
 
+var (
+	cHGVSalt = regexp.MustCompile(`alt: (\S+) \)`)
+	cHGVSstd = regexp.MustCompile(`std: (\S+) `)
+)
+
+func cHgvsAlt(cHgvs string) string {
+	if m := cHGVSalt.FindStringSubmatch(cHgvs); m != nil {
+		return m[1]
+	}
+	return cHgvs
+}
+
+func cHgvsStd(cHgvs string) string {
+	if m := cHGVSstd.FindStringSubmatch(cHgvs); m != nil {
+		return m[1]
+	}
+	return cHgvs
+}
+
 func filterAvd(item map[string]string) bool {
-	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
+	var (
+		transcript = item["Transcript"]
+		c          = item["cHGVS"]
+		cAlt       = cHgvsAlt(c)
+		cStd       = cHgvsStd(c)
+		mainKey    = transcript + "\t" + c
+		mainKey1   = transcript + "\t" + cAlt
+		mainKey2   = transcript + "\t" + cStd
+	)
 	if _, ok := localDb[mainKey]; ok {
+		return true
+	}
+	if _, ok := localDb[mainKey1]; ok {
+		return true
+	}
+	if _, ok := localDb[mainKey2]; ok {
 		return true
 	}
 	if !geneListMap[item["Gene Symbol"]] {
@@ -312,12 +346,28 @@ func updateAvd(item map[string]string, subFlag bool) {
 	anno.Score2Pred(item)
 	updateLOF(item)
 	updateDisease(item)
-	var mainKey = item["Transcript"] + "\t" + item["cHGVS"]
+
 	if *im {
 		item["报告类别"] = "否"
 		item["In BGI database"] = "否"
 	}
+
+	var (
+		transcript = item["Transcript"]
+		c          = item["cHGVS"]
+		cAlt       = cHgvsAlt(c)
+		cStd       = cHgvsStd(c)
+		mainKey    = transcript + "\t" + c
+		mainKey1   = transcript + "\t" + cAlt
+		mainKey2   = transcript + "\t" + cStd
+	)
 	var db, ok = localDb[mainKey]
+	if !ok {
+		db, ok = localDb[mainKey1]
+	}
+	if !ok {
+		db, ok = localDb[mainKey2]
+	}
 	if ok {
 		if db["是否是包装位点"] == "是" {
 			if *im {
