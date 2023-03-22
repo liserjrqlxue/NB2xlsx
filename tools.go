@@ -910,7 +910,13 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rIdx = len(rows)
 	for i, item := range db {
 		rIdx++
-		updateQC(item, i)
+		if *cs {
+			item["Q20(%)"] = item["Q20"]
+			item["Q30(%)"] = item["Q30"]
+			updateInfo(item)
+		} else {
+			updateQC(item, i)
+		}
 		updateINDEX(item, "B", rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
@@ -986,9 +992,9 @@ var infoTitle = []string{
 	"SampleType",
 	"Date of Birth",
 	"Received Date",
-	"ProductID_ProductName",
+	"ProductID_ProductName", "产品编码_产品名称",
 	"Clinical information",
-	"TaskID",
+	"TaskID", "期数",
 	"flow ID",
 	"Lane ID",
 	"Barcode ID",

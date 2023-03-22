@@ -366,7 +366,12 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 // WriteQC write QC sheet to excel
 func WriteQC(excel *excelize.File, throttle chan bool) {
 	log.Println("Write QC Start")
-	writeQC(excel, loadQC(*qc))
+	if *cs {
+		var qcMaps, _ = textUtil.File2MapArray(*qc, "\t", nil)
+		writeQC(excel, qcMaps)
+	} else {
+		writeQC(excel, loadQC(*qc))
+	}
 	log.Println("Write QC Done")
 	<-throttle
 }
