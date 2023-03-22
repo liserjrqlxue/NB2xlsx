@@ -52,7 +52,9 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 
 	// cycle 2
 	for _, item := range avd {
-		if item["filterAvd"] == "Y" {
+		if *cs {
+			filterData = append(filterData, item)
+		} else if item["filterAvd"] == "Y" {
 			var info, ok = geneInfo[item["Gene Symbol"]]
 			if !ok {
 				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
