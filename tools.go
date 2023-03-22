@@ -277,6 +277,16 @@ func updateDisease(item map[string]string) {
 		item["疾病简介"] = disease["疾病简介"]
 		item["包装疾病分类"] = disease["包装疾病分类"]
 	}
+	if *cs {
+		item["遗传模式"] = item["Inheritance"]
+		item["疾病中文名"] = item["Chinese disease name"]
+		item["中文-疾病背景"] = item["Chinese disease introduction"]
+		item["中文-突变详情"] = item["Chinese mutation information"]
+		item["Disease*"] = item["English disease name"]
+		item["英文-疾病背景"] = item["English disease introduction"]
+		item["英文-突变详情"] = item["English mutation information"]
+		item["参考文献"] = item["Reference-final-Info"]
+	}
 }
 
 func addDatabase2Cnv(item map[string]string) {
@@ -406,9 +416,11 @@ func updateAvd(item map[string]string, subFlag bool) {
 		}
 	}
 	anno.UpdateFunction(item)
-	acmg2015.AddEvidences(item)
-	item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
-	anno.UpdateAutoRule(item)
+	if *acmg {
+		acmg2015.AddEvidences(item)
+		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
+		anno.UpdateAutoRule(item)
+	}
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
 	}
@@ -958,6 +970,9 @@ func updateInfo(item map[string]string) {
 	var sampleID = item["sampleID"]
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
+	}
+	if flowID, ok := imInfo[sampleID]["flow_ID"]; ok {
+		item["flow ID"] = flowID
 	}
 }
 
