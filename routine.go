@@ -112,13 +112,16 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	}
 	if len(avdArray) > 0 {
 		log.Println("Start load AVD")
+
 		// acmg
-		acmg2015.AutoPVS1 = *autoPVS1
-		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
-		for k, v := range acmgCfg {
-			acmgCfg[k] = filepath.Join(dbPath, v)
+		if *acmg {
+			acmg2015.AutoPVS1 = *autoPVS1
+			var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
+			for k, v := range acmgCfg {
+				acmgCfg[k] = filepath.Join(dbPath, v)
+			}
+			acmg2015.Init(acmgCfg)
 		}
-		acmg2015.Init(acmgCfg)
 
 		// wait runDmd done
 		runDmd <- true

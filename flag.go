@@ -228,3 +228,12 @@ var (
 		"if im mode",
 	)
 )
+
+// boolean
+var (
+	acmg = flag.Bool(
+		"acmg",
+		false,
+		"if re-calculate ACMG2015",
+	)
+)
