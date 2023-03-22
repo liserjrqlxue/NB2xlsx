@@ -744,6 +744,38 @@ func updateSma2(item map[string]string, db map[string]map[string]string) {
 	}
 	info["SMN1_CN"] = item["SMN1_CN"]
 	info["SMN1_CN_raw"] = item["SMN1_CN_raw"]
+	if *cs {
+		info["SMN1_质控结果"] = "fail"
+		info["SMN1_检测结果"] = ""
+		info["SMN1 EX7 del最终结果"] = "_等验证"
+		var cn, err = strconv.ParseFloat(info["SMN1_CN"], 64)
+		if err == nil {
+			if cn == 0 {
+				info["SMN1_质控结果"] = "pass"
+				info["SMN1_检测结果"] = "纯合阳性"
+				info["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
+			} else if cn == 0.5 {
+				info["SMN1_质控结果"] = "pass"
+				info["SMN1_检测结果"] = "纯合灰区"
+				info["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
+
+			} else if cn == 1 {
+				info["SMN1_质控结果"] = "pass"
+				info["SMN1_检测结果"] = "杂合阳性"
+				info["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
+
+			} else if cn == 1.5 {
+				info["SMN1_质控结果"] = "pass"
+				info["SMN1_检测结果"] = "杂合灰区"
+				info["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
+
+			} else if cn >= 2 {
+				info["SMN1_质控结果"] = "pass"
+				info["SMN1_检测结果"] = "阴性"
+				info["SMN1 EX7 del最终结果"] = "阴性"
+			}
+		}
+	}
 	db[sampleID] = info
 }
 
@@ -1029,11 +1061,21 @@ func updateSample(item map[string]string) {
 func updateDMD(item map[string]string) {
 	item["#sample"] = item["Sample"]
 	item["sampleID"] = item["Sample"]
+	item["SampleID"] = item["Sample"]
 	updateABC(item)
-	if *cs {
-		updateInfo(item)
-		item["gender"] = item["Sex"]
-	}
+	updateInfo(item)
+	item["gender"] = item["Sex"]
+}
+
+func updateLumpy(item map[string]string) {
+	updateDMD(item)
+
+	item["Chr"] = item["CHROM"]
+	item["Start"] = item["POS"]
+	item["End"] = item["END"]
+	item["CNV_type"] = item["SVTYPE"]
+	item["Gene"] = item["OMIM_Gene"]
+	item["OMIM_EX"] = item["OMIM_exon"]
 }
 
 func updateFeature(item map[string]string) {

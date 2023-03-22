@@ -182,7 +182,7 @@ func main() {
 	if *cs {
 		// DMD-lumpy
 		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "CNV", *lumpy, updateDMD)
+			updateDataFile2Sheet(excel, "CNV", *lumpy, updateLumpy)
 		}
 		// DMD-nator
 		if *nator != "" {
