@@ -194,11 +194,16 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 					if top1kGene[item["Gene Symbol"]] {
 						item["是否国内（际）包装变异"] = "国内包装基因"
 					}
+					item["Database"] = ""
 					switch item["Auto ACMG + Check"] {
 					case "P":
 						item["Auto ACMG + Check"] = "Pathogenic"
+						item["Database"] = "DX1605"
+						item["是否是库内位点"] = "是"
 					case "LP":
 						item["Auto ACMG + Check"] = "Likely pathogenic"
+						item["Database"] = "DX1605"
+						item["是否是库内位点"] = "是"
 					case "", ".":
 						item["Auto ACMG + Check"] = "待解读"
 					}
@@ -206,6 +211,9 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 						item["Auto ACMG + Check"] = "待解读"
 					}
 					item["突变类型"] = item["Auto ACMG + Check"]
+					if item["报告类别"] == "" || item["报告类别"] == "." {
+						item["报告类别"] = "正式报告"
+					}
 
 					updateInfo(item)
 				}
