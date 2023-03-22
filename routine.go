@@ -345,15 +345,19 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		rIdx++
 		updateAe(item)
 		updateINDEX(item, "D", rIdx)
+		var sampleID = item["SampleID"]
+		item["sampleID"] = sampleID
 		if *im {
-			var sampleID = item["SampleID"]
-			item["sampleID"] = sampleID
 			updateInfo(item)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])
 				writeRow(excel, s, item, sheetTitle[s], rIdx)
 			}
 		} else {
+			if *cs {
+				item["sex"] = item["Sex"]
+				updateInfo(item)
+			}
 			writeRow(excel, *aeSheetName, item, title, rIdx)
 		}
 	}
