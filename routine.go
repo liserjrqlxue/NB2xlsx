@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"log"
 	"path/filepath"
 	"strconv"
@@ -26,6 +27,8 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 
 		geneHash = make(map[string]string)
 
+		inheritDb = make(map[string]map[string]int)
+
 		filterData []map[string]string
 	)
 
@@ -48,11 +51,13 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	for _, item := range avd {
 		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
+		anno.InheritCheck(item, inheritDb)
 	}
 
 	// cycle 2
 	for _, item := range avd {
 		if *cs {
+			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
 			filterData = append(filterData, item)
 		} else if item["filterAvd"] == "Y" {
 			var info, ok = geneInfo[item["Gene Symbol"]]
