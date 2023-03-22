@@ -425,6 +425,7 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["filterAvd"] = "Y"
 	}
 	updateAf(item)
+	anno.FloatFormat(item)
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
 	readsPicture(item)
