@@ -65,6 +65,12 @@ func main() {
 		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
 	}
 
+	if *cs {
+		for _, s := range textUtil.File2Array(filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")) {
+			top1kGene[s] = true
+		}
+	}
+
 	if *im {
 		var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
 		var typeMode = make(map[string]bool)

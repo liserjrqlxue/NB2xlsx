@@ -138,3 +138,8 @@ var (
 	}
 	afThreshold = 1e-4
 )
+
+// CS
+var (
+	top1kGene = make(map[string]bool)
+)

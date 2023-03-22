@@ -51,7 +51,14 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	for _, item := range avd {
 		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
-		anno.InheritCheck(item, inheritDb)
+		if *cs {
+			// 烈性突变
+			anno.UpdateSnvTier1(item)
+
+			// 遗传相符
+			item["Zygosity"] = anno.ZygosityFormat(item["Zygosity"])
+			anno.InheritCheck(item, inheritDb)
+		}
 	}
 
 	// cycle 2
@@ -182,6 +189,12 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
 				if *cs {
+					item["LOF"] = ""
+					item["disGroup"] = item["PP_disGroup"]
+					if top1kGene[item["Gene Symbol"]] {
+						item["是否国内（际）包装变异"] = "国内包装基因"
+					}
+
 					updateInfo(item)
 				}
 				writeRow(excel, sheetName, item, title, rIdx)
