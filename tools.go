@@ -130,13 +130,13 @@ var formulaTitle = map[string]bool{
 }
 
 var hyperLinkTitle = map[string]bool{
-	"β地贫_最终结果":      true,
-	"α地贫_最终结果":      true,
-	"reads_picture": true,
-	"P0":            true,
-	"P1":            true,
-	"P2":            true,
-	"P3":            true,
+	"β地贫_最终结果": true,
+	"α地贫_最终结果": true,
+	"reads_picture":  true,
+	"P0":             true,
+	"P1":             true,
+	"P2":             true,
+	"P3":             true,
 }
 
 var (
@@ -855,10 +855,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 			geneInfo = make(map[string]*GeneInfo)
 			for _, gene := range genes {
 				geneInfo[gene] = &GeneInfo{
-					基因:   gene,
+					基因:     gene,
 					遗传模式: geneInheritance[gene],
-					cnv:  true,
-					cnv0: cn == 0,
+					cnv:      true,
+					cnv0:     cn == 0,
 				}
 			}
 			SampleGeneInfo[sampleID] = geneInfo
@@ -867,10 +867,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				var info, ok = geneInfo[gene]
 				if !ok {
 					geneInfo[gene] = &GeneInfo{
-						基因:   gene,
+						基因:     gene,
 						遗传模式: geneInheritance[gene],
-						cnv:  true,
-						cnv0: cn == 0,
+						cnv:      true,
+						cnv0:     cn == 0,
 					}
 				} else {
 					info.cnv = true
@@ -913,6 +913,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 		if *cs {
 			item["Q20(%)"] = item["Q20"]
 			item["Q30(%)"] = item["Q30"]
+			item["sampleID"] = item["Sample"]
 			updateInfo(item)
 		} else {
 			updateQC(item, i)
