@@ -53,17 +53,19 @@ func main() {
 
 	loadDb()
 
-	limsInfo = loadLimsInfo()
+	if *lims != "" {
+		limsInfo = loadLimsInfo()
+	}
 
 	if *batchCNV != "" {
 		loadBatchCNV(*batchCNV)
 	}
 
-	if *im {
-		if *info != "" {
-			imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
-		}
+	if *info != "" {
+		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	}
 
+	if *im {
 		var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
 		var typeMode = make(map[string]bool)
 		for _, m := range imInfo {
