@@ -994,6 +994,7 @@ func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handl
 	for _, item := range db {
 		rIdx++
 		fn(item)
+		updateINDEX(item, "D", rIdx)
 		writeRow(excel, sheetName, item, title, rIdx)
 	}
 }
@@ -1029,6 +1030,10 @@ func updateDMD(item map[string]string) {
 	item["#sample"] = item["Sample"]
 	item["sampleID"] = item["Sample"]
 	updateABC(item)
+	if *cs {
+		updateInfo(item)
+		item["gender"] = item["Sex"]
+	}
 }
 
 func updateFeature(item map[string]string) {

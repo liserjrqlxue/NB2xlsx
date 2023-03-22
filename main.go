@@ -177,6 +177,19 @@ func main() {
 		if *geneIDList != "" {
 			updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
 		}
+	}
+
+	if *cs {
+		// DMD-lumpy
+		if *lumpy != "" {
+			updateDataFile2Sheet(excel, "CNV", *lumpy, updateDMD)
+		}
+		// DMD-nator
+		if *nator != "" {
+			updateDataFile2Sheet(excel, "CNV", *nator, updateDMD)
+		}
+
+	} else {
 
 		// DMD-lumpy
 		if *lumpy != "" {
