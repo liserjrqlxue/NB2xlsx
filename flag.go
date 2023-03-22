@@ -236,4 +236,9 @@ var (
 		false,
 		"if re-calculate ACMG2015",
 	)
+	cs = flag.Bool(
+		"cs",
+		false,
+		"if use for CS",
+	)
 )

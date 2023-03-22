@@ -948,6 +948,10 @@ var infoTitle = []string{
 	"Lane ID",
 	"Barcode ID",
 	"pipeline",
+	"期数",
+	"产品编码_产品名称",
+	"产品编号",
+	"flow_ID",
 }
 
 func updateInfo(item map[string]string) {

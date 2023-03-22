@@ -167,13 +167,16 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 		for _, item := range avd {
 			rIdx++
 			updateINDEX(item, "D", rIdx)
+			var sampleID = item["SampleID"]
+			item["sampleID"] = sampleID
 			if *im {
-				var sampleID = item["SampleID"]
-				item["sampleID"] = sampleID
 				updateInfo(item)
 				updateColumns(item, sheetTitleMap[sheetName])
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
+				if *cs {
+					updateInfo(item)
+				}
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
 		}
