@@ -993,17 +993,14 @@ var infoTitle = []string{
 	"SampleType",
 	"Date of Birth",
 	"Received Date",
-	"ProductID_ProductName", "产品编码_产品名称",
+	"ProductID_ProductName",
 	"Clinical information",
-	"TaskID", "期数",
+	"ProductID",
+	"TaskID",
 	"flow ID",
 	"Lane ID",
 	"Barcode ID",
 	"pipeline",
-	"期数",
-	"产品编码_产品名称",
-	"产品编号",
-	"flow_ID",
 }
 
 func updateInfo(item map[string]string) {
@@ -1011,8 +1008,11 @@ func updateInfo(item map[string]string) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
-	if flowID, ok := imInfo[sampleID]["flow_ID"]; ok {
-		item["flow ID"] = flowID
+	if *cs {
+		item["期数"] = item["TaskID"]
+		item["flow ID"] = item["flow ID"]
+		item["产品编号"] = item["ProductID"]
+		item["产品编码_产品名称"] = item["ProductID_ProductName"]
 	}
 }
 
