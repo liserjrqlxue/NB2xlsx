@@ -1116,7 +1116,6 @@ func updateDMD(item map[string]string) {
 }
 
 func updateLumpy(item map[string]string) {
-	updateDMD(item)
 
 	item["Chr"] = item["CHROM"]
 	item["Start"] = item["POS"]
@@ -1124,6 +1123,8 @@ func updateLumpy(item map[string]string) {
 	item["CNV_type"] = item["SVTYPE"]
 	item["Gene"] = item["OMIM_Gene"]
 	item["OMIM_EX"] = item["OMIM_exon"]
+
+	updateDMD(item)
 }
 
 func updateFeature(item map[string]string) {
