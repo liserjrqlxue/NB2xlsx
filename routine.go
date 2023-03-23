@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/liserjrqlxue/acmg2015"
+	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/xuri/excelize/v2"
