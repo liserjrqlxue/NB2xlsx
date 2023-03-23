@@ -969,17 +969,15 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 
 func updateQC(item map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
+	item["Gender"] = item["gender_analysed"]
 	if *im {
 		updateInfo(item)
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
-		} else {
-			item["Gender"] = item["gender_analysed"]
 		}
 		updateColumns(item, sheetTitleMap["QC"])
 	} else {
 		updateColumns(item, sheetTitleMap["QC"])
-		item["Gender"] = item["Sex"]
 		var inputGender = "null"
 		if limsInfo[item["Sample"]]["SEX"] == "1" {
 			inputGender = "M"
