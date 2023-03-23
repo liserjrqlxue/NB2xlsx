@@ -748,31 +748,35 @@ func updateSma2(item map[string]string, db map[string]map[string]string) {
 		info["SMN1_质控结果"] = "fail"
 		info["SMN1_检测结果"] = ""
 		info["SMN1 EX7 del最终结果"] = "_等验证"
-		var cn, err = strconv.ParseFloat(info["SMN1_CN"], 64)
-		if err == nil {
-			if cn == 0 {
-				info["SMN1_质控结果"] = "pass"
-				info["SMN1_检测结果"] = "纯合阳性"
-				info["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
-			} else if cn == 0.5 {
-				info["SMN1_质控结果"] = "pass"
-				info["SMN1_检测结果"] = "纯合灰区"
-				info["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
+		if info["SMN1_CN"] == "None" {
+			info["SMN1_检测结果"] = "."
+		} else {
+			var cn, err = strconv.ParseFloat(info["SMN1_CN"], 64)
+			if err == nil {
+				if cn == 0 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "纯合阳性"
+					info["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
+				} else if cn == 0.5 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "纯合灰区"
+					info["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
 
-			} else if cn == 1 {
-				info["SMN1_质控结果"] = "pass"
-				info["SMN1_检测结果"] = "杂合阳性"
-				info["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
+				} else if cn == 1 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "杂合阳性"
+					info["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
 
-			} else if cn == 1.5 {
-				info["SMN1_质控结果"] = "pass"
-				info["SMN1_检测结果"] = "杂合灰区"
-				info["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
+				} else if cn == 1.5 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "杂合灰区"
+					info["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
 
-			} else if cn >= 2 {
-				info["SMN1_质控结果"] = "pass"
-				info["SMN1_检测结果"] = "阴性"
-				info["SMN1 EX7 del最终结果"] = "阴性"
+				} else if cn >= 2 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "阴性"
+					info["SMN1 EX7 del最终结果"] = "阴性"
+				}
 			}
 		}
 	}
