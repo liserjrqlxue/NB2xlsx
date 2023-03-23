@@ -478,93 +478,622 @@ item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 
 ## 一体机
 
-- [x] Sample
+### Sample
+
+- [x] sampleID
   - [x] 样本编号
-  - [x] 性别
-  - [x] 样本类型
-  - [x] 出生日期
-  - [x] 收样日期
-  - [x] 产品套餐编码_产品套餐名称
-  - [x] 临床表现
-  - [x] 任务编号
-  - [x] 芯片ID
-  - [x] 分析流程
-- [x] QC
   - [x] sampleID
-  - [x] Lane ID
-  - [x] Barcode ID
-  - [x] Q20
-  - [x] Q30
-  - [x] AverageDepth
-  - [x] Target coverage >=20X percentage
-  - [x] mitochondria Target Mean Depth[RM DUP]
-  - [x] contamination
+- [x] gender
   - [x] 性别
-  - [x] 质控
-  - [x] 不合格原因
-  - [x] Depth>=10(%)
-  - [x] Coverage(%)
-  - [x] GC(%)
-  - [x] 操作建议
-- [x] SNV&INDEL
+  - [x] Gender
+- [x] SampleType
+  - [x] 样本类型
+  - [x] SampleType
+- [x] Date of Birth
+  - [x] 出生日期
+  - [x] Date of Birth
+- [x] Received Date
+  - [x] 收样日期
+  - [x] Received Date
+- [x] ProductID_ProductName
+  - [x] 产品套餐编码_产品套餐名称
+  - [x] ProductID_ProductName
+- [x] Clinical information
+  - [x] 临床表现
+  - [x] Clinical information
+- [x] TaskID
   - [x] 任务编号
+  - [x] TaskID
+- [x] flow ID
   - [x] 芯片ID
+  - [x] flow ID
+- [x] pipeline
+  - [x] 分析流程
+  - [x] pipeline
+
+### QC
+
+- [x] sampleID
+  - [x] sampleID
+  - [x] sampleID
+- [x] Lane ID
+  - [x] Lane ID
+  - [x] Lane ID
+- [x] Barcode ID
+  - [x] Barcode ID
+  - [x] Barcode ID
+- [x] Q20
+  - [x] Q20
+  - [x] Q20
+- [x] Q30
+  - [x] Q30
+  - [x] Q30
+- [x] Target Mean Depth[RM DUP]: (remove_mitochondria)
+  - [x] AverageDepth
+  - [x] AverageDepth
+- [x] Target coverage >=20X percentage[RM DUP]:
+  - [x] Target coverage >=20X percentage
+  - [x] Target coverage >=20X percentage
+- [x] Target Mean Depth[RM DUP]: (mitochondria)
+  - [x] mitochondria Target Mean Depth[RM DUP]
+  - [x] Mitochondria Target Mean Depth[RM DUP]
+- [x] contamination
+  - [x] contamination
+  - [x] Contamination
+- [x] Gender
+  - [x] 性别
+  - [x] Gender
+- [x] 质控
+  - [x] 质控
+  - [x] QC
+- [x] Failed reason
+  - [x] 不合格原因
+  - [x] Failed reason
+- [x] Target coverage >=10X percentage[RM DUP]:
+  - [x] Depth>=10(%)
+  - [x] Depth>=10(%)
+- [x] Target coverage[RM DUP]:
+  - [x] Coverage(%)
+  - [x] Coverage(%)
+- [x] Total mapped GC Rate:
+  - [x] GC(%)
+  - [x] GC(%)
+- [x] Operation Advice
+  - [x] 操作建议
+  - [x] Operation Advice
+  -
+
+### SNV&INDEL
+
+- [x] TaskID
+  - [x] 任务编号
+  - [x] TaskID
+- [x] flow ID
+  - [x] 芯片ID
+  - [x] flow ID
+- [x] ProductID_ProductName
   - [x] 产品套餐编码_产品套餐名称
+  - [x] ProductID_ProductName
+- [x] SampleID
   - [x] 样本编号
+  - [x] SampleID
+- [x] Sex
   - [x] 性别
+  - [x] Gender
+- [x] #Chr
   - [x] Chr
+  - [x] Chr
+- [x] Zygosity
   - [x] 杂合性
+  - [x] Zygosity
+- [x] Gene Symbol
   - [x] 基因名称
-  - [x] 转录本
-  - [x] 碱基改变
-  - [x] 氨基酸改变
-  - [x] 外显子
-  - [x] 突变类型
-  - [x] ClinVar星级
-  - [x] Automated Pathogenicity
-  - [x] 疾病名称
-  - [x] 遗传模式
-  - [x] 疾病简介
-  - [x] 遗传模式判读
-  - [x] 是否报告
-  - [x] reads_picture
-  - [x] pre_quality
-  - [x] 是否库内变异
-- [x] DMD CNV
-  - [x] 任务编号
-  - [x] flow ID
-  - [x] 产品套餐编码_产品套餐名称
-  - [x] SampleID
-  - [x] 性别
-  - [x] 染色体
   - [x] Gene Symbol
+- [x] Transcript
   - [x] 转录本
+  - [x] Transcript
+- [x] cHGVS
+  - [x] 碱基改变
+  - [x] cHGVS
+- [x] pHGVS
+  - [x] 氨基酸改变
+  - [x] pHGVS
+- [x] ExIn_ID
   - [x] 外显子
-  - [x] CNVType
-  - [x] 杂合性
-  - [x] 是否报告
-  - [x] 核苷酸变化
+  - [x] ExIn_ID
+- [x] Function
   - [x] 突变类型
-  - [x] 外显子图
-  - [x] 是否在库内
-- [x] THAL CNV
+  - [x] Variant type
+- [x] ClinVar星级
+  - [x] ClinVar星级
+  - [x] Gold stars in ClinVar
+- [x] 自动化判断
+  - [x] Automated Pathogenicity
+  - [x] Automated Pathogenicity
+- [x] 疾病名称
+  - [x] 疾病名称
+  - [x] DiseaseName
+- [x] 遗传模式
+  - [x] 遗传模式
+  - [x] Genetic Patterns
+- [x] 疾病简介
+  - [x] 疾病简介
+  - [x] Generalization
+- [ ] Definition
+  - [ ] 致病性
+  - [x] Pathogenicity
+- [x] 遗传模式判读
+  - [x] 遗传模式判读
+  - [x] Risk
+- [x] 报告类别
+  - [x] 是否报告
+  - [x] Official Report
+- [x] pre_class
+  - [x] pre_quality
+  - [x] pre_quality
+- [x] In BGI database
+  - [x] 是否库内变异
+  - [x] In BGI database
+
+### DMD CNV
+
+- [x] TaskID
   - [x] 任务编号
+  - [x] TaskID
+- [x] flow ID
   - [x] flow ID
+  - [x] flow ID
+- [x] ProductID_ProductName
   - [x] 产品套餐编码_产品套餐名称
+  - [x] ProductID_ProductName
+- [x] #sample
   - [x] SampleID
+  - [x] SampleID
+- [x] gender
   - [x] 性别
+  - [x] Gender
+- [x] chr
+  - [x] 染色体
+  - [x] Chr
+- [x] gene
+  - [x] Gene Symbol
+  - [x] Gene Symbol
+- [x] NM
+  - [x] 转录本
+  - [x] Transcript
+- [x] exon
+  - [x] 外显子
+  - [x] ExIn_ID
+- [x] CNVType
+  - [x] CNVType
+  - [x] CNVType
+- [x] 杂合性
+  - [x] 杂合性
+  - [x] Zygosity
+- [x] 报告类别
+  - [x] 是否报告
+  - [x] Official Report
+- [x] 核苷酸变化
+  - [x] 核苷酸变化
+  - [x] Variant
+- [x] 中文-突变判定
+  - [x] 突变类型
+  - [x] Pathogenicity
+- [x] P0
+  - [x] 外显子图
+  - [x] DMD Exon_picture
+- [x] 新生儿一体机包装变异
+  - [x] 是否在库内
+  - [x] In BGI database
+
+### THAL CNV
+
+- [x] TaskID
+  - [x] 任务编号
+  - [x] TaskID
+- [x] flow ID
+  - [x] flow ID
+  - [x] flow ID
+- [x] ProductID_ProductName
+  - [x] 产品套餐编码_产品套餐名称
+  - [x] ProductID_ProductName
+- [x] SampleID
+  - [x] SampleID
+  - [x] SampleID
+- [x] Sex
+  - [x] 性别
+  - [x] Gender
+- [x] 地贫_QC
   - [x] 地贫_QC
+  - [x] THAL_QC
+- [x] β地贫自动化结果
   - [x] β地贫自动化结果
+  - [x] Result_HBB CNV-auto
+- [x] α地贫自动化结果
   - [x] α地贫自动化结果
+  - [x] Result_HBA1/HBA2 CNV-auto
+- [x] β地贫_最终结果
+  - [x] β地贫_最终结果
+  - [x] Result_HBB CNV
+- [x] α地贫_最终结果
+  - [x] α地贫_最终结果
+  - [x] Result_HBA1/HBA2 CNV
+
+### SMN1 CNV
+
+- [x] TaskID
+  - [x] 任务编号
+  - [x] TaskID
+- [x] flow ID
+  - [x] flow ID
+  - [x] flow ID
+- [x] ProductID_ProductName
+  - [x] 产品套餐编码_产品套餐名称
+  - [x] ProductID_ProductName
+- [x] SampleID
+  - [x] SampleID
+  - [x] SampleID
+- [x] Sex
+  - [x] 性别
+  - [x] Gender
+- [x] SMN1_质控结果
+  - [x] SMN1_质控结果
+  - [x] SMN1_QC
+- [x] SMN1 EX7 del最终结果
+  - [x] SMN1 EX7 del最终结果
+  - [x] Result_SMN1 EX7 DEL
+- [x] Official Report
+  - [x] 是否报告
+  - [x] Official Report
+- [x] SMN2_ex7_cn
+  - [x] SMN2 EX7 del最终结果
+  - [x] Copy of SMN2 EX7
+
+## 携带者WGS
+
+### All variants data
+
+- [x] updateInfo()
+  - [x] 期数
+  - [x] flow ID
+  - [x] 产品编码_产品名称
+- [x] updateINDEX()
+  - [x] 解读人
+  - [x] 审核人
+- [x] updateABC()
+  - [x] Sex
+- [x] updateAvd
+  - [x] 1000Gp3 AF
+    - 1000G AF
+  - [x] 1000Gp3 EAS AF
+    - 1000G EAS AF
+  - [x] gene+cHGVS
+    - Gene Symbol +":"+ cHGVS
+  - [x] gene+pHGVS3
+  - Gene Symbol +":"+ pHGVS3
+  - [x] gene+pHGVS1
+    - Gene Symbol +":"+ pHGVS1
+  - [x] 引物设计
+    - anno.PrimerDesign
+- [x] 输入 相同列
+  - [x] SampleID
+  - [x] Start
+  - [x] Stop
+  - [x] A.Depth
+  - [x] A.Ratio
+  - [x] RepeatTag
+  - [x] Filter
+  - [x] MIM Gene ID
+  - [x] MIM Pheno IDs
+  - [x] MIM Inheritance
+  - [x] TestCode
+  - [x] Gene Symbol
+  - [x] Transcript
+  - [x] cHGVS
+  - [x] pHGVS
+  - [x] ExIn_ID
+  - [x] Zygosity
+  - [x] Flank
+  - [x] FuncRegion
+  - [x] Function
+  - [x] Protein
+  - [x] Strand
+  - [x] CodonChange
+  - [x] PolarChange
+  - [x] MutationName
+  - [x] dbSNP Allele Freq
+  - [x] GnomAD EAS HomoAlt Count
+  - [x] GnomAD EAS AF
+  - [x] GnomAD HomoAlt Count
+  - [x] GnomAD AF
+  - [x] ESP6500 AF
+  - [x] ExAC EAS HomoAlt Count
+  - [x] ExAC EAS AF
+  - [x] ExAC HomoAlt Count
+  - [x] ExAC AF
+  - [x] rsID
+  - [x] PVFD Homo Count
+  - [x] PVFD AF
+  - [x] Panel AlleleFreq
+  - [x] HGMD pmID
+  - [x] HGMD Pred
+- [x] TOK1K无内容
+  - [x] A.Index
+  - [x] PVFD Homo Frequency
+  - [x] PVFD AF等级
+  - [x] Panel Pred
+  - [x] HGMD MutName
+  - [x] 备注
+  - [x] 解读日期
+  - [x] 报告期限
+  - [x] 是否有修改
+  - [x] 入库时间
+  - [x] 同一坐标变异
+- [ ] 待处理
+  - [x] #Chr
+    - [x] "Chr" + #Chr
+  - [ ] reads_picture
+    - readsPicture()
+    - 画图过滤条件
+    - 链接有效性
+  - [ ] HGMD Disease
+  - [x] LOF
+    - updateLOF()
+      - !LOF[item["Function"]] || gt(item["GnomAD AF"], 0.01) || gt(item["1000G AF"], 0.01)
+      - 置空
+  - [x] Database
+    - Auto ACMG + Check PLP 库内 DX1605
+  - [x] 是否是库内位点
+    - TOK1K留空
+    - Auto ACMG + Check PLP 库内 是
+  - [x] PrePregnancyAnno
+    - [x] 报告类别
+      - 都写 "正式报告"
+      - 无报告的写"正式报告"
+    - [x] 遗传模式
+      - Inheritance
+    - [x] 疾病中文名
+      - Chinese disease name
+    - [x] 中文-疾病背景
+      - Chinese disease introduction
+      - 空的
+    - [x] 中文-突变详情
+      - Chinese mutation information
+      - 空的
+    - [x] Disease*
+      - English disease name
+    - [x] 英文-疾病背景
+      - English disease introduction
+      - 空的
+    - [x] 英文-突变详情
+      - English mutation information
+        - 空的
+    - [x] 参考文献
+      - Reference-final-Info
+    - [x] Evidence New + Check
+    - [x] 地贫通用名
+    - [x] 突变类型
+      - Auto ACMG + Check
+        - Auto ACMG + Check 判断
+  - [x] disGroup
+    - PP_disGroup
+  - [ ] sanger_tookit
+    - [ ] pre_class
+    - [ ] pre_pro
+  - [ ] 需验证的变异
+    - TOP1K处理逻辑未实现
+  - [x] 是否国内（际）包装变异
+    - 基于TOP1K基因列表
+  - [x] anno2xlsx
+    - [x] 自动化判断
+    - [x] autoRuleName
+    - [x] 遗传相符
+    - [x] 烈性突变
+    - [x] 突变频谱
+
+### CNV
+
+- [x] updateInfo()
+  - [x] 期数
+  - [x] flow ID
+  - [x] 产品编码_产品名称
+- [x] updateINDEX()
+  - [x] 解读人
+  - [x] 审核人
+- [ ] updateDMD
+  - [x] #sample
+    - Sample
+- [x] updateABC
+  - [x] gender
+    - [x] Sex
+- [x] Nator
+  - [x] Chr
+  - [x] Start
+  - [x] End
+  - [x] CNV_type
+  - [x] Gene
+  - [x] Gene_num
+  - [x] Gene_num_score
+  - [x] OMIM_EX
+  - [x] Pathogenicity summary
+- [ ] lumpy
+  - [x] Chr
+    - CHROM
+  - [x] Start
+    - POS
+  - [x] End
+    - END
+  - [x] CNV_type
+    - SVTYPE
+  - [x] Gene
+    - OMIM_Gene
+  - [ ] Gene_num
+  - [ ] Gene_num_score
+  - [x] OMIM_EX
+    - OMIM_exon
+  - [x] Pathogenicity summary
+- [ ] CopyNum
+- [ ] 留空
+  - [ ] 解读备注
+  - [ ] 审核备注
+- [ ] 报告类别
+- [ ] 核苷酸变化
+- [ ] 杂合性
+- [ ] 突变类型
+- [ ] 参考文献
+
+### 地贫融合基因
+
+-[x] 无，留空
+
+### 补充实验
+
+- [x] updateInfo()
+  - [x] 期数
+  - [x] flow ID
+  - [x] 产品编码_产品名称
+- [x] updateINDEX()
+  - [x] 解读人
+  - [x] 审核人
+- [x] updateABC()
+  - [x] Sex
+    - [x] sex
+- [x] sampleID
+  - sample
+  - Sample
+- [x] updateDipin()
+  - [x] 地贫_QC
+  - [x] β地贫_chr11
+  - [x] α地贫_chr16
   - [x] β地贫_最终结果
   - [x] α地贫_最终结果
-- [x] SMN1 CNV
-  - [x] 任务编号
-  - [x] flow ID
-  - [x] 产品套餐编码_产品套餐名称
-  - [x] SampleID
-  - [x] 性别
+- [x] updateSma2
+  - [x] SMN1_检测结果
   - [x] SMN1_质控结果
   - [x] SMN1 EX7 del最终结果
-  - [x] 是否报告
-  - [x] SMN2 EX7 del最终结果
+- [x] 检测范围外
+  - [x] F8int1h-1.5k&2k最终结果
+  - [x] F8int22h-10.8k&12k最终结果
+
+### QC
+
+- [x] updateInfo()
+  - [x] 产品编号
+- [x] updateINDEX()
+  - [x] 解读人
+  - [x] 审核人
+- [x] 输入 相同列
+  - [x] Order
+  - [x] Sample
+  - [x] AverageDepth
+  - [x] Depth>=30(%)
+  - [x] GC(%)
+  - [ ] Gender
+    - [ ] 性别校验
+  - [x] RESULT
+- [x] Q20(%)
+  - Q20
+- [x] Q30(%)
+  - Q30
+
+### 样本信息
+
+- [x] 空sheet
+
+### bam文件路径
+
+- [x] 直接填充bam路径
+
+### 任务单
+
+- [x] 只有空表头，继承自模板
+
+### TO-DO
+
+- 颜色
+- 列表
+- autoPVS1 注释
+- sanger_tookit
+- TOP1K 基因名 核对
+- 性别校验
+
+### WGS使用
+
+```shell
+# WGS 携带者 使用 NB2xlsx 生成 BB 表格的说明
+
+# 软件目录$bin # /home/wangyaoshen/pipeline/cs/NB2xlsx
+# 输出目录$workdir
+# 输出前缀$prefix
+# 输出结果$workdir/$prefix.xlsx
+# 更新$prefix
+prefix=$workdir/$prefix
+
+# 样品信息
+## 输入样品信息$info # input.list
+## 每个样品一行，不能重复
+## 必要字段：
+##        sampleID  样品编号
+##        gender  样品性别
+##        TaskID  期数
+##        ProductID_ProductName 产品编码_产品名称
+##        ProductID 产品编号
+##        flow ID flow_ID
+## 字段命名确定后跟我对称下
+
+# All variants data
+## anno2xlsx目录$anno # /home/wangyaoshen/pipeline/anno2xlsx
+## snv&indel注释结果$snv # carrier_2s.addHGMD.filter.func.vaf.rmdup.all.xlsx
+## 输出$workdir
+##            avd.Sheet1.txt
+##            avd.addDisease.txt
+##            avd.[sampleID].tsv
+##            avd.list
+### /home/wangyaoshen/local/bin/xlsx2txt
+xlsx2txt -input $snv -prefix $workdir/avd 
+$anno/addDiseaseInfo2SNV/addDiseaseInfo2SNV -input $workdir/avd.Sheet1.txt -output $workdir/avd.addDisease.tsv
+### /home/wangyaoshen/local/bin/splitTsv 
+### 第5列为样品编号
+splitTsv -i $workdir/avd.addDisease.tsv -k 5 -p $workdir/avd -h > $workdir/avd.list 
+
+# CNV
+## lumpy结果$lumpy # DMD_batch6_57SAMPLE_lumpy.xls
+## nator结果$nator # DMD_batch6_57SAMPLE_Nator.xls
+
+# 补充实验
+## 地贫结果$dipin # merge_dipin_annot.xls
+## 新版SMA结果$sma # carrier_2s.tsv
+
+# QC
+## QC结果$qc # carrier_2s_qc.xlsx
+## 输出$workdir/qc.qc_file.txt
+xlsx2txt -input $qc -prefix $workdir/qc
+
+# bam文件路径
+## bam列表$bamList
+### 只有一列bam路径
+## 参考命令：
+##        ls /home/cromwell/project/fuxiangke/wgs_carrier_2s_test_0228/*/bam_chr/*.final.merge.bam > $bamList
+
+# 生信性别信息
+## 输入性别信息$genderMap # gender.txt
+### 第一列样品编号
+### 第二列性别
+## 参考命令：
+##        cut -f 4,7 /home/cromwell/project/fuxiangke/wgs_carrier_2s_test_0228/*/QC/sex.txt > $genderMap
+
+$bin/NB2xlsx \
+  -template $bin/template/CS.BB.xlsx \
+  -prefix $prefix \
+  -info $info \
+  -avdList $workdir/avd.list \
+  -lumpy $lumpy \
+  -nator $nator \
+  -dipin $dipin \
+  -sma2 $sma \
+  -qc $workdir/qc.qc_file.txt \
+  -bamPath $bamList \
+  -gender $genderMap \
+  -cs -acmg \
+  # -autoPVS1 # avd注释有进行autoPVS1注释
+```
