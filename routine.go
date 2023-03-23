@@ -168,6 +168,13 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	<-runAvd
 }
 
+func addChr(chr string) string {
+	return "Chr" + strings.Replace(
+		strings.Replace(chr, "chr", "", 1),
+		"Chr", "", 1,
+	)
+}
+
 func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, throttle chan bool) {
 	var sheetName = *avdSheetName
 	if *im {
@@ -189,13 +196,6 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
 				if *cs {
-					item["#Chr"] = "Chr" + strings.Replace(
-						strings.Replace(
-							item["#Chr"],
-							"chr", "", 1,
-						),
-						"Chr", "", 1,
-					)
 					item["LOF"] = ""
 					item["disGroup"] = item["PP_disGroup"]
 					if top1kGene[item["Gene Symbol"]] {

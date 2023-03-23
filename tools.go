@@ -362,57 +362,62 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["In BGI database"] = "否"
 	}
 
-	var (
-		transcript = item["Transcript"]
-		c          = item["cHGVS"]
-		cAlt       = cHgvsAlt(c)
-		cStd       = cHgvsStd(c)
-		mainKey    = transcript + "\t" + c
-		mainKey1   = transcript + "\t" + cAlt
-		mainKey2   = transcript + "\t" + cStd
-	)
-	var db, ok = localDb[mainKey]
-	if !ok {
-		db, ok = localDb[mainKey1]
-	}
-	if !ok {
-		db, ok = localDb[mainKey2]
-	}
-	if ok {
-		if db["是否是包装位点"] == "是" {
-			if *im {
-				item["报告类别"] = "是"
-				item["In BGI database"] = "是"
-			}
-			item["Database"] = "NBS-in"
-			item["isReport"] = "Y"
-			if subFlag {
-				if geneSubListMap[item["Gene Symbol"]] {
-					item["报告类别-原始"] = "正式报告"
+	if *cs {
+		item["#Chr"] = addChr(item["#Chr"])
+	} else {
+		var (
+			transcript = item["Transcript"]
+			c          = item["cHGVS"]
+			cAlt       = cHgvsAlt(c)
+			cStd       = cHgvsStd(c)
+			mainKey    = transcript + "\t" + c
+			mainKey1   = transcript + "\t" + cAlt
+			mainKey2   = transcript + "\t" + cStd
+		)
+
+		var db, ok = localDb[mainKey]
+		if !ok {
+			db, ok = localDb[mainKey1]
+		}
+		if !ok {
+			db, ok = localDb[mainKey2]
+		}
+		if ok {
+			if db["是否是包装位点"] == "是" {
+				if *im {
+					item["报告类别"] = "是"
+					item["In BGI database"] = "是"
+				}
+				item["Database"] = "NBS-in"
+				item["isReport"] = "Y"
+				if subFlag {
+					if geneSubListMap[item["Gene Symbol"]] {
+						item["报告类别-原始"] = "正式报告"
+					} else {
+						item["报告类别-原始"] = "补充报告"
+					}
+
 				} else {
+					item["报告类别-原始"] = "正式报告"
+				}
+			} else {
+				item["Database"] = "NBS-out"
+				if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
+					item["isReport"] = "Y"
 					item["报告类别-原始"] = "补充报告"
 				}
-
-			} else {
-				item["报告类别-原始"] = "正式报告"
 			}
+			item["参考文献"] = db["Reference"]
+			item["位点关联疾病"] = db["Disease"]
+			item["位点关联遗传模式"] = db["遗传模式"]
+			//item["Evidence New + Check"] = db["证据项"]
+			item["Definition"] = db["Definition"]
 		} else {
-			item["Database"] = "NBS-out"
+			item["Database"] = "."
 			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-				item["isReport"] = "Y"
 				item["报告类别-原始"] = "补充报告"
+				item["isReport"] = "Y"
 			}
-		}
-		item["参考文献"] = db["Reference"]
-		item["位点关联疾病"] = db["Disease"]
-		item["位点关联遗传模式"] = db["遗传模式"]
-		//item["Evidence New + Check"] = db["证据项"]
-		item["Definition"] = db["Definition"]
-	} else {
-		item["Database"] = "."
-		if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-			item["报告类别-原始"] = "补充报告"
-			item["isReport"] = "Y"
 		}
 	}
 	anno.UpdateFunction(item)
@@ -1076,6 +1081,9 @@ func updateDMD(item map[string]string) {
 	updateABC(item)
 	updateInfo(item)
 	item["gender"] = item["Sex"]
+	if *cs {
+		item["Chr"] = addChr(item["Chr"])
+	}
 }
 
 func updateLumpy(item map[string]string) {
