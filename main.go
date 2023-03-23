@@ -71,6 +71,16 @@ func main() {
 		}
 	}
 
+	columnName = "字段-中心实验室"
+	var imSheetList = []string{
+		"Sample",
+		"QC",
+		"SNV&INDEL",
+		"DMD CNV",
+		"THAL CNV",
+		"SMN1 CNV",
+	}
+
 	if *im {
 		var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
 		var typeMode = make(map[string]bool)
@@ -87,27 +97,14 @@ func main() {
 			log.Fatalln("No CN or EN!")
 		}
 
-		var imSheetList = []string{
-			"Sample",
-			"QC",
-			"SNV&INDEL",
-			"DMD CNV",
-			"THAL CNV",
-			"SMN1 CNV",
-		}
-
 		excel = excelize.NewFile()
 		for _, s := range imSheetList {
 			excel.NewSheet(s)
 			var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
-			var titleMap = make(map[string]string)
 			var title []string
 			for _, m := range titleMaps {
 				title = append(title, m[columnName])
-				titleMap[m["Raw"]] = m[columnName]
 			}
-			sheetTitle[s] = title
-			sheetTitleMap[s] = titleMap
 			writeTitle(excel, s, title)
 		}
 		excel.DeleteSheet("Sheet1")
@@ -125,6 +122,18 @@ func main() {
 		if *bamPath != "" {
 			updateBamPath(excel, *bamPath)
 		}
+	}
+
+	for _, s := range imSheetList {
+		var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
+		var titleMap = make(map[string]string)
+		var title []string
+		for _, m := range titleMaps {
+			title = append(title, m[columnName])
+			titleMap[m["Raw"]] = m[columnName]
+		}
+		sheetTitle[s] = title
+		sheetTitleMap[s] = titleMap
 	}
 
 	// QC
