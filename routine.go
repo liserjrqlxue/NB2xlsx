@@ -189,6 +189,13 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
 				if *cs {
+					item["#Chr"] = "Chr" + strings.Replace(
+						strings.Replace(
+							item["#Chr"],
+							"chr", "", 1,
+						),
+						"Chr", "", 1,
+					)
 					item["LOF"] = ""
 					item["disGroup"] = item["PP_disGroup"]
 					if top1kGene[item["Gene Symbol"]] {
