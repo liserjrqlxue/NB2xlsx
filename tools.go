@@ -81,16 +81,42 @@ func loadDb() {
 
 	// load disease database
 	log.Println("Load Disease Start")
-	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
+	var diseaseMapArray, _ = simpleUtil.Slice2MapArray(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
 				excelize.OpenFile(*diseaseExcel),
 			).(*excelize.File).
 				GetRows(*diseaseSheetName),
 		).([][]string),
-		"基因",
-		diseaseSep,
 	)
+	//	"基因",
+	//	diseaseSep,
+	//)
+	for _, item := range diseaseMapArray {
+		if item["报告逻辑"] != "" {
+			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
+		}
+		var mainKey = item["基因"]
+		var mainItem, ok = diseaseDb[mainKey]
+		if ok {
+			for k := range mainItem {
+				if k == "报告逻辑" {
+					if item[k] != "" {
+						if mainItem[k] == "" {
+							mainItem[k] = item[k]
+						} else {
+							mainItem[k] += diseaseSep + item[k]
+						}
+					}
+				} else {
+					mainItem[k] += diseaseSep + item[k]
+				}
+			}
+		} else {
+			mainItem = item
+		}
+		diseaseDb[mainKey] = mainItem
+	}
 	for gene, info := range diseaseDb {
 		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
 		geneInheritance[gene] = info["遗传模式"]
@@ -130,13 +156,13 @@ var formulaTitle = map[string]bool{
 }
 
 var hyperLinkTitle = map[string]bool{
-	"β地贫_最终结果":      true,
-	"α地贫_最终结果":      true,
-	"reads_picture": true,
-	"P0":            true,
-	"P1":            true,
-	"P2":            true,
-	"P3":            true,
+	"β地贫_最终结果": true,
+	"α地贫_最终结果": true,
+	"reads_picture":  true,
+	"P0":             true,
+	"P1":             true,
+	"P2":             true,
+	"P3":             true,
 }
 
 var (
@@ -865,10 +891,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 			geneInfo = make(map[string]*GeneInfo)
 			for _, gene := range genes {
 				geneInfo[gene] = &GeneInfo{
-					基因:   gene,
+					基因:     gene,
 					遗传模式: geneInheritance[gene],
-					cnv:  true,
-					cnv0: cn == 0,
+					cnv:      true,
+					cnv0:     cn == 0,
 				}
 			}
 			SampleGeneInfo[sampleID] = geneInfo
@@ -877,10 +903,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				var info, ok = geneInfo[gene]
 				if !ok {
 					geneInfo[gene] = &GeneInfo{
-						基因:   gene,
+						基因:     gene,
 						遗传模式: geneInheritance[gene],
-						cnv:  true,
-						cnv0: cn == 0,
+						cnv:      true,
+						cnv0:     cn == 0,
 					}
 				} else {
 					info.cnv = true
