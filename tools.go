@@ -979,6 +979,7 @@ func updateQC(item map[string]string, i int) {
 		updateColumns(item, sheetTitleMap["QC"])
 	} else {
 		updateColumns(item, sheetTitleMap["QC"])
+		item["Gender"] = item["Sex"]
 		var inputGender = "null"
 		if limsInfo[item["Sample"]]["SEX"] == "1" {
 			inputGender = "M"
