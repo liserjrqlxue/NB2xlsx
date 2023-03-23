@@ -276,6 +276,7 @@ func updateDisease(item map[string]string) {
 		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
 		item["包装疾病分类"] = disease["包装疾病分类"]
+		item["报告逻辑"] = disease["报告逻辑"]
 	}
 	if *cs {
 		item["遗传模式"] = item["Inheritance"]
