@@ -115,6 +115,10 @@ func main() {
 			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
 		}
 	} else {
+		var templateXlsx = *template
+		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
+			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
+		}
 		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
 		styleInit(excel)
 
@@ -191,22 +195,20 @@ func main() {
 	if *cs {
 		// DMD-lumpy
 		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "CNV", *lumpy, updateLumpy)
+			updateDataFile2Sheet(excel, "DMD", *lumpy, updateLumpy)
+		}
+		// DMD-nator
+		if *nator != "" {
+			updateDataFile2Sheet(excel, "DMD", *nator, updateDMD)
+		}
+	} else { // NBS WGS
+		// DMD-lumpy
+		if *lumpy != "" {
+			updateDataFile2Sheet(excel, "CNV", *lumpy, updateDMD)
 		}
 		// DMD-nator
 		if *nator != "" {
 			updateDataFile2Sheet(excel, "CNV", *nator, updateDMD)
-		}
-
-	} else {
-
-		// DMD-lumpy
-		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "DMD-lumpy", *lumpy, updateDMD)
-		}
-		// DMD-nator
-		if *nator != "" {
-			updateDataFile2Sheet(excel, "DMD-nator", *nator, updateDMD)
 		}
 	}
 
