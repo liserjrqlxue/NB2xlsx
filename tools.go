@@ -81,7 +81,7 @@ func loadDb() {
 
 	// load disease database
 	log.Println("Load Disease Start")
-	var diseaseMapArray, _ = simpleUtil.Slice2MapArray(
+	var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
 		simpleUtil.HandleError(
 			simpleUtil.HandleError(
 				excelize.OpenFile(*diseaseExcel),
@@ -99,7 +99,7 @@ func loadDb() {
 		var mainKey = item["基因"]
 		var mainItem, ok = diseaseDb[mainKey]
 		if ok {
-			for k := range mainItem {
+			for _, k := range diseaseTitle {
 				if k == "报告逻辑" {
 					if item[k] != "" {
 						if mainItem[k] == "" {
