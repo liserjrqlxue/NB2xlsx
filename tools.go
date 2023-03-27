@@ -391,6 +391,7 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["In BGI database"] = "否"
 	}
 
+	readsPicture(item)
 	if *cs {
 		item["#Chr"] = addChr(item["#Chr"])
 	} else {
@@ -464,7 +465,6 @@ func updateAvd(item map[string]string, subFlag bool) {
 	}
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
-	readsPicture(item)
 }
 
 func ifCheck(item map[string]string) string {
@@ -670,17 +670,7 @@ func updateDmd(item map[string]string) {
 	} else {
 		item["primerDesign"] = "-"
 	}
-	var pngSuffix = "." + item["gene"] + "." + item["NM"] + ".png"
-	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+"."+pngSuffix)
-	var info, ok = sampleInfos[item["SampleID"]]
-	if ok {
-		item["P0"] = info.p0
-		updateP(item, "P1", info.p1, pngSuffix)
-		updateP(item, "P2", info.p2, pngSuffix)
-		updateP(item, "P3", info.p3, pngSuffix)
-	} else {
-		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
-	}
+	updateDMDHyperlLink(item)
 }
 
 func updateP(item map[string]string, k, v, suffix string) {
@@ -827,6 +817,8 @@ func updateAe(item map[string]string) {
 	updateABC(item)
 	if *wgs {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W60S50_cne.jpg")
+	} else if *cs {
+		item["HyperLink"] = filepath.Join("batCNV", item["SampleID"]+"_W60S50_cne.jpg")
 	} else {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
 	}
@@ -1118,6 +1110,24 @@ func updateDMD(item map[string]string) {
 	item["gender"] = item["Sex"]
 	if *cs {
 		item["Chr"] = addChr(item["Chr"])
+		item["P0_HyperLink"] = filepath.Join("PP100_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
+	}
+}
+
+func updateDMDHyperlLink(item map[string]string) {
+	var (
+		sampleID  = item["SampleID"]
+		pngSuffix = "." + item["gene"] + "." + item["NM"] + ".png"
+	)
+	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+pngSuffix)
+	var info, ok = sampleInfos[item["SampleID"]]
+	if ok {
+		item["P0"] = info.p0
+		updateP(item, "P1", info.p1, pngSuffix)
+		updateP(item, "P2", info.p2, pngSuffix)
+		updateP(item, "P3", info.p3, pngSuffix)
+	} else {
+		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
 	}
 }
 
