@@ -169,7 +169,7 @@ func main() {
 
 	// write CNV after runAvd
 	// CNV
-	{
+	if !*cs {
 		runAvd <- true
 		writeDmd <- true
 		goUpdateCNV(excel, writeDmd)
