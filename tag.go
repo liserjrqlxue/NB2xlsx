@@ -121,7 +121,7 @@ func compositePCS(item map[string]string) bool {
 
 func (info *GeneInfo) new(item map[string]string) *GeneInfo {
 	info.gene = item["Gene Symbol"]
-	info.遗传模式 = geneInheritance[info.gene]
+	info.inheritance = geneInheritance[info.gene]
 	return info
 }
 
@@ -261,7 +261,7 @@ func 标签7(item map[string]string, info *GeneInfo) string {
 }
 
 func (info *GeneInfo) isAD() bool {
-	switch info.遗传模式 {
+	switch info.inheritance {
 	case "AD", "AD,AR", "AD,SMu", "Mi", "XLD", "XL":
 		return true
 	case "XLR":
@@ -276,7 +276,7 @@ func (info *GeneInfo) isAD() bool {
 }
 
 func (info *GeneInfo) isAR() bool {
-	if info.遗传模式 == "AR" || info.遗传模式 == "AR;AR" || (info.遗传模式 == "XLR" && info.性别 == "F") {
+	if info.inheritance == "AR" || info.inheritance == "AR;AR" || (info.inheritance == "XLR" && info.性别 == "F") {
 		return true
 	}
 	return false
@@ -284,7 +284,7 @@ func (info *GeneInfo) isAR() bool {
 }
 
 func (info *GeneInfo) lowADAF(item map[string]string) bool {
-	if info.遗传模式 == "AD" || info.遗传模式 == "AD,AR" || info.遗传模式 == "AD,SMu" {
+	if info.inheritance == "AD" || info.inheritance == "AD,AR" || info.inheritance == "AD,SMu" {
 		for af := range af0List {
 			if gt(item[af], afThreshold) {
 				return false

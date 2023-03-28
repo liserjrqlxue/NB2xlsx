@@ -72,8 +72,8 @@ var codeKey = "c3d112d6a47a0a04aad2b9d2d2cad266"
 // GeneInfo : struct info of gene
 type GeneInfo struct {
 	gene                    string
-	遗传模式                    string
-	性别                      string
+	inheritance             string
+	性别                    string
 	PLP, hetPLP, VUS, HpVUS int
 	cnv, cnv0               bool
 	tag3                    string
