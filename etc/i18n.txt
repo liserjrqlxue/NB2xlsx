@@ -1,8 +1,10 @@
 CN	EN
+是	Yes
+否	No
+男	Male
+女	Female
 正常	normal
 污染	Contamination
-女	Female
-男	Male
 合格	pass
 不合格	fail
 可能患病	At risk
@@ -11,6 +13,4 @@ CN	EN
 灰区	Grey zone
 杂合阳性	Heterozygous
 纯合阳性	Homozygous
-灰区	Grey zone
-是	Yes
-否	No
+致病变异	Pathogenic
