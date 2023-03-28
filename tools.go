@@ -894,10 +894,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 			geneInfo = make(map[string]*GeneInfo)
 			for _, gene := range genes {
 				geneInfo[gene] = &GeneInfo{
-					基因:   gene,
+					基因:     gene,
 					遗传模式: geneInheritance[gene],
-					cnv:  true,
-					cnv0: cn == 0,
+					cnv:      true,
+					cnv0:     cn == 0,
 				}
 			}
 			SampleGeneInfo[sampleID] = geneInfo
@@ -906,10 +906,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				var info, ok = geneInfo[gene]
 				if !ok {
 					geneInfo[gene] = &GeneInfo{
-						基因:   gene,
+						基因:     gene,
 						遗传模式: geneInheritance[gene],
-						cnv:  true,
-						cnv0: cn == 0,
+						cnv:      true,
+						cnv0:     cn == 0,
 					}
 				} else {
 					info.cnv = true
@@ -1104,10 +1104,11 @@ func updateSample(item map[string]string) {
 	updateColumns(item, sheetTitleMap["Sample"])
 }
 
-func updateDMD(item map[string]string) {
+func updateNator(item map[string]string) {
 	item["#sample"] = item["Sample"]
 	item["sampleID"] = item["Sample"]
 	item["SampleID"] = item["Sample"]
+	item["Source"] = "Nator"
 	updateABC(item)
 	updateInfo(item)
 	item["gender"] = item["Sex"]
@@ -1143,7 +1144,8 @@ func updateLumpy(item map[string]string) {
 	item["Gene"] = item["OMIM_Gene"]
 	item["OMIM_EX"] = item["OMIM_exon"]
 
-	updateDMD(item)
+	updateNator(item)
+	item["Source"] = "Lumpy"
 }
 
 func updateFeature(item map[string]string) {

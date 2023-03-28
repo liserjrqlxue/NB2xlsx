@@ -162,24 +162,17 @@ func main() {
 		}
 	}
 
+	var dmdCNVsheet = "CNV"
 	if *cs {
-		// DMD-lumpy
-		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "DMD", *lumpy, updateLumpy)
-		}
-		// DMD-nator
-		if *nator != "" {
-			updateDataFile2Sheet(excel, "DMD", *nator, updateDMD)
-		}
-	} else { // NBS WGS
-		// DMD-lumpy
-		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "CNV", *lumpy, updateDMD)
-		}
-		// DMD-nator
-		if *nator != "" {
-			updateDataFile2Sheet(excel, "CNV", *nator, updateDMD)
-		}
+		dmdCNVsheet = "DMD CNV"
+	}
+	// DMD-lumpy
+	if *lumpy != "" {
+		updateDataFile2Sheet(excel, dmdCNVsheet, *lumpy, updateLumpy)
+	}
+	// DMD-nator
+	if *nator != "" {
+		updateDataFile2Sheet(excel, dmdCNVsheet, *nator, updateNator)
 	}
 
 	{
