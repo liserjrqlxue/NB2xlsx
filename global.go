@@ -143,3 +143,9 @@ var (
 var (
 	top1kGene = make(map[string]bool)
 )
+
+// IM
+var (
+	i18n string
+	I18n = make(map[string]map[string]string)
+)

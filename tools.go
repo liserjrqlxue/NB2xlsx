@@ -832,6 +832,9 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
 	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
 	for j, k := range title {
+		if *im {
+			item[k] = getI18n(item[k])
+		}
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 		if formulaTitle[k] {
 			simpleUtil.CheckErr(excel.SetCellFormula(sheetName, axis, item[k]))

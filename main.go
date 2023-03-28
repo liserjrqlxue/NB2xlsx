@@ -27,11 +27,21 @@ func init() {
 	}
 }
 
+func getI18n(key string) string {
+	var value, ok = I18n[key][i18n]
+	if ok {
+		return value
+	}
+	return key
+}
+
 func main() {
 	if osUtil.FileExists(*gender) {
 		log.Printf("load gender map from %s", *gender)
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
+
+	I18n, _ = textUtil.File2MapMap(filepath.Join(etcPath, "i18n.txt"), "CN", "\t", nil)
 
 	var (
 		localDb      = make(chan bool, 1)
@@ -90,8 +100,10 @@ func main() {
 		if typeMode["CN"] && typeMode["EN"] {
 			log.Fatalln("Conflict for CN or EN!")
 		} else if typeMode["CN"] {
+			i18n = "CN"
 			columnName = "字段-一体机中文"
 		} else if typeMode["EN"] {
+			i18n = "EN"
 			columnName = "字段-一体机英文"
 		} else {
 			log.Fatalln("No CN or EN!")
