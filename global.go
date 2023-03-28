@@ -43,7 +43,7 @@ var (
 	limsInfo       = make(map[string]map[string]string)
 	imInfo         map[string]map[string]string
 
-	columnName    string
+	columnName    = "字段-中心实验室"
 	sheetTitle    = make(map[string][]string)
 	sheetTitleMap = make(map[string]map[string]string)
 
@@ -148,4 +148,13 @@ var (
 var (
 	i18n string
 	I18n = make(map[string]map[string]string)
+
+	imSheetList = []string{
+		"Sample",
+		"QC",
+		"SNV&INDEL",
+		"DMD CNV",
+		"THAL CNV",
+		"SMN1 CNV",
+	}
 )

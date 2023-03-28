@@ -30,6 +30,48 @@ func mergeSep(str, sep string) string {
 
 }
 
+func loadDiseaseDb() {
+	// load disease database
+	log.Println("Load Disease Start")
+	var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*diseaseExcel),
+			).(*excelize.File).
+				GetRows(*diseaseSheetName),
+		).([][]string),
+	)
+	for _, item := range diseaseMapArray {
+		if item["报告逻辑"] != "" {
+			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
+		}
+		var mainKey = item["基因"]
+		var mainItem, ok = diseaseDb[mainKey]
+		if ok {
+			for _, k := range diseaseTitle {
+				if k == "报告逻辑" {
+					if item[k] != "" {
+						if mainItem[k] == "" {
+							mainItem[k] = item[k]
+						} else {
+							mainItem[k] += diseaseSep + item[k]
+						}
+					}
+				} else {
+					mainItem[k] += diseaseSep + item[k]
+				}
+			}
+		} else {
+			mainItem = item
+		}
+		diseaseDb[mainKey] = mainItem
+	}
+	for gene, info := range diseaseDb {
+		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
+		geneInheritance[gene] = info["遗传模式"]
+	}
+}
+
 func loadDb() {
 	log.Println("Load Database Start")
 	// load gene info list
@@ -79,48 +121,7 @@ func loadDb() {
 		cnvDb[key] = m
 	}
 
-	// load disease database
-	log.Println("Load Disease Start")
-	var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(*diseaseExcel),
-			).(*excelize.File).
-				GetRows(*diseaseSheetName),
-		).([][]string),
-	)
-	//	"基因",
-	//	diseaseSep,
-	//)
-	for _, item := range diseaseMapArray {
-		if item["报告逻辑"] != "" {
-			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
-		}
-		var mainKey = item["基因"]
-		var mainItem, ok = diseaseDb[mainKey]
-		if ok {
-			for _, k := range diseaseTitle {
-				if k == "报告逻辑" {
-					if item[k] != "" {
-						if mainItem[k] == "" {
-							mainItem[k] = item[k]
-						} else {
-							mainItem[k] += diseaseSep + item[k]
-						}
-					}
-				} else {
-					mainItem[k] += diseaseSep + item[k]
-				}
-			}
-		} else {
-			mainItem = item
-		}
-		diseaseDb[mainKey] = mainItem
-	}
-	for gene, info := range diseaseDb {
-		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
-		geneInheritance[gene] = info["遗传模式"]
-	}
+	loadDiseaseDb()
 
 	// load drop list
 	log.Println("Load DropList Start")
