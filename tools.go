@@ -894,7 +894,7 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 			geneInfo = make(map[string]*GeneInfo)
 			for _, gene := range genes {
 				geneInfo[gene] = &GeneInfo{
-					基因:     gene,
+					gene:     gene,
 					遗传模式: geneInheritance[gene],
 					cnv:      true,
 					cnv0:     cn == 0,
@@ -906,7 +906,7 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				var info, ok = geneInfo[gene]
 				if !ok {
 					geneInfo[gene] = &GeneInfo{
-						基因:     gene,
+						gene:     gene,
 						遗传模式: geneInheritance[gene],
 						cnv:      true,
 						cnv0:     cn == 0,
