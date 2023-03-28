@@ -98,7 +98,7 @@ func (info *GeneInfo) getTag(item map[string]string) (tag string) {
 	return strings.Join(tags, ";")
 }
 
-func (info *GeneInfo) 标签4() {
+func (info *GeneInfo) Tag4() {
 	if info.cnv && info.isAD() {
 		info.tag4 = true
 	} else if info.cnv0 && info.isAR() {

@@ -925,7 +925,7 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	for _, gene := range genes {
 		var info, ok = SampleGeneInfo[sampleID][gene]
 		if ok {
-			info.标签4()
+			info.Tag4()
 			if info.tag3 != "" {
 				tagMap[info.tag3] = true
 			}
