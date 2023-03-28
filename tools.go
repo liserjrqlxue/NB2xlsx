@@ -533,11 +533,11 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	info.count(item)
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
-		info.性别 = "M"
+		info.gender = "M"
 		UpdateGeneHash(geneHash, item, "M")
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
-		info.性别 = "F"
+		info.gender = "F"
 		UpdateGeneHash(geneHash, item, "F")
 	}
 	geneInfo[item["Gene Symbol"]] = info

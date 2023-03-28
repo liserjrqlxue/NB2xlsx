@@ -254,7 +254,7 @@ func init() {
 }
 
 func 标签7(item map[string]string, info *GeneInfo) string {
-	if item["P/LP*"] == "1" && tag7gene[item["Gene Symbol"]] && info.性别 == "F" && 标签1(item, info) != "1-P/LP" {
+	if item["P/LP*"] == "1" && tag7gene[item["Gene Symbol"]] && info.gender == "F" && 标签1(item, info) != "1-P/LP" {
 		return "F-XLR"
 	}
 	return ""
@@ -265,7 +265,7 @@ func (info *GeneInfo) isAD() bool {
 	case "AD", "AD,AR", "AD,SMu", "Mi", "XLD", "XL":
 		return true
 	case "XLR":
-		if info.性别 == "M" {
+		if info.gender == "M" {
 			return true
 		} else {
 			return false
@@ -276,7 +276,7 @@ func (info *GeneInfo) isAD() bool {
 }
 
 func (info *GeneInfo) isAR() bool {
-	if info.inheritance == "AR" || info.inheritance == "AR;AR" || (info.inheritance == "XLR" && info.性别 == "F") {
+	if info.inheritance == "AR" || info.inheritance == "AR;AR" || (info.inheritance == "XLR" && info.gender == "F") {
 		return true
 	}
 	return false
