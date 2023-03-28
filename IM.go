@@ -52,5 +52,4 @@ func initExcel(excel *excelize.File) {
 		writeTitle(excel, s, title)
 	}
 	excel.DeleteSheet("Sheet1")
-	styleInit(excel)
 }

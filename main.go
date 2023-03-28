@@ -89,19 +89,21 @@ func main() {
 
 	if *im {
 		initExcel(excel)
-
-		// Sample
-		if *info != "" {
-			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
-		}
 	} else {
 		var templateXlsx = *template
 		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
 			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
 		}
 		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-		styleInit(excel)
+	}
+	styleInit(excel)
 
+	if *im {
+		// Sample
+		if *info != "" {
+			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
+		}
+	} else {
 		// bam文件路径
 		if *bamPath != "" {
 			updateBamPath(excel, *bamPath)
