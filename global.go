@@ -69,17 +69,6 @@ var codeKey = "c3d112d6a47a0a04aad2b9d2d2cad266"
 
 // tag
 
-// GeneInfo : struct info of gene
-type GeneInfo struct {
-	gene                    string
-	inheritance             string
-	gender                  string
-	PLP, hetPLP, VUS, HpVUS int
-	cnv, cnv0               bool
-	tag3                    string
-	tag4                    bool
-}
-
 var tag7gene = make(map[string]bool)
 
 //LOFofPLP : Lost Of Function for PLP
