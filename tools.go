@@ -392,8 +392,8 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["In BGI database"] = "否"
 	}
 
-	readsPicture(item)
 	if *cs {
+		readsPicture(item)
 		item["#Chr"] = addChr(item["#Chr"])
 	} else {
 		var (
@@ -450,6 +450,7 @@ func updateAvd(item map[string]string, subFlag bool) {
 				item["isReport"] = "Y"
 			}
 		}
+		readsPicture(item)
 	}
 	anno.UpdateFunction(item)
 	if *acmg {
@@ -494,19 +495,17 @@ func ifCheck(item map[string]string) string {
 }
 
 func readsPicture(item map[string]string) {
-	if ifPlotReads(item) {
-		var sampleID = item["SampleID"]
-		var chr = item["#Chr"]
-		if chr == "MT" {
-			chr = "chrM_NC_012920.1"
-		} else {
-			chr = "chr" + chr
-		}
-		var stop = item["Stop"]
-		var png = strings.Join([]string{sampleID, chr, stop}, "_") + ".png"
-		item["reads_picture"] = png
-		item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
+	var sampleID = item["SampleID"]
+	var chr = item["#Chr"]
+	if chr == "MT" {
+		chr = "chrM_NC_012920.1"
+	} else {
+		chr = "chr" + chr
 	}
+	var stop = item["Stop"]
+	var png = strings.Join([]string{sampleID, chr, stop}, "_") + ".png"
+	item["reads_picture"] = png
+	item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
 }
 
 func ifPlotReads(item map[string]string) bool {
