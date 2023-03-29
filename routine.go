@@ -221,6 +221,8 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 					if item["报告类别"] == "" || item["报告类别"] == "." {
 						item["报告类别"] = "正式报告"
 					}
+					// style
+					item["报告类别-原始"] = item["报告类别"]
 
 					updateInfo(item)
 				}
