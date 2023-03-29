@@ -298,7 +298,7 @@ if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 }
 ```
 
-#### `遗传模式判读`
+#### 遗传模式判读
 
 | 遗传模式                            | 杂合性                  | 个数   | 样品性别              | 遗传模式判读 |
 |---------------------------------|----------------------|------|-------------------|--------|
@@ -448,6 +448,22 @@ acmg2015.Init(acmgCfg)
 acmg2015.AddEvidences(item)
 item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 ```
+
+## 多模式
+
+| parameter               | NBSP-IM `-im`       | NBSP              | NBSP-WGS `-wgs`   | CS-WGS `-cs`      |
+|-------------------------|---------------------|-------------------|-------------------|-------------------|
+| `-avd` `-avdList`       | SNV&INDEL           | All variants data | All variants data | All variants data |
+| `-dmd` `-dmdList`       | DMD CNV             | CNV               | CNV-原始            |                   |
+| `-lumpy` `-nator`       |                     |                   | CNV               | DMD CNV           |
+| `-dipin` `-sma` `-sam2` | THAL CNV + SMN1 CNV | 补充实验              | 补充实验              | 补充实验              |
+| `-feature`              |                     | 个特                | 个特                | 个特                |
+| `-geneID`               |                     | 基因ID              | 基因ID              | 基因ID              |
+| `-drug`                 |                     | 药物检测结果            | 药物检测结果            | 药物检测结果            |
+| `-qc`                   | QC                  | QC                | QC                | QC                |
+| `-info` `-lims`         | Sample              | 样本信息              | 样本信息              | 样本信息              |
+| `bamPath`               |                     | bam文件路径           | bam文件路径           | bam文件路径           |
+|                         |                     | 任务单               | 任务单               | 任务单               |
 
 ## 模板
 
