@@ -180,54 +180,61 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	if *im {
 		sheetName = "SNV&INDEL"
 	}
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-	var count = 0
+	var (
+		rows  = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+		title = rows[0]
+		rIdx  = len(rows)
+		count = 0
+	)
+	if *im {
+		title = sheetTitle[sheetName]
+	}
+
 	for avd := range dbChan {
 		for _, item := range avd {
 			rIdx++
 			updateINDEX(item, "D", rIdx)
 			var sampleID = item["SampleID"]
 			item["sampleID"] = sampleID
+			if *wgs {
+				updateInfo(item, sampleID)
+			}
 			if *im {
 				updateInfo(item, sampleID)
 				updateColumns(item, sheetTitleMap[sheetName])
-				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
-			} else {
-				if *cs {
-					item["LOF"] = ""
-					item["disGroup"] = item["PP_disGroup"]
-					if top1kGene[item["Gene Symbol"]] {
-						item["是否国内（际）包装变异"] = "国内包装基因"
-					}
-					item["Database"] = ""
-					switch item["Auto ACMG + Check"] {
-					case "P":
-						item["Auto ACMG + Check"] = "Pathogenic"
-						item["Database"] = "DX1605"
-						item["是否是库内位点"] = "是"
-					case "LP":
-						item["Auto ACMG + Check"] = "Likely pathogenic"
-						item["Database"] = "DX1605"
-						item["是否是库内位点"] = "是"
-					case "", ".":
-						item["Auto ACMG + Check"] = "待解读"
-					}
-					if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
-						item["Auto ACMG + Check"] = "待解读"
-					}
-					item["突变类型"] = item["Auto ACMG + Check"]
-					if item["报告类别"] == "" || item["报告类别"] == "." {
-						item["报告类别"] = "正式报告"
-					}
-					// style
-					item["报告类别-原始"] = item["报告类别"]
-
-					updateInfo(item, sampleID)
-				}
-				writeRow(excel, sheetName, item, title, rIdx)
 			}
+			if *cs {
+				updateInfo(item, sampleID)
+
+				item["LOF"] = ""
+				item["disGroup"] = item["PP_disGroup"]
+				if top1kGene[item["Gene Symbol"]] {
+					item["是否国内（际）包装变异"] = "国内包装基因"
+				}
+				item["Database"] = ""
+				switch item["Auto ACMG + Check"] {
+				case "P":
+					item["Auto ACMG + Check"] = "Pathogenic"
+					item["Database"] = "DX1605"
+					item["是否是库内位点"] = "是"
+				case "LP":
+					item["Auto ACMG + Check"] = "Likely pathogenic"
+					item["Database"] = "DX1605"
+					item["是否是库内位点"] = "是"
+				case "", ".":
+					item["Auto ACMG + Check"] = "待解读"
+				}
+				if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
+					item["Auto ACMG + Check"] = "待解读"
+				}
+				item["突变类型"] = item["Auto ACMG + Check"]
+				if item["报告类别"] == "" || item["报告类别"] == "." {
+					item["报告类别"] = "正式报告"
+				}
+				// style
+				item["报告类别-原始"] = item["报告类别"]
+			}
+			writeRow(excel, sheetName, item, title, rIdx)
 		}
 		count++
 		if count == size {
