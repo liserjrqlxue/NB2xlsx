@@ -22,8 +22,8 @@ func loadLimsInfo() map[string]map[string]string {
 	return db
 }
 
-func updateABC(item map[string]string) {
-	var sampleID = item["SampleID"]
+func updateABC(item map[string]string, sampleID string) {
+	//var sampleID = item["SampleID"]
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
 	} else if *gender == "F" || genderMap[sampleID] == "F" {

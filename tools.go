@@ -371,7 +371,7 @@ func updateAf(item map[string]string) {
 }
 
 func updateAvd(item map[string]string, subFlag bool) {
-	updateABC(item)
+	updateABC(item, item["SampleID"])
 	item["HGMDorClinvar"] = "否"
 	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 		item["HGMDorClinvar"] = "是"
@@ -630,7 +630,7 @@ func updateDmd(item map[string]string) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
-	updateABC(item)
+	updateABC(item, sampleID)
 	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
 	if item["Significant"] != "YES" {
@@ -763,7 +763,7 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	}
 	info["SMN1_检测结果"] = result
 	info["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
-	updateABC(item)
+	updateABC(item, sampleID)
 	db[sampleID] = info
 }
 func updateSma2(item map[string]string, db map[string]map[string]string) {
@@ -814,7 +814,6 @@ func updateSma2(item map[string]string, db map[string]map[string]string) {
 }
 
 func updateAe(item map[string]string) {
-	updateABC(item)
 	if *wgs {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W60S50_cne.jpg")
 	} else if *cs {
@@ -1109,7 +1108,7 @@ func updateNator(item map[string]string) {
 	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
 	item["Source"] = "Nator"
-	updateABC(item)
+	updateABC(item, sampleID)
 	updateInfo(item, sampleID)
 	item["gender"] = item["Sex"]
 	if *cs {
@@ -1150,16 +1149,17 @@ func updateLumpy(item map[string]string) {
 
 func updateFeature(item map[string]string) {
 	item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
-	updateABC(item)
+	updateABC(item, item["SampleID"])
+}
+func updateGeneID(item map[string]string) {
+	updateABC(item, item["SampleID"])
 }
 
 func updateDrug(item map[string]string) {
 	if *wgs {
-		item["sampleID"] = item["样本编号"]
 		updateInfo(item, item["样本编号"])
 	} else {
-		item["SampleID"] = item["样本编号"]
-		updateABC(item)
+		updateABC(item, item["样本编号"])
 	}
 }
 
@@ -1184,7 +1184,7 @@ func updateBatchCNV(item map[string]string) {
 	}
 	item["新生儿目标基因"] = strings.Join(targetGenes, ",")
 	item["转录本"] = strings.Join(targetTranscripts, ",")
-	updateABC(item)
+	updateABC(item, sampleID)
 	item["CNVType"] = getCNVtype(item["Sex"], item)
 	item["引物设计"] = strings.Join(
 		[]string{

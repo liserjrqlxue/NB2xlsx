@@ -157,7 +157,7 @@ func main() {
 
 	// 基因ID
 	if *geneIDList != "" {
-		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
+		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateGeneID)
 	}
 
 	var dmdCNVsheet = "CNV"
