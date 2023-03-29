@@ -962,30 +962,39 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 }
 
 func updateQC(item map[string]string, i int) {
+	var sampleID = item["sampleID"]
 	item["Order"] = strconv.Itoa(i + 1)
 	item["Gender"] = item["gender_analysed"]
 	if *im {
-		updateInfo(item, item["sampleID"])
+		updateInfo(item, sampleID)
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
 		}
-		updateColumns(item, sheetTitleMap["QC"])
 	} else {
-		updateColumns(item, sheetTitleMap["QC"])
-		var inputGender = "null"
-		if limsInfo[item["Sample"]]["SEX"] == "1" {
-			inputGender = "M"
-		} else if limsInfo[item["Sample"]]["SEX"] == "2" {
-			inputGender = "F"
+		if *wgs {
+			updateInfo(item, item["sampleID"])
+			item["Gender"] = genderMap[sampleID]
+			var inputGender = imInfo[sampleID]["gender"]
+			if inputGender != genderMap[sampleID] {
+				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
+			}
 		} else {
-			inputGender = "null"
+			var inputGender = "null"
+			if limsInfo[item["Sample"]]["SEX"] == "1" {
+				inputGender = "M"
+			} else if limsInfo[item["Sample"]]["SEX"] == "2" {
+				inputGender = "F"
+			} else {
+				inputGender = "null"
+			}
+			if inputGender != genderMap[sampleID] {
+				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
+			}
+			//item["RESULT"]=item[""]
+			item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 		}
-		if inputGender != genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]] {
-			item["Gender"] = inputGender + "!!!Sequenced" + genderMap[limsInfo[item["Sample"]]["MAIN_SAMPLE_NUM"]]
-		}
-		//item["RESULT"]=item[""]
-		item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
 	}
+	updateColumns(item, sheetTitleMap["QC"])
 }
 
 func loadQC(qc string) (qcDb []map[string]string) {
