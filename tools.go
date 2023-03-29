@@ -1022,6 +1022,9 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 			updateInfo(item, item["sampleID"])
 			updateColumns(item, sheetTitleMap[sheetName])
 		}
+		if *wgs {
+			updateInfo(item, item["sampleID"])
+		}
 		writeRow(excel, sheetName, item, title, rIdx)
 	}
 }
