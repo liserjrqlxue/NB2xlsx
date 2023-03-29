@@ -1154,10 +1154,11 @@ func updateFeature(item map[string]string) {
 }
 
 func updateDrug(item map[string]string) {
-	item["SampleID"] = item["样本编号"]
 	if *wgs {
+		item["sampleID"] = item["样本编号"]
 		updateInfo(item)
 	} else {
+		item["SampleID"] = item["样本编号"]
 		updateABC(item)
 	}
 }
