@@ -1159,7 +1159,11 @@ func updateFeature(item map[string]string) {
 	}
 }
 func updateGeneID(item map[string]string) {
-	updateABC(item, item["SampleID"])
+	if *wgs {
+		updateInfo(item, item["SampleID"])
+	} else {
+		updateABC(item, item["SampleID"])
+	}
 }
 
 func updateDrug(item map[string]string) {
