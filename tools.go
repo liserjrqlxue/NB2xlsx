@@ -1152,7 +1152,11 @@ func updateLumpy(item map[string]string) {
 
 func updateFeature(item map[string]string) {
 	item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
-	updateABC(item, item["SampleID"])
+	if *wgs {
+		updateInfo(item, item["SampleID"])
+	} else {
+		updateABC(item, item["SampleID"])
+	}
 }
 func updateGeneID(item map[string]string) {
 	updateABC(item, item["SampleID"])
