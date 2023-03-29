@@ -145,21 +145,19 @@ func main() {
 		goUpdateCNV(excel, writeDmd)
 	}
 
-	if !*im {
-		// drug, no use
-		if *drugResult != "" {
-			updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateABC)
-		}
+	// drug, no use
+	if *drugResult != "" {
+		updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateDrug)
+	}
 
-		// 个特
-		if *featureList != "" {
-			updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
-		}
+	// 个特
+	if *featureList != "" {
+		updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
+	}
 
-		// 基因ID
-		if *geneIDList != "" {
-			updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
-		}
+	// 基因ID
+	if *geneIDList != "" {
+		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
 	}
 
 	var dmdCNVsheet = "CNV"

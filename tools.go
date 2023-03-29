@@ -1153,6 +1153,15 @@ func updateFeature(item map[string]string) {
 	updateABC(item)
 }
 
+func updateDrug(item map[string]string) {
+	item["SampleID"] = item["样本编号"]
+	if *wgs {
+		updateInfo(item)
+	} else {
+		updateABC(item)
+	}
+}
+
 func updateBatchCNV(item map[string]string) {
 	var sampleID = item["sample"]
 	item["sampleID"] = sampleID
