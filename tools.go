@@ -30,6 +30,48 @@ func mergeSep(str, sep string) string {
 
 }
 
+func loadDiseaseDb() {
+	// load disease database
+	log.Println("Load Disease Start")
+	var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
+		simpleUtil.HandleError(
+			simpleUtil.HandleError(
+				excelize.OpenFile(*diseaseExcel),
+			).(*excelize.File).
+				GetRows(*diseaseSheetName),
+		).([][]string),
+	)
+	for _, item := range diseaseMapArray {
+		if item["报告逻辑"] != "" {
+			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
+		}
+		var mainKey = item["基因"]
+		var mainItem, ok = diseaseDb[mainKey]
+		if ok {
+			for _, k := range diseaseTitle {
+				if k == "报告逻辑" {
+					if item[k] != "" {
+						if mainItem[k] == "" {
+							mainItem[k] = item[k]
+						} else {
+							mainItem[k] += diseaseSep + item[k]
+						}
+					}
+				} else {
+					mainItem[k] += diseaseSep + item[k]
+				}
+			}
+		} else {
+			mainItem = item
+		}
+		diseaseDb[mainKey] = mainItem
+	}
+	for gene, info := range diseaseDb {
+		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
+		geneInheritance[gene] = info["遗传模式"]
+	}
+}
+
 func loadDb() {
 	log.Println("Load Database Start")
 	// load gene info list
@@ -79,22 +121,7 @@ func loadDb() {
 		cnvDb[key] = m
 	}
 
-	// load disease database
-	log.Println("Load Disease Start")
-	diseaseDb, _ = simpleUtil.Slice2MapMapArrayMerge(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(*diseaseExcel),
-			).(*excelize.File).
-				GetRows(*diseaseSheetName),
-		).([][]string),
-		"基因",
-		diseaseSep,
-	)
-	for gene, info := range diseaseDb {
-		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
-		geneInheritance[gene] = info["遗传模式"]
-	}
+	loadDiseaseDb()
 
 	// load drop list
 	log.Println("Load DropList Start")
@@ -130,13 +157,15 @@ var formulaTitle = map[string]bool{
 }
 
 var hyperLinkTitle = map[string]bool{
-	"β地贫_最终结果":      true,
-	"α地贫_最终结果":      true,
+	"β地贫_最终结果": true,
+	"α地贫_最终结果": true,
+
 	"reads_picture": true,
-	"P0":            true,
-	"P1":            true,
-	"P2":            true,
-	"P3":            true,
+
+	"P0": true,
+	"P1": true,
+	"P2": true,
+	"P3": true,
 }
 
 var (
@@ -276,6 +305,17 @@ func updateDisease(item map[string]string) {
 		item["ModeInheritance"] = item["遗传模式"]
 		item["疾病简介"] = disease["疾病简介"]
 		item["包装疾病分类"] = disease["包装疾病分类"]
+		item["报告逻辑"] = disease["报告逻辑"]
+	}
+	if *cs {
+		item["遗传模式"] = item["Inheritance"]
+		item["疾病中文名"] = item["Chinese disease name"]
+		item["中文-疾病背景"] = item["Chinese disease introduction"]
+		item["中文-突变详情"] = item["Chinese mutation information"]
+		item["Disease*"] = item["English disease name"]
+		item["英文-疾病背景"] = item["English disease introduction"]
+		item["英文-突变详情"] = item["English mutation information"]
+		item["参考文献"] = item["Reference-final-Info"]
 	}
 }
 
@@ -352,70 +392,81 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["In BGI database"] = "否"
 	}
 
-	var (
-		transcript = item["Transcript"]
-		c          = item["cHGVS"]
-		cAlt       = cHgvsAlt(c)
-		cStd       = cHgvsStd(c)
-		mainKey    = transcript + "\t" + c
-		mainKey1   = transcript + "\t" + cAlt
-		mainKey2   = transcript + "\t" + cStd
-	)
-	var db, ok = localDb[mainKey]
-	if !ok {
-		db, ok = localDb[mainKey1]
-	}
-	if !ok {
-		db, ok = localDb[mainKey2]
-	}
-	if ok {
-		if db["是否是包装位点"] == "是" {
-			if *im {
-				item["报告类别"] = "是"
-				item["In BGI database"] = "是"
-			}
-			item["Database"] = "NBS-in"
-			item["isReport"] = "Y"
-			if subFlag {
-				if geneSubListMap[item["Gene Symbol"]] {
-					item["报告类别-原始"] = "正式报告"
+	if *cs {
+		readsPicture(item)
+		item["#Chr"] = addChr(item["#Chr"])
+	} else {
+		var (
+			transcript = item["Transcript"]
+			c          = item["cHGVS"]
+			cAlt       = cHgvsAlt(c)
+			cStd       = cHgvsStd(c)
+			mainKey    = transcript + "\t" + c
+			mainKey1   = transcript + "\t" + cAlt
+			mainKey2   = transcript + "\t" + cStd
+		)
+
+		var db, ok = localDb[mainKey]
+		if !ok {
+			db, ok = localDb[mainKey1]
+		}
+		if !ok {
+			db, ok = localDb[mainKey2]
+		}
+		if ok {
+			if db["是否是包装位点"] == "是" {
+				if *im {
+					item["报告类别"] = "是"
+					item["In BGI database"] = "是"
+				}
+				item["Database"] = "NBS-in"
+				item["isReport"] = "Y"
+				if subFlag {
+					if geneSubListMap[item["Gene Symbol"]] {
+						item["报告类别-原始"] = "正式报告"
+					} else {
+						item["报告类别-原始"] = "补充报告"
+					}
+
 				} else {
+					item["报告类别-原始"] = "正式报告"
+				}
+			} else {
+				item["Database"] = "NBS-out"
+				if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
+					item["isReport"] = "Y"
 					item["报告类别-原始"] = "补充报告"
 				}
-
-			} else {
-				item["报告类别-原始"] = "正式报告"
 			}
+			item["参考文献"] = db["Reference"]
+			item["位点关联疾病"] = db["Disease"]
+			item["位点关联遗传模式"] = db["遗传模式"]
+			//item["Evidence New + Check"] = db["证据项"]
+			item["Definition"] = db["Definition"]
 		} else {
-			item["Database"] = "NBS-out"
+			item["Database"] = "."
 			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-				item["isReport"] = "Y"
 				item["报告类别-原始"] = "补充报告"
+				item["isReport"] = "Y"
 			}
 		}
-		item["参考文献"] = db["Reference"]
-		item["位点关联疾病"] = db["Disease"]
-		item["位点关联遗传模式"] = db["遗传模式"]
-		//item["Evidence New + Check"] = db["证据项"]
-		item["Definition"] = db["Definition"]
-	} else {
-		item["Database"] = "."
-		if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-			item["报告类别-原始"] = "补充报告"
-			item["isReport"] = "Y"
-		}
+		readsPicture(item)
 	}
 	anno.UpdateFunction(item)
-	acmg2015.AddEvidences(item)
-	item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
-	anno.UpdateAutoRule(item)
+	if *acmg {
+		acmg2015.AddEvidences(item)
+		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
+		anno.UpdateAutoRule(item)
+	}
 	if filterAvd(item) {
 		item["filterAvd"] = "Y"
 	}
 	updateAf(item)
+	if *cs {
+		anno.FloatFormat(item)
+	}
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
-	readsPicture(item)
 }
 
 func ifCheck(item map[string]string) string {
@@ -444,19 +495,17 @@ func ifCheck(item map[string]string) string {
 }
 
 func readsPicture(item map[string]string) {
-	if ifPlotReads(item) {
-		var sampleID = item["SampleID"]
-		var chr = item["#Chr"]
-		if chr == "MT" {
-			chr = "chrM_NC_012920.1"
-		} else {
-			chr = "chr" + chr
-		}
-		var stop = item["Stop"]
-		var png = strings.Join([]string{sampleID, chr, stop}, "_") + ".png"
-		item["reads_picture"] = png
-		item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
+	var sampleID = item["SampleID"]
+	var chr = item["#Chr"]
+	if chr == "MT" {
+		chr = "chrM_NC_012920.1"
+	} else {
+		chr = "chr" + chr
 	}
+	var stop = item["Stop"]
+	var png = strings.Join([]string{sampleID, chr, stop}, "_") + ".png"
+	item["reads_picture"] = png
+	item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
 }
 
 func ifPlotReads(item map[string]string) bool {
@@ -484,11 +533,11 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	info.count(item)
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
-		info.性别 = "M"
+		info.gender = "M"
 		UpdateGeneHash(geneHash, item, "M")
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
-		info.性别 = "F"
+		info.gender = "F"
 		UpdateGeneHash(geneHash, item, "F")
 	}
 	geneInfo[item["Gene Symbol"]] = info
@@ -621,17 +670,7 @@ func updateDmd(item map[string]string) {
 	} else {
 		item["primerDesign"] = "-"
 	}
-	var pngSuffix = "." + item["gene"] + "." + item["NM"] + ".png"
-	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+"."+pngSuffix)
-	var info, ok = sampleInfos[item["SampleID"]]
-	if ok {
-		item["P0"] = info.p0
-		updateP(item, "P1", info.p1, pngSuffix)
-		updateP(item, "P2", info.p2, pngSuffix)
-		updateP(item, "P3", info.p3, pngSuffix)
-	} else {
-		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
-	}
+	updateDMDHyperlLink(item)
 }
 
 func updateP(item map[string]string, k, v, suffix string) {
@@ -653,17 +692,21 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 	}
 	if item["chr11"] == "N" {
 		bResult = "阴性"
-	} else if item["chr11"] == "." {
-		bResult = "灰区"
 	} else {
 		bResult = item["chr11"]
 	}
 	if item["chr16"] == "N" {
 		aResult = "阴性"
-	} else if item["chr16"] == "." {
-		aResult = "灰区"
 	} else {
 		aResult = item["chr16"]
+	}
+	if *im {
+		if aResult == "." {
+			aResult = "灰区"
+		}
+		if bResult == "." {
+			bResult = "灰区"
+		}
 	}
 	info["SampleID"] = item["sample"]
 	info["地贫_QC"] = item["QC"]
@@ -731,6 +774,42 @@ func updateSma2(item map[string]string, db map[string]map[string]string) {
 	}
 	info["SMN1_CN"] = item["SMN1_CN"]
 	info["SMN1_CN_raw"] = item["SMN1_CN_raw"]
+	if *cs {
+		info["SMN1_质控结果"] = "fail"
+		info["SMN1_检测结果"] = ""
+		info["SMN1 EX7 del最终结果"] = "_等验证"
+		if info["SMN1_CN"] == "None" {
+			info["SMN1_检测结果"] = "."
+		} else {
+			var cn, err = strconv.ParseFloat(info["SMN1_CN"], 64)
+			if err == nil {
+				if cn == 0 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "纯合阳性"
+					info["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
+				} else if cn == 0.5 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "纯合灰区"
+					info["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
+
+				} else if cn == 1 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "杂合阳性"
+					info["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
+
+				} else if cn == 1.5 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "杂合灰区"
+					info["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
+
+				} else if cn >= 2 {
+					info["SMN1_质控结果"] = "pass"
+					info["SMN1_检测结果"] = "阴性"
+					info["SMN1 EX7 del最终结果"] = "阴性"
+				}
+			}
+		}
+	}
 	db[sampleID] = info
 }
 
@@ -738,6 +817,8 @@ func updateAe(item map[string]string) {
 	updateABC(item)
 	if *wgs {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W60S50_cne.jpg")
+	} else if *cs {
+		item["HyperLink"] = filepath.Join("batCNV", item["SampleID"]+"_W60S50_cne.jpg")
 	} else {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
 	}
@@ -751,6 +832,9 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
 	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
 	for j, k := range title {
+		if *im {
+			item[k] = getI18n(item[k])
+		}
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 		if formulaTitle[k] {
 			simpleUtil.CheckErr(excel.SetCellFormula(sheetName, axis, item[k]))
@@ -810,10 +894,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 			geneInfo = make(map[string]*GeneInfo)
 			for _, gene := range genes {
 				geneInfo[gene] = &GeneInfo{
-					基因:   gene,
-					遗传模式: geneInheritance[gene],
-					cnv:  true,
-					cnv0: cn == 0,
+					gene:        gene,
+					inheritance: geneInheritance[gene],
+					cnv:         true,
+					cnv0:        cn == 0,
 				}
 			}
 			SampleGeneInfo[sampleID] = geneInfo
@@ -822,10 +906,10 @@ func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
 				var info, ok = geneInfo[gene]
 				if !ok {
 					geneInfo[gene] = &GeneInfo{
-						基因:   gene,
-						遗传模式: geneInheritance[gene],
-						cnv:  true,
-						cnv0: cn == 0,
+						gene:        gene,
+						inheritance: geneInheritance[gene],
+						cnv:         true,
+						cnv0:        cn == 0,
 					}
 				} else {
 					info.cnv = true
@@ -841,7 +925,7 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	for _, gene := range genes {
 		var info, ok = SampleGeneInfo[sampleID][gene]
 		if ok {
-			info.标签4()
+			info.Tag4()
 			if info.tag3 != "" {
 				tagMap[info.tag3] = true
 			}
@@ -865,7 +949,14 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 	var rIdx = len(rows)
 	for i, item := range db {
 		rIdx++
-		updateQC(item, i)
+		if *cs {
+			item["Q20(%)"] = item["Q20"]
+			item["Q30(%)"] = item["Q30"]
+			item["sampleID"] = item["Sample"]
+			updateInfo(item)
+		} else {
+			updateQC(item, i)
+		}
 		updateINDEX(item, "B", rIdx)
 		writeRow(excel, *qcSheetName, item, title, rIdx)
 	}
@@ -873,15 +964,15 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 
 func updateQC(item map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
+	item["Gender"] = item["gender_analysed"]
 	if *im {
 		updateInfo(item)
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
-		} else {
-			item["Gender"] = item["gender_analysed"]
 		}
 		updateColumns(item, sheetTitleMap["QC"])
 	} else {
+		updateColumns(item, sheetTitleMap["QC"])
 		var inputGender = "null"
 		if limsInfo[item["Sample"]]["SEX"] == "1" {
 			inputGender = "M"
@@ -943,6 +1034,7 @@ var infoTitle = []string{
 	"Received Date",
 	"ProductID_ProductName",
 	"Clinical information",
+	"ProductID",
 	"TaskID",
 	"flow ID",
 	"Lane ID",
@@ -954,6 +1046,12 @@ func updateInfo(item map[string]string) {
 	var sampleID = item["sampleID"]
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
+	}
+	if *cs {
+		item["期数"] = item["TaskID"]
+		item["flow ID"] = item["flow ID"]
+		item["产品编号"] = item["ProductID"]
+		item["产品编码_产品名称"] = item["ProductID_ProductName"]
 	}
 }
 
@@ -974,6 +1072,7 @@ func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handl
 	for _, item := range db {
 		rIdx++
 		fn(item)
+		updateINDEX(item, "D", rIdx)
 		writeRow(excel, sheetName, item, title, rIdx)
 	}
 }
@@ -1005,10 +1104,48 @@ func updateSample(item map[string]string) {
 	updateColumns(item, sheetTitleMap["Sample"])
 }
 
-func updateDMD(item map[string]string) {
+func updateNator(item map[string]string) {
 	item["#sample"] = item["Sample"]
 	item["sampleID"] = item["Sample"]
+	item["SampleID"] = item["Sample"]
+	item["Source"] = "Nator"
 	updateABC(item)
+	updateInfo(item)
+	item["gender"] = item["Sex"]
+	if *cs {
+		item["Chr"] = addChr(item["Chr"])
+		item["P0_HyperLink"] = filepath.Join("PP100_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
+	}
+}
+
+func updateDMDHyperlLink(item map[string]string) {
+	var (
+		sampleID  = item["SampleID"]
+		pngSuffix = "." + item["gene"] + "." + item["NM"] + ".png"
+	)
+	item["P0_HyperLink"] = filepath.Join("DMD_exon_graph", item["SampleID"]+pngSuffix)
+	var info, ok = sampleInfos[item["SampleID"]]
+	if ok {
+		item["P0"] = info.p0
+		updateP(item, "P1", info.p1, pngSuffix)
+		updateP(item, "P2", info.p2, pngSuffix)
+		updateP(item, "P3", info.p3, pngSuffix)
+	} else {
+		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
+	}
+}
+
+func updateLumpy(item map[string]string) {
+
+	item["Chr"] = item["CHROM"]
+	item["Start"] = item["POS"]
+	item["End"] = item["END"]
+	item["CNV_type"] = item["SVTYPE"]
+	item["Gene"] = item["OMIM_Gene"]
+	item["OMIM_EX"] = item["OMIM_exon"]
+
+	updateNator(item)
+	item["Source"] = "Lumpy"
 }
 
 func updateFeature(item map[string]string) {

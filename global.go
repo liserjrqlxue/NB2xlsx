@@ -40,10 +40,10 @@ var (
 
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
-	limsInfo       map[string]map[string]string
+	limsInfo       = make(map[string]map[string]string)
 	imInfo         map[string]map[string]string
 
-	columnName    string
+	columnName    = "字段-中心实验室"
 	sheetTitle    = make(map[string][]string)
 	sheetTitleMap = make(map[string]map[string]string)
 
@@ -68,17 +68,6 @@ var (
 var codeKey = "c3d112d6a47a0a04aad2b9d2d2cad266"
 
 // tag
-
-// GeneInfo : struct info of gene
-type GeneInfo struct {
-	基因                      string
-	遗传模式                    string
-	性别                      string
-	PLP, hetPLP, VUS, HpVUS int
-	cnv, cnv0               bool
-	tag3                    string
-	tag4                    bool
-}
 
 var tag7gene = make(map[string]bool)
 
@@ -137,4 +126,24 @@ var (
 		"GnomAD EAS AF": true,
 	}
 	afThreshold = 1e-4
+)
+
+// CS
+var (
+	top1kGene = make(map[string]bool)
+)
+
+// IM
+var (
+	i18n string
+	I18n = make(map[string]map[string]string)
+
+	imSheetList = []string{
+		"Sample",
+		"QC",
+		"SNV&INDEL",
+		"DMD CNV",
+		"THAL CNV",
+		"SMN1 CNV",
+	}
 )

@@ -27,11 +27,21 @@ func init() {
 	}
 }
 
+func getI18n(key string) string {
+	var value, ok = I18n[key][i18n]
+	if ok {
+		return value
+	}
+	return key
+}
+
 func main() {
 	if osUtil.FileExists(*gender) {
 		log.Printf("load gender map from %s", *gender)
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
+
+	I18n, _ = textUtil.File2MapMap(filepath.Join(etcPath, "i18n.txt"), "CN", "\t", nil)
 
 	var (
 		localDb      = make(chan bool, 1)
@@ -53,66 +63,47 @@ func main() {
 
 	loadDb()
 
-	limsInfo = loadLimsInfo()
+	if *lims != "" {
+		limsInfo = loadLimsInfo()
+	}
 
 	if *batchCNV != "" {
 		loadBatchCNV(*batchCNV)
 	}
 
+	if *info != "" {
+		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	}
+
+	if *cs {
+		for _, s := range textUtil.File2Array(filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")) {
+			top1kGene[s] = true
+		}
+	}
+
 	if *im {
-		if *info != "" {
-			imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
-		}
+		updateColumName()
+	}
 
-		var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
-		var typeMode = make(map[string]bool)
-		for _, m := range imInfo {
-			typeMode[productMap[m["ProductID"]]["productType"]] = true
-		}
-		if typeMode["CN"] && typeMode["EN"] {
-			log.Fatalln("Conflict for CN or EN!")
-		} else if typeMode["CN"] {
-			columnName = "字段-一体机中文"
-		} else if typeMode["EN"] {
-			columnName = "字段-一体机英文"
-		} else {
-			log.Fatalln("No CN or EN!")
-		}
+	updateSheetTitleMap()
 
-		var imSheetList = []string{
-			"Sample",
-			"QC",
-			"SNV&INDEL",
-			"DMD CNV",
-			"THAL CNV",
-			"SMN1 CNV",
+	if *im {
+		initExcel(excel)
+	} else {
+		var templateXlsx = *template
+		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
+			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
 		}
+		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
+	}
+	styleInit(excel)
 
-		excel = excelize.NewFile()
-		for _, s := range imSheetList {
-			excel.NewSheet(s)
-			var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
-			var titleMap = make(map[string]string)
-			var title []string
-			for _, m := range titleMaps {
-				title = append(title, m[columnName])
-				titleMap[m["Raw"]] = m[columnName]
-			}
-			sheetTitle[s] = title
-			sheetTitleMap[s] = titleMap
-			writeTitle(excel, s, title)
-		}
-		excel.DeleteSheet("Sheet1")
-		styleInit(excel)
-
+	if *im {
 		// Sample
 		if *info != "" {
 			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
 		}
 	} else {
-		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-		styleInit(excel)
-
 		// bam文件路径
 		if *bamPath != "" {
 			updateBamPath(excel, *bamPath)
@@ -148,7 +139,7 @@ func main() {
 
 	// write CNV after runAvd
 	// CNV
-	{
+	if !*cs {
 		runAvd <- true
 		writeDmd <- true
 		goUpdateCNV(excel, writeDmd)
@@ -169,15 +160,19 @@ func main() {
 		if *geneIDList != "" {
 			updateDataList2Sheet(excel, "基因ID", *geneIDList, updateABC)
 		}
+	}
 
-		// DMD-lumpy
-		if *lumpy != "" {
-			updateDataFile2Sheet(excel, "DMD-lumpy", *lumpy, updateDMD)
-		}
-		// DMD-nator
-		if *nator != "" {
-			updateDataFile2Sheet(excel, "DMD-nator", *nator, updateDMD)
-		}
+	var dmdCNVsheet = "CNV"
+	if *cs {
+		dmdCNVsheet = "DMD CNV"
+	}
+	// DMD-lumpy
+	if *lumpy != "" {
+		updateDataFile2Sheet(excel, dmdCNVsheet, *lumpy, updateLumpy)
+	}
+	// DMD-nator
+	if *nator != "" {
+		updateDataFile2Sheet(excel, dmdCNVsheet, *nator, updateNator)
 	}
 
 	{

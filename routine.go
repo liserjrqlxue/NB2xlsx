@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/liserjrqlxue/acmg2015"
+	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/xuri/excelize/v2"
@@ -25,6 +26,8 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 		subFlag = false
 
 		geneHash = make(map[string]string)
+
+		inheritDb = make(map[string]map[string]int)
 
 		filterData []map[string]string
 	)
@@ -48,11 +51,22 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	for _, item := range avd {
 		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
+		if *cs {
+			// 烈性突变
+			anno.UpdateSnvTier1(item)
+
+			// 遗传相符
+			item["Zygosity"] = anno.ZygosityFormat(item["Zygosity"])
+			anno.InheritCheck(item, inheritDb)
+		}
 	}
 
 	// cycle 2
 	for _, item := range avd {
-		if item["filterAvd"] == "Y" {
+		if *cs {
+			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
+			filterData = append(filterData, item)
+		} else if item["filterAvd"] == "Y" {
 			var info, ok = geneInfo[item["Gene Symbol"]]
 			if !ok {
 				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
@@ -112,13 +126,16 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	}
 	if len(avdArray) > 0 {
 		log.Println("Start load AVD")
+
 		// acmg
-		acmg2015.AutoPVS1 = *autoPVS1
-		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
-		for k, v := range acmgCfg {
-			acmgCfg[k] = filepath.Join(dbPath, v)
+		if *acmg {
+			acmg2015.AutoPVS1 = *autoPVS1
+			var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
+			for k, v := range acmgCfg {
+				acmgCfg[k] = filepath.Join(dbPath, v)
+			}
+			acmg2015.Init(acmgCfg)
 		}
-		acmg2015.Init(acmgCfg)
 
 		// wait runDmd done
 		runDmd <- true
@@ -151,6 +168,13 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	<-runAvd
 }
 
+func addChr(chr string) string {
+	return "Chr" + strings.Replace(
+		strings.Replace(chr, "chr", "", 1),
+		"Chr", "", 1,
+	)
+}
+
 func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, throttle chan bool) {
 	var sheetName = *avdSheetName
 	if *im {
@@ -164,13 +188,42 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 		for _, item := range avd {
 			rIdx++
 			updateINDEX(item, "D", rIdx)
+			var sampleID = item["SampleID"]
+			item["sampleID"] = sampleID
 			if *im {
-				var sampleID = item["SampleID"]
-				item["sampleID"] = sampleID
 				updateInfo(item)
 				updateColumns(item, sheetTitleMap[sheetName])
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
+				if *cs {
+					item["LOF"] = ""
+					item["disGroup"] = item["PP_disGroup"]
+					if top1kGene[item["Gene Symbol"]] {
+						item["是否国内（际）包装变异"] = "国内包装基因"
+					}
+					item["Database"] = ""
+					switch item["Auto ACMG + Check"] {
+					case "P":
+						item["Auto ACMG + Check"] = "Pathogenic"
+						item["Database"] = "DX1605"
+						item["是否是库内位点"] = "是"
+					case "LP":
+						item["Auto ACMG + Check"] = "Likely pathogenic"
+						item["Database"] = "DX1605"
+						item["是否是库内位点"] = "是"
+					case "", ".":
+						item["Auto ACMG + Check"] = "待解读"
+					}
+					if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
+						item["Auto ACMG + Check"] = "待解读"
+					}
+					item["突变类型"] = item["Auto ACMG + Check"]
+					if item["报告类别"] == "" || item["报告类别"] == "." {
+						item["报告类别"] = "正式报告"
+					}
+
+					updateInfo(item)
+				}
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
 		}
@@ -299,15 +352,19 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		rIdx++
 		updateAe(item)
 		updateINDEX(item, "D", rIdx)
+		var sampleID = item["SampleID"]
+		item["sampleID"] = sampleID
 		if *im {
-			var sampleID = item["SampleID"]
-			item["sampleID"] = sampleID
 			updateInfo(item)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])
 				writeRow(excel, s, item, sheetTitle[s], rIdx)
 			}
 		} else {
+			if *cs {
+				item["sex"] = item["Sex"]
+				updateInfo(item)
+			}
 			writeRow(excel, *aeSheetName, item, title, rIdx)
 		}
 	}
@@ -316,7 +373,12 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 // WriteQC write QC sheet to excel
 func WriteQC(excel *excelize.File, throttle chan bool) {
 	log.Println("Write QC Start")
-	writeQC(excel, loadQC(*qc))
+	if *cs {
+		var qcMaps, _ = textUtil.File2MapArray(*qc, "\t", nil)
+		writeQC(excel, qcMaps)
+	} else {
+		writeQC(excel, loadQC(*qc))
+	}
 	log.Println("Write QC Done")
 	<-throttle
 }
