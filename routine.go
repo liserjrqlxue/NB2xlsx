@@ -191,7 +191,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 			var sampleID = item["SampleID"]
 			item["sampleID"] = sampleID
 			if *im {
-				updateInfo(item)
+				updateInfo(item, sampleID)
 				updateColumns(item, sheetTitleMap[sheetName])
 				writeRow(excel, sheetName, item, sheetTitle[sheetName], rIdx)
 			} else {
@@ -224,7 +224,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 					// style
 					item["报告类别-原始"] = item["报告类别"]
 
-					updateInfo(item)
+					updateInfo(item, sampleID)
 				}
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
@@ -357,7 +357,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		var sampleID = item["SampleID"]
 		item["sampleID"] = sampleID
 		if *im {
-			updateInfo(item)
+			updateInfo(item, sampleID)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])
 				writeRow(excel, s, item, sheetTitle[s], rIdx)
@@ -365,7 +365,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		} else {
 			if *cs {
 				item["sex"] = item["Sex"]
-				updateInfo(item)
+				updateInfo(item, sampleID)
 			}
 			writeRow(excel, *aeSheetName, item, title, rIdx)
 		}

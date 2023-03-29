@@ -953,7 +953,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 			item["Q20(%)"] = item["Q20"]
 			item["Q30(%)"] = item["Q30"]
 			item["sampleID"] = item["Sample"]
-			updateInfo(item)
+			updateInfo(item, item["Sample"])
 		} else {
 			updateQC(item, i)
 		}
@@ -966,7 +966,7 @@ func updateQC(item map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
 	item["Gender"] = item["gender_analysed"]
 	if *im {
-		updateInfo(item)
+		updateInfo(item, item["sampleID"])
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
 		}
@@ -1020,7 +1020,7 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 		rIdx++
 		fn(item)
 		if *im {
-			updateInfo(item)
+			updateInfo(item, item["sampleID"])
 			updateColumns(item, sheetTitleMap[sheetName])
 		}
 		writeRow(excel, sheetName, item, title, rIdx)
@@ -1042,8 +1042,7 @@ var infoTitle = []string{
 	"pipeline",
 }
 
-func updateInfo(item map[string]string) {
-	var sampleID = item["sampleID"]
+func updateInfo(item map[string]string, sampleID string) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
@@ -1105,12 +1104,13 @@ func updateSample(item map[string]string) {
 }
 
 func updateNator(item map[string]string) {
-	item["#sample"] = item["Sample"]
-	item["sampleID"] = item["Sample"]
-	item["SampleID"] = item["Sample"]
+	var sampleID = item["Sample"]
+	item["#sample"] = sampleID
+	item["sampleID"] = sampleID
+	item["SampleID"] = sampleID
 	item["Source"] = "Nator"
 	updateABC(item)
-	updateInfo(item)
+	updateInfo(item, sampleID)
 	item["gender"] = item["Sex"]
 	if *cs {
 		item["Chr"] = addChr(item["Chr"])
@@ -1156,7 +1156,7 @@ func updateFeature(item map[string]string) {
 func updateDrug(item map[string]string) {
 	if *wgs {
 		item["sampleID"] = item["样本编号"]
-		updateInfo(item)
+		updateInfo(item, item["样本编号"])
 	} else {
 		item["SampleID"] = item["样本编号"]
 		updateABC(item)
