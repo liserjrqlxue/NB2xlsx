@@ -1,0 +1,107 @@
+# version
+
+- [v0.23.0](cccce254)
+  - 2023/3/29
+  - :rotating_light: fix Non-ASCII characters
+  - :art: :recycle: Refactor code
+  - :bug: update titleMaps before fill Sample
+  - :wrench: add Source for Nator or Lumpy
+  - :wrench: update drop.list.txt
+  - WGS
+    - :bento: update **新生儿疾病库.wgs.xlsx** to V2.1-2023032
+    - :bento: upate template
+    - :wrench: clean old validation of Definition, use drop.list.txt
+  - CS
+    - :bento: upate template
+    - :wrench: readsPicture only for CS before addChr
+    - :wrench: add updateDMDHyperlLink, update thal&P0 HyperlLink for CS
+    - :wrench: not goUpdateCNV for CS
+  - IM
+    - :sparkles: add getI18n for IM
+- [v0.22.0](7c651570)
+  - 2023/3/24
+  - :bento: update 已解读数据库.json.aes to V2.3-20230324
+  - :bug: use diseaseTitle in case merge to empty key lost from rang
+  - :wrench: add PRDX1 to gene.exclude.list.txt
+  - :bento: update CS.BB.xlsx and NBS.wgs.xlsx, use NBS.wgs.xlsx when -wgs
+- [v0.21.0](d933787d)
+  - 2023/3/23
+  - :wrench: update Gender for QC
+  - :wrench: update Chr before updateDMD
+  - :wrench: FloatFormat only for CS
+  - :wrench: set thal . to '灰区' only for IM
+- [v0.20.0](48049684)
+  - 2023/3/23
+  - :bento: update 新生儿疾病库.xlsx to V2.2-2023.3.23
+  - :wrench: update diseaseDb load for `报告逻辑`
+- [v0.19.0](ec53a9f6)
+  - 2023/3/23
+  - :memo: update 疾病库数据库
+  - :memo: add and update checklist for NBSIM and WGSCS
+  - :bento: :wrench: update 新生儿疾病库.xlsx and annotate 报告逻辑
+  - :wrench: update template
+  - :sparkles: add addChr, use for #Chr Chr
+  - etc.
+- [v0.18.0](2ae521de)
+- [v0.17.0](ffd9a7af)
+- [v0.16.0](603da653)
+- [v0.15.0](124d33b8)
+- [v0.14.0](2bc323f7)
+- [v0.13.0](9f845d80)
+- [v0.12.0](588207a2)
+- [v0.11.1](63240803)
+- [v0.11.0](b07955b0)
+- [v0.10.0](14e3ff8f)
+- [v0.9.1](794f4771)
+- [v0.9.0](2c383931)
+- [v0.8.6](dabcf954)
+- [v0.8.5](bddfd253)
+- [v0.8.3](b2bedaf6)
+- [v0.8.1](aa05ac32)
+- [v0.8.0](e106a4cf)
+- [v0.7.5](267a0639)
+- [v0.7.4](ce7d4d6d)
+- [v0.7.3](e73444e1)
+  - 2021/4/14
+  - :wrench: 修改 疾病分隔符 '/' -> ';'
+  - :wrench: 修改 默认 疾病库
+- [v0.7.2](d413e74f)
+  - 2021/4/8
+  - :wrench: 更新 `补充报告` 规则
+  - `xlsx2summary`
+    - :adhesive_bandage: 更新 `prefixHBA`
+    - :adhesive_bandage: 跳过 空样品
+- [v0.7.1](c52bdd4f)
+  - 2021/4/6
+  - :wrench: 新增 `HGMDorClinvar`
+  - :wrench: 更新 `遗传模式判读`
+  - :bug: 修复 `标签5` 丢失
+  - :wrench: 新增 `isReport`
+- [v0.7.0](50462909)
+  - 2021/4/2
+  - :bento: 新增 `etc/患病风险.txt`
+  - :wrench: :adhesive_bandage: 更新 `xlsx2summary`
+- [v0.6.0](aa20750f)
+  - 2021/3/25
+  - :triangular_flag_on_post: `MutInfo.氨基酸改变` = `getAfterVerticalbar(item["pHGVS"])`
+  - :boom: 新增 `MutInfo.患病风险`
+  - :boom: 新增 `tools.go` : `getInfoFromAVD` `getInfoFromCNV` `getInfoFromAE`
+  - `xlsx2summary`
+    - :white_check_mark: 校验 汇总表
+    - :loud_sound: 警告 重复样品编号
+    - :wrench: 格式更新
+- [v0.5.0](6dcdc236)
+  - 2021/3/22
+- [v0.4.0](20677f37)
+  - 2021/1/6
+- [v0.3.0](595472d2)
+  - 2020/10/20
+  - :wrench: 使用 `anno.UpdateFunction`
+  - :wrench: 更新 `filterAvd`
+- [v0.2.0](ab74f685)
+  - 2020/9/30
+- [v0.1.0](073d11ad)
+  - 2020/8/14
+  - :tada: 初始化
+  - :bento: 使用模板
+  - :sparkles: `-avd`填充`-avdSheetName` Sheet
