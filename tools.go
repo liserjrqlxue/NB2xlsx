@@ -1047,7 +1047,7 @@ func updateInfo(item map[string]string) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
-	if *cs {
+	if *cs || *wgs {
 		item["期数"] = item["TaskID"]
 		item["flow ID"] = item["flow ID"]
 		item["产品编号"] = item["ProductID"]
