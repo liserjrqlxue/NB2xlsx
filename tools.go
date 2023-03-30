@@ -156,18 +156,6 @@ var formulaTitle = map[string]bool{
 	"审核人": true,
 }
 
-var hyperLinkTitle = map[string]bool{
-	"β地贫_最终结果": true,
-	"α地贫_最终结果": true,
-
-	"reads_picture": true,
-
-	"P0": true,
-	"P1": true,
-	"P2": true,
-	"P3": true,
-}
-
 var (
 	isClinVar = map[string]bool{
 		"Pathogenic":                   true,
@@ -821,6 +809,8 @@ func updateAe(item map[string]string) {
 	} else {
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
 	}
+	item["β地贫_chr11_HyperLink"] = item["HyperLink"]
+	item["α地贫_chr16_HyperLink"] = item["HyperLink"]
 	item["β地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["α地贫_最终结果_HyperLink"] = item["HyperLink"]
 	item["F8int1h-1.5k&2k最终结果"] = "检测范围外"
