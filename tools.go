@@ -249,7 +249,7 @@ func filterAvd(item map[string]string) bool {
 	if isClinVar[item["ClinVar Significance"]] {
 		return true
 	}
-	if item["ACMG"] == "B" || item["ACMG"] == "LB" {
+	if item["自动化判断"] == "B" || item["自动化判断"] == "LB" {
 		return false
 	}
 	if isHGMD[item["HGMD Pred"]] {
