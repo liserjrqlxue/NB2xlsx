@@ -1,5 +1,13 @@
 # version
 
+- [v0.24.0]
+  - :art: :recycle: add sampleID to updateInfo
+  - :art: :recycle: add sampleID to updateABC
+  - CS
+    - :sparkles: style for CS
+  - WGS
+    - :wrench: 填充样品信息
+    - :bento: 更新 NBS.wgs.xlsx
 - [v0.23.0](cccce254)
   - 2023/3/29
   - :rotating_light: fix Non-ASCII characters
