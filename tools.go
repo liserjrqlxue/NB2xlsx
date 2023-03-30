@@ -35,7 +35,7 @@ func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, 
 		if item["报告逻辑"] != "" {
 			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
 		}
-		var mainKey = item["key"]
+		var mainKey = item[key]
 		var mainItem, ok = diseaseDb[mainKey]
 		if ok {
 			for _, k := range diseaseTitle {
@@ -842,7 +842,7 @@ func writeRow(excel *excelize.File, sheetName string, item map[string]string, ti
 	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
 	for j, k := range title {
 		if *im {
-			item[k] = getI18n(item[k])
+			item[k] = getI18n(item[k], k)
 		}
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
 		if formulaTitle[k] {

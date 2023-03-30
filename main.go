@@ -27,12 +27,15 @@ func init() {
 	}
 }
 
-func getI18n(key string) string {
-	var value, ok = I18n[key][i18n]
+func getI18n(v, k string) string {
+	var value, ok = I18n[k+"."+v][i18n]
+	if !ok {
+		value, ok = I18n[v][i18n]
+	}
 	if ok {
 		return value
 	}
-	return key
+	return v
 }
 
 func main() {

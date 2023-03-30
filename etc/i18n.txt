@@ -14,3 +14,5 @@ CN	EN
 杂合阳性	Heterozygous
 纯合阳性	Homozygous
 致病变异	Pathogenic
+Official Report.是	Included
+Official Report.否	Not included
