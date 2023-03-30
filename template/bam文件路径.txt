@@ -1,0 +1,10 @@
+
+Description for special character in dbSNP(moved to pubmed column):
+PM	Variant is Precious(Clinical,Pubmed Cited)
+PMC	Links exist to PubMed Central article
+LSD	Submitted from a locus-specific database
+OM	Has OMIM/OMIA
+MUT	Is mutation (journal citation, explicit fact): a low frequency variation that is cited in journal and other reputable sources
+HD	Marker is on high density genotyping kit (50K density or greater). The variant may have phenotype associations present in dbGaP
+CDA	Variation is interrogated in a clinical diagnostic assay
+COMMON	RS is a common SNP. A common SNP is one that has at least one 1000Genomes population with a minor allele of frequency >= 1% and for which 2 or more founders contribute to that minor allele frequency

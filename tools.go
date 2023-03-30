@@ -1255,7 +1255,11 @@ func getCNVtype(gender string, item map[string]string) string {
 }
 
 func updateBamPath(excel *excelize.File, list string) {
-	for i, path := range textUtil.File2Array(list) {
+	var (
+		i    int
+		path string
+	)
+	for i, path = range textUtil.File2Array(list) {
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
 		simpleUtil.CheckErr(
 			excel.SetCellStr(
@@ -1264,5 +1268,17 @@ func updateBamPath(excel *excelize.File, list string) {
 				path,
 			),
 		)
+	}
+	if *cs {
+		for i2, line := range textUtil.File2Slice(filepath.Join(templatePath, "bam文件路径.txt"), "\t") {
+			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+i2+1)).(string)
+			simpleUtil.CheckErr(
+				excel.SetSheetRow(
+					*bamPathSheetName,
+					axis,
+					line,
+				),
+			)
+		}
 	}
 }
