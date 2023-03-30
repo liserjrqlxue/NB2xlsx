@@ -1,10 +1,21 @@
 # version
 
-- [v0.24.0]
-  - :art: :recycle: add sampleID to updateInfo
-  - :art: :recycle: add sampleID to updateABC
+- [v0.25.0]()
+  - 2023/3/30
+  - :wrench: change -drugSheetName default value 药物 -> 药物检测结果
+  - :art: :recycle: refator code
+  - IM
+    - :sparkles: loadDiseaseDb support EN for IM
+    - :sparkles: I18n support specific titles
+    - :bento: add 新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt
+    - :wrench: initExcel return new *excelize.File
+- [v0.24.0](a7ed2be9)
+  - 2023/3/30
+  - :memo: add CHANGELOG.md
+  - :art: :recycle: add sampleID to updateInfo and updateABC
   - CS
     - :sparkles: style for CS
+    - :wrench: add hyperlink for α地贫_chr16 β地贫_chr11 for CS
   - WGS
     - :wrench: 填充样品信息
     - :bento: 更新 NBS.wgs.xlsx
