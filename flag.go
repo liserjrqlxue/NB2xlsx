@@ -12,26 +12,37 @@ var (
 		"",
 		"batch name",
 	)
-	prefix = flag.String(
-		"prefix",
+	threshold = flag.Int(
+		"threshold",
+		12,
+		"threshold limit",
+	)
+)
+
+// input
+var (
+	// sample info
+	detail = flag.String(
+		"detail",
 		"",
-		"output to -prefix.xlsx,default is -batch.xlsx",
+		"sample info",
 	)
-	template = flag.String(
-		"template",
-		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
-		"template to be used",
+	gender = flag.String(
+		"gender",
+		"F",
+		"gender for all or gender map file",
 	)
-	bcTemplate = flag.String(
-		"bcTemplate",
-		filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx"),
-		"template to be used",
+	info = flag.String(
+		"info",
+		"",
+		"im info.txt",
 	)
-	dropList = flag.String(
-		"dropList",
-		filepath.Join(etcPath, "drop.list.txt"),
-		"drop list for excel",
+	lims = flag.String(
+		"lims",
+		"",
+		"lims.info",
 	)
+	// all variants data
 	avdList = flag.String(
 		"avdList",
 		"",
@@ -42,61 +53,19 @@ var (
 		"",
 		"All variants data file list, comma as sep",
 	)
-	avdSheetName = flag.String(
-		"avdSheetName",
-		"All variants data",
-		"All variants data sheet name",
-	)
-	diseaseExcel = flag.String(
-		"disease",
-		filepath.Join(etcPath, "新生儿疾病库.xlsx"),
-		"disease database excel",
-	)
-	diseaseSheetName = flag.String(
-		"diseaseSheetName",
-		"Sheet2",
-		"sheet name of disease database excel",
-	)
-	mutDb = flag.String(
-		"mutDb",
-		filepath.Join(etcPath, "已解读数据库.json.aes"),
-		"加密 已解读数据库",
-	)
-	acmgDb = flag.String(
-		"acmgDb",
-		filepath.Join(etcPath, "acmg.db.list.txt"),
-		"acmg db list",
-	)
-	autoPVS1 = flag.Bool(
-		"autoPVS1",
-		false,
-		"is use autoPVS1",
-	)
-	dmdFiles = flag.String(
-		"dmd",
+	// bam文件路径
+	bamPath = flag.String(
+		"bamPath",
 		"",
-		"DMD result file list, comma as sep",
+		"bamList file",
 	)
-	dmdList = flag.String(
-		"dmdList",
+	// batchCNV
+	batchCNV = flag.String(
+		"batchCNV",
 		"",
-		"DMD result file list, one path per line",
+		"batchCNV result",
 	)
-	dmdSheetName = flag.String(
-		"dmdSheetName",
-		"CNV",
-		"DMD result sheet name",
-	)
-	featureList = flag.String(
-		"feature",
-		"",
-		"个特 list",
-	)
-	geneIDList = flag.String(
-		"geneID",
-		"",
-		"基因ID list",
-	)
+	// 补充实验
 	dipinResult = flag.String(
 		"dipin",
 		"",
@@ -112,20 +81,116 @@ var (
 		"",
 		"sma result file",
 	)
-	aeSheetName = flag.String(
-		"aeSheetName",
-		"补充实验",
-		"Additional Experiments sheet name",
+	// DMD CNV
+	dmdFiles = flag.String(
+		"dmd",
+		"",
+		"DMD result file list, comma as sep",
 	)
+	dmdList = flag.String(
+		"dmdList",
+		"",
+		"DMD result file list, one path per line",
+	)
+	lumpy = flag.String(
+		"lumpy",
+		"",
+		"DMD-lumpy data",
+	)
+	nator = flag.String(
+		"nator",
+		"",
+		"DMD-nator data",
+	)
+	// 药物检测结果
 	drugResult = flag.String(
 		"drug",
 		"",
 		"drug result file",
 	)
+	// 个特
+	featureList = flag.String(
+		"feature",
+		"",
+		"个特 list",
+	)
+	// 基因ID
+	geneIDList = flag.String(
+		"geneID",
+		"",
+		"基因ID list",
+	)
+	// QC
+	qc = flag.String(
+		"qc",
+		"",
+		"qc excel",
+	)
+)
+
+// output
+var (
+	prefix = flag.String(
+		"prefix",
+		"",
+		"output to -prefix.xlsx,default is -batch.xlsx",
+	)
+
+	// output sheet name
+	aeSheetName = flag.String(
+		"aeSheetName",
+		"补充实验",
+		"Additional Experiments sheet name",
+	)
+	allSheetName = flag.String(
+		"allSheetName",
+		"Sheet1",
+		"all snv sheet name",
+	)
+	avdSheetName = flag.String(
+		"avdSheetName",
+		"All variants data",
+		"All variants data sheet name",
+	)
+	bamPathSheetName = flag.String(
+		"bamPathSheetName",
+		"bam文件路径",
+		"bamPath sheet name",
+	)
+	dmdSheetName = flag.String(
+		"dmdSheetName",
+		"CNV",
+		"DMD result sheet name",
+	)
 	drugSheetName = flag.String(
 		"drugSheetName",
 		"药物检测结果",
 		"drug sheet name",
+	)
+	qcSheetName = flag.String(
+		"qcSheet",
+		"QC",
+		"qc sheet name",
+	)
+)
+
+// config file
+var (
+	// etc
+	acmgDb = flag.String(
+		"acmgDb",
+		filepath.Join(etcPath, "acmg.db.list.txt"),
+		"acmg db list",
+	)
+	allColumns = flag.String(
+		"allColumns",
+		filepath.Join(etcPath, "avd.all.columns.txt"),
+		"all snv sheet title",
+	)
+	dropList = flag.String(
+		"dropList",
+		filepath.Join(etcPath, "drop.list.txt"),
+		"drop list for excel",
 	)
 	geneList = flag.String(
 		"geneList",
@@ -142,80 +207,35 @@ var (
 		filepath.Join(etcPath, "function.exclude.txt"),
 		"function list to exclude",
 	)
-	allSheetName = flag.String(
-		"allSheetName",
-		"Sheet1",
-		"all snv sheet name",
+	mutDb = flag.String(
+		"mutDb",
+		filepath.Join(etcPath, "已解读数据库.json.aes"),
+		"加密 已解读数据库",
 	)
-	allColumns = flag.String(
-		"allColumns",
-		filepath.Join(etcPath, "avd.all.columns.txt"),
-		"all snv sheet title",
+	// template
+	bcTemplate = flag.String(
+		"bcTemplate",
+		filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx"),
+		"template to be used",
 	)
-	gender = flag.String(
-		"gender",
-		"F",
-		"gender for all or gender map file",
+	template = flag.String(
+		"template",
+		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
+		"template to be used",
 	)
-	threshold = flag.Int(
-		"threshold",
-		12,
-		"threshold limit",
+)
+
+// disease
+var (
+	diseaseExcel = flag.String(
+		"disease",
+		filepath.Join(etcPath, "新生儿疾病库.xlsx"),
+		"disease database excel",
 	)
-	batchCNV = flag.String(
-		"batchCNV",
-		"",
-		"batchCNV result",
-	)
-	all = flag.Bool(
-		"all",
-		false,
-		"if output all snv",
-	)
-	lims = flag.String(
-		"lims",
-		"",
-		"lims.info",
-	)
-	info = flag.String(
-		"info",
-		"",
-		"im info.txt",
-	)
-	detail = flag.String(
-		"detail",
-		"",
-		"sample info",
-	)
-	qc = flag.String(
-		"qc",
-		"",
-		"qc excel",
-	)
-	qcSheetName = flag.String(
-		"qcSheet",
-		"QC",
-		"qc sheet name",
-	)
-	bamPath = flag.String(
-		"bamPath",
-		"",
-		"bamList file",
-	)
-	bamPathSheetName = flag.String(
-		"bamPathSheetName",
-		"bam文件路径",
-		"bamPath sheet name",
-	)
-	lumpy = flag.String(
-		"lumpy",
-		"",
-		"DMD-lumpy data",
-	)
-	nator = flag.String(
-		"nator",
-		"",
-		"DMD-nator data",
+	diseaseSheetName = flag.String(
+		"diseaseSheetName",
+		"Sheet2",
+		"sheet name of disease database excel",
 	)
 )
 
@@ -226,19 +246,29 @@ var (
 		false,
 		"if re-calculate ACMG2015",
 	)
+	all = flag.Bool(
+		"all",
+		false,
+		"if output all snv",
+	)
+	autoPVS1 = flag.Bool(
+		"autoPVS1",
+		false,
+		"is use autoPVS1",
+	)
 	cs = flag.Bool(
 		"cs",
 		false,
 		"if use for CS",
 	)
-	wgs = flag.Bool(
-		"wgs",
-		false,
-		"if use for wgs",
-	)
 	im = flag.Bool(
 		"im",
 		false,
 		"if use for im",
+	)
+	wgs = flag.Bool(
+		"wgs",
+		false,
+		"if use for wgs",
 	)
 )
