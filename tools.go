@@ -1272,7 +1272,7 @@ func updateBamPath(excel *excelize.File, list string) {
 	if *cs {
 		for i2, line := range textUtil.File2Slice(filepath.Join(templatePath, "bam文件路径.txt"), "\t") {
 			for j, s := range line {
-				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, i+i2+1)).(string)
+				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, i+i2+2)).(string)
 				simpleUtil.CheckErr(
 					excel.SetCellStr(
 						*bamPathSheetName,
