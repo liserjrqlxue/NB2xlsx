@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func updateColumName() {
+func parseProductCode() {
 	var productMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "product.txt"), "productCode", "\t", nil)
 	var typeMode = make(map[string]bool)
 	for _, m := range imInfo {

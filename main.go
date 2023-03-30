@@ -43,6 +43,7 @@ func main() {
 
 	I18n, _ = textUtil.File2MapMap(filepath.Join(etcPath, "i18n.txt"), "CN", "\t", nil)
 
+	// un-block channel bool
 	var (
 		localDb      = make(chan bool, 1)
 		runAe        = make(chan bool, 1)
@@ -52,8 +53,8 @@ func main() {
 		runQC        = make(chan bool, 1)
 		saveMain     = make(chan bool, 1)
 		saveBatchCnv = make(chan bool, 1)
-		excel        *excelize.File
 	)
+	var excel *excelize.File
 
 	// load local db
 	{
@@ -82,8 +83,9 @@ func main() {
 	}
 
 	if *im {
-		updateColumName()
+		parseProductCode()
 	}
+	loadDiseaseDb(i18n)
 
 	updateSheetTitleMap()
 

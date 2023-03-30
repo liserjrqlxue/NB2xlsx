@@ -30,22 +30,12 @@ func mergeSep(str, sep string) string {
 
 }
 
-func loadDiseaseDb() {
-	// load disease database
-	log.Println("Load Disease Start")
-	var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(*diseaseExcel),
-			).(*excelize.File).
-				GetRows(*diseaseSheetName),
-		).([][]string),
-	)
+func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, key string) {
 	for _, item := range diseaseMapArray {
 		if item["报告逻辑"] != "" {
 			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
 		}
-		var mainKey = item["基因"]
+		var mainKey = item["key"]
 		var mainItem, ok = diseaseDb[mainKey]
 		if ok {
 			for _, k := range diseaseTitle {
@@ -66,10 +56,43 @@ func loadDiseaseDb() {
 		}
 		diseaseDb[mainKey] = mainItem
 	}
-	for gene, info := range diseaseDb {
-		info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
-		geneInheritance[gene] = info["遗传模式"]
+}
+
+func loadDiseaseDb(i18n string) {
+	// load disease database
+	log.Println("Load Disease Start")
+	if i18n == "EN" {
+		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+			filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt"),
+			"\t", nil,
+		)
+		buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
+		for gene, m := range diseaseDb {
+			m["疾病"] = m["Condition Name"]
+			m["遗传模式"] = m["Inherited Mode"]
+			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+			m["疾病简介"] = m["Disease Generalization"]
+			m["包装疾病分类"] = m["Condition Category"]
+			geneInheritance[gene] = m["遗传模式"]
+		}
+	} else {
+		var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
+			simpleUtil.HandleError(
+				simpleUtil.HandleError(
+					excelize.OpenFile(*diseaseExcel),
+				).(*excelize.File).
+					GetRows(*diseaseSheetName),
+			).([][]string),
+		)
+
+		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
+
+		for gene, info := range diseaseDb {
+			info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
+			geneInheritance[gene] = info["遗传模式"]
+		}
 	}
+	log.Println("Load Database Done")
 }
 
 func loadDb() {
@@ -121,14 +144,11 @@ func loadDb() {
 		cnvDb[key] = m
 	}
 
-	loadDiseaseDb()
-
 	// load drop list
 	log.Println("Load DropList Start")
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
-	log.Println("Load Database Done")
 
 	// load sample detail
 	if *detail != "" {
