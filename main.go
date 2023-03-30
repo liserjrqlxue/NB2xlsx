@@ -112,37 +112,39 @@ func main() {
 
 	// QC
 	if *qc != "" {
-		runQC <- true
+		wait(runQC)
 		WriteQC(excel, runQC)
 	}
 
 	// CNV
 	// QC -> DMD
-	{
-		runQC <- true
-		loadDmd <- true
-		LoadDmd(excel, loadDmd)
-	}
+	wait(runQC, loadDmd)
+	LoadDmd(excel, loadDmd)
 
 	// 补充实验
-	{
-		runAe <- true
-		WriteAe(excel, runAe)
-	}
+	wait(runAe)
+	WriteAe(excel, runAe)
 
 	// All variant data
-	{
-		localDb <- true
-		runAvd <- true
-		goWriteAvd(excel, loadDmd, runAvd, *all)
-	}
+	wait(localDb, runAvd)
+	goWriteAvd(excel, loadDmd, runAvd, *all)
 
 	// write CNV after runAvd
 	// CNV
-	if !*cs {
-		runAvd <- true
-		writeDmd <- true
+	wait(runAvd)
+	if *cs {
+		*dmdSheetName = "DMD CNV"
+	} else {
+		wait(writeDmd)
 		goUpdateCNV(excel, writeDmd)
+	}
+	// DMD-lumpy
+	if *lumpy != "" {
+		updateDataFile2Sheet(excel, *dmdSheetName, *lumpy, updateLumpy)
+	}
+	// DMD-nator
+	if *nator != "" {
+		updateDataFile2Sheet(excel, *dmdSheetName, *nator, updateNator)
 	}
 
 	// drug, no use
@@ -160,35 +162,19 @@ func main() {
 		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateGeneID)
 	}
 
-	var dmdCNVsheet = "CNV"
-	if *cs {
-		dmdCNVsheet = "DMD CNV"
-	}
-	// DMD-lumpy
-	if *lumpy != "" {
-		updateDataFile2Sheet(excel, dmdCNVsheet, *lumpy, updateLumpy)
-	}
-	// DMD-nator
-	if *nator != "" {
-		updateDataFile2Sheet(excel, dmdCNVsheet, *nator, updateNator)
-	}
+	wait(saveBatchCnv)
+	go goWriteBatchCnv(saveBatchCnv)
 
-	{
-		saveBatchCnv <- true
-		go goWriteBatchCnv(saveBatchCnv)
-	}
-
-	{
-		runAe <- true
-		writeDmd <- true
-		saveMain <- true
-		go saveMainExcel(excel, *prefix+".xlsx", saveMain)
-	}
+	wait(runAe, writeDmd, saveMain)
+	go saveMainExcel(excel, *prefix+".xlsx", saveMain)
 
 	// waite excel write done
-	{
-		saveMain <- true
-		saveBatchCnv <- true
-	}
+	wait(saveMain, saveBatchCnv)
 	log.Println("All Done")
+}
+
+func wait(ch ...chan<- bool) {
+	for _, bools := range ch {
+		bools <- true
+	}
 }
