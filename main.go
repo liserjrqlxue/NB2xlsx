@@ -93,7 +93,7 @@ func main() {
 	updateSheetTitleMap()
 
 	if *im {
-		initExcel(excel)
+		excel = initExcel()
 	} else {
 		var templateXlsx = *template
 		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {

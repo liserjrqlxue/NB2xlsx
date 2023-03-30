@@ -40,8 +40,8 @@ func updateSheetTitleMap() {
 	}
 }
 
-func initExcel(excel *excelize.File) {
-	excel = excelize.NewFile()
+func initExcel() *excelize.File {
+	var excel = excelize.NewFile()
 	for _, s := range imSheetList {
 		excel.NewSheet(s)
 		var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
@@ -52,4 +52,5 @@ func initExcel(excel *excelize.File) {
 		writeTitle(excel, s, title)
 	}
 	excel.DeleteSheet("Sheet1")
+	return excel
 }
