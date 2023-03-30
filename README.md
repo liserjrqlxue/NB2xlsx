@@ -88,7 +88,7 @@ PPM1K、GCSH、PRODH、BCAT1、BCAT2、HAL、CD320、ACAA1、ACAA2、LDLR
 3. **定义** 频率列表 `avdAfList` ["ESP6500 AF","1000G AF","ExAC AF","GnomAD AF","ExAC EAS AF","GnomAD EAS AF",]
 4. **过滤** `avdAfList` > 0.05
 5. **保留** "ClinVar Significance" in ["Pathogenic","Likely_pathogenic","Pathogenic/Likely_pathogenic"]
-6. **过滤** "ACMG" in ["B","LB"]
+6. **过滤** "自动化判断" in ["B","LB"]
 7. **保留** "HGMD Pred" in ["DM","DM?","DM/DM?"]
 8. **过滤** `avdAfList` > 0.01
 9. **保留** "Function" = "intron" 且 "SpliceAI Pred" = "D"
