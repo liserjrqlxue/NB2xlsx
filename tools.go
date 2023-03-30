@@ -378,18 +378,6 @@ func updateAf(item map[string]string) {
 	}
 }
 
-var floatFormatArray = []string{
-	"GnomAD AF",
-	"GnomAD EAS AF",
-	"ExAC AF",
-	"ExAC EAS AF",
-	"1000G AF",
-	"1000G EAS AF",
-	"ESP6500 AF",
-	"PVFD AF",
-	"dbSNP Allele Freq",
-}
-
 func updateAvd(item map[string]string, subFlag bool) {
 	updateABC(item, item["SampleID"])
 	item["HGMDorClinvar"] = "否"
@@ -483,21 +471,9 @@ func updateAvd(item map[string]string, subFlag bool) {
 	}
 	updateAf(item)
 	if *cs {
-		anno.FloatFormat(item)
+		floatFormat(item, afFloatFormatArray, 6)
 		// remove trailing zeros
-		for _, key := range floatFormatArray {
-			value := item[key]
-			if value == "" || value == "." {
-				item[key] = ""
-				return
-			}
-			floatValue, e := strconv.ParseFloat(value, 64)
-			if e != nil {
-				log.Printf("can not ParseFloat:%s[%s]\n", key, value)
-			} else {
-				item[key] = strconv.FormatFloat(floatValue, 'f', -1, 64)
-			}
-		}
+		floatFormat(item, afFloatFormatArray, -1)
 	}
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
@@ -977,6 +953,22 @@ func updateCnvTags(item map[string]string, sampleID string, genes ...string) {
 	item["Database"] = strings.Join(tags, ";")
 }
 
+func floatFormat(item map[string]string, keys []string, prec int) {
+	for _, key := range keys {
+		value := item[key]
+		if value == "" || value == "." {
+			item[key] = ""
+			return
+		}
+		floatValue, e := strconv.ParseFloat(value, 64)
+		if e != nil {
+			log.Printf("can not ParseFloat:%s[%s]\n", key, value)
+		} else {
+			item[key] = strconv.FormatFloat(floatValue, 'f', prec, 64)
+		}
+	}
+}
+
 // QC
 func writeQC(excel *excelize.File, db []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
@@ -988,6 +980,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 			item["Q20(%)"] = item["Q20"]
 			item["Q30(%)"] = item["Q30"]
 			item["sampleID"] = item["Sample"]
+			floatFormat(item, qcFloatFormatArray, 2)
 			updateInfo(item, item["Sample"])
 		} else {
 			updateQC(item, i)

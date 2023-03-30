@@ -152,8 +152,9 @@ var (
 var hyperLinkTitle = map[string]bool{
 	"β地贫_chr11": true,
 	"α地贫_chr16": true,
-	"β地贫_最终结果":  true,
-	"α地贫_最终结果":  true,
+
+	"β地贫_最终结果": true,
+	"α地贫_最终结果": true,
 
 	"reads_picture": true,
 
@@ -161,4 +162,25 @@ var hyperLinkTitle = map[string]bool{
 	"P1": true,
 	"P2": true,
 	"P3": true,
+}
+
+// float format
+var afFloatFormatArray = []string{
+	"GnomAD AF",
+	"GnomAD EAS AF",
+	"ExAC AF",
+	"ExAC EAS AF",
+	"1000G AF",
+	"1000G EAS AF",
+	"ESP6500 AF",
+	"PVFD AF",
+	"dbSNP Allele Freq",
+}
+
+var qcFloatFormatArray = []string{
+	"Q20(%)",
+	"Q30(%)",
+	"AverageDepth",
+	"Depth>=30(%)",
+	"GC(%)",
 }
