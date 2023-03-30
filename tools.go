@@ -1271,14 +1271,16 @@ func updateBamPath(excel *excelize.File, list string) {
 	}
 	if *cs {
 		for i2, line := range textUtil.File2Slice(filepath.Join(templatePath, "bam文件路径.txt"), "\t") {
-			var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+i2+1)).(string)
-			simpleUtil.CheckErr(
-				excel.SetSheetRow(
-					*bamPathSheetName,
-					axis,
-					line,
-				),
-			)
+			for j, s := range line {
+				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, i+i2+1)).(string)
+				simpleUtil.CheckErr(
+					excel.SetCellStr(
+						*bamPathSheetName,
+						axis,
+						s,
+					),
+				)
+			}
 		}
 	}
 }
