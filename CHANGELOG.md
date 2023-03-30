@@ -1,6 +1,6 @@
 # version
 
-- [v0.25.0]()
+- [v0.25.0](6dd2042a)
   - 2023/3/30
   - :wrench: change -drugSheetName default value 药物 -> 药物检测结果
   - :art: :recycle: refator code

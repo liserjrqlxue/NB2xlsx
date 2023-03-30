@@ -80,12 +80,12 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 		}
 	}
 
-	dbChan <- filterData
-
 	if all {
-		writeAll <- true
+		wait(writeAll)
 		goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
 	}
+
+	dbChan <- filterData
 
 	<-throttle
 }
