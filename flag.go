@@ -124,7 +124,7 @@ var (
 	)
 	drugSheetName = flag.String(
 		"drugSheetName",
-		"药物",
+		"药物检测结果",
 		"drug sheet name",
 	)
 	geneList = flag.String(
@@ -217,16 +217,6 @@ var (
 		"",
 		"DMD-nator data",
 	)
-	wgs = flag.Bool(
-		"wgs",
-		false,
-		"if wgs mode",
-	)
-	im = flag.Bool(
-		"im",
-		false,
-		"if im mode",
-	)
 )
 
 // boolean
@@ -240,5 +230,15 @@ var (
 		"cs",
 		false,
 		"if use for CS",
+	)
+	wgs = flag.Bool(
+		"wgs",
+		false,
+		"if use for wgs",
+	)
+	im = flag.Bool(
+		"im",
+		false,
+		"if use for im",
 	)
 )
