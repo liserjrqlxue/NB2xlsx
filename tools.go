@@ -1141,6 +1141,27 @@ func updateNator(item map[string]string) {
 	updateABC(item, sampleID)
 	updateInfo(item, sampleID)
 	item["gender"] = item["Sex"]
+
+	switch item["CNV_type"] {
+	case "deletion":
+		item["CNV_type"] = "DEL"
+	case "duplication":
+		item["CNV_type"] = "DUP"
+	}
+	item["OMIM_EX"] = strings.TrimSuffix(item["OMIM_EX"], ",")
+	item["primerDesign"] = strings.Join(
+		[]string{
+			item["Gene"],
+			item["NM"],
+			item["OMIM_EX"] + " " + item["CNV_type"],
+			"-",
+			item["OMIM_EX"],
+			item["OMIM_EX"],
+			item["杂合性"],
+		},
+		"; ",
+	)
+
 	if *cs {
 		item["Chr"] = addChr(item["Chr"])
 		item["P0_HyperLink"] = filepath.Join("PP100_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
