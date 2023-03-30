@@ -1148,6 +1148,39 @@ func updateNator(item map[string]string) {
 	case "duplication":
 		item["CNV_type"] = "DUP"
 	}
+	if item["normalized_RD"] != "" && item["CopyNum"] == "" {
+		var ratio, err = strconv.ParseFloat(item["normalized_RD"], 64)
+		if err == nil {
+			if item["gender"] == "M" && item["Chr"] == "chrX" {
+				if ratio <= 0.75 {
+					item["CopyNum"] = "0"
+					item["杂合性"] = "Hemi"
+				} else if ratio <= 1.25 {
+					item["CopyNum"] = "1"
+				} else if ratio <= 1.75 {
+					item["CopyNum"] = "2"
+				} else {
+					item["CopyNum"] = "3"
+				}
+			} else {
+				if ratio <= 0.2 {
+					item["CopyNum"] = "0"
+					item["杂合性"] = "Hom"
+				} else if ratio <= 0.75 {
+					item["CopyNum"] = "1"
+					item["杂合性"] = "Het"
+				} else if ratio <= 1.25 {
+					item["CopyNum"] = "2"
+				} else if ratio <= 1.75 {
+					item["CopyNum"] = "3"
+					item["杂合性"] = "Het"
+				} else {
+					item["CopyNum"] = "4"
+					item["杂合性"] = "Hom"
+				}
+			}
+		}
+	}
 	item["OMIM_EX"] = strings.TrimSuffix(item["OMIM_EX"], ",")
 	item["primerDesign"] = strings.Join(
 		[]string{
