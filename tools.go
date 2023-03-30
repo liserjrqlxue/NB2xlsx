@@ -238,24 +238,6 @@ func cHgvsStd(cHgvs string) string {
 }
 
 func filterAvd(item map[string]string) bool {
-	var (
-		transcript = item["Transcript"]
-		c          = item["cHGVS"]
-		cAlt       = cHgvsAlt(c)
-		cStd       = cHgvsStd(c)
-		mainKey    = transcript + "\t" + c
-		mainKey1   = transcript + "\t" + cAlt
-		mainKey2   = transcript + "\t" + cStd
-	)
-	if _, ok := localDb[mainKey]; ok {
-		return true
-	}
-	if _, ok := localDb[mainKey1]; ok {
-		return true
-	}
-	if _, ok := localDb[mainKey2]; ok {
-		return true
-	}
 	if !geneListMap[item["Gene Symbol"]] {
 		return false
 	}
@@ -378,6 +360,67 @@ func updateAf(item map[string]string) {
 	}
 }
 
+func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subFlag bool) {
+	var (
+		transcript = item["Transcript"]
+		c          = item["cHGVS"]
+		cAlt       = cHgvsAlt(c)
+		cStd       = cHgvsStd(c)
+		mainKey    = transcript + "\t" + c
+		mainKey1   = transcript + "\t" + cAlt
+		mainKey2   = transcript + "\t" + cStd
+	)
+
+	var db, ok = varDb[mainKey]
+	if !ok {
+		db, ok = varDb[mainKey1]
+	}
+	if !ok {
+		db, ok = varDb[mainKey2]
+	}
+	if ok {
+		if db["是否是包装位点"] == "是" {
+			if *im {
+				item["报告类别"] = "是"
+				item["In BGI database"] = "是"
+			}
+			item["Database"] = "NBS-in"
+			item["isReport"] = "Y"
+			if subFlag {
+				if geneSubListMap[item["Gene Symbol"]] {
+					item["报告类别-原始"] = "正式报告"
+				} else {
+					item["报告类别-原始"] = "补充报告"
+				}
+
+			} else {
+				item["报告类别-原始"] = "正式报告"
+			}
+		} else {
+			item["Database"] = "NBS-out"
+			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
+				item["isReport"] = "Y"
+				item["报告类别-原始"] = "补充报告"
+			}
+		}
+		item["参考文献"] = db["Reference"]
+		item["位点关联疾病"] = db["Disease"]
+		item["位点关联遗传模式"] = db["遗传模式"]
+		//item["Evidence New + Check"] = db["证据项"]
+		item["Definition"] = db["Definition"]
+		item["filterAvd"] = "Y"
+	} else {
+		item["Database"] = "."
+		if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
+			item["报告类别-原始"] = "补充报告"
+			item["isReport"] = "Y"
+		}
+		if filterAvd(item) {
+			item["filterAvd"] = "Y"
+		}
+	}
+}
+
 func updateAvd(item map[string]string, subFlag bool) {
 	updateABC(item, item["SampleID"])
 	item["HGMDorClinvar"] = "否"
@@ -400,80 +443,26 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["In BGI database"] = "否"
 	}
 
-	if *cs {
-		readsPicture(item)
-		item["#Chr"] = addChr(item["#Chr"])
-	} else {
-		var (
-			transcript = item["Transcript"]
-			c          = item["cHGVS"]
-			cAlt       = cHgvsAlt(c)
-			cStd       = cHgvsStd(c)
-			mainKey    = transcript + "\t" + c
-			mainKey1   = transcript + "\t" + cAlt
-			mainKey2   = transcript + "\t" + cStd
-		)
-
-		var db, ok = localDb[mainKey]
-		if !ok {
-			db, ok = localDb[mainKey1]
-		}
-		if !ok {
-			db, ok = localDb[mainKey2]
-		}
-		if ok {
-			if db["是否是包装位点"] == "是" {
-				if *im {
-					item["报告类别"] = "是"
-					item["In BGI database"] = "是"
-				}
-				item["Database"] = "NBS-in"
-				item["isReport"] = "Y"
-				if subFlag {
-					if geneSubListMap[item["Gene Symbol"]] {
-						item["报告类别-原始"] = "正式报告"
-					} else {
-						item["报告类别-原始"] = "补充报告"
-					}
-
-				} else {
-					item["报告类别-原始"] = "正式报告"
-				}
-			} else {
-				item["Database"] = "NBS-out"
-				if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-					item["isReport"] = "Y"
-					item["报告类别-原始"] = "补充报告"
-				}
-			}
-			item["参考文献"] = db["Reference"]
-			item["位点关联疾病"] = db["Disease"]
-			item["位点关联遗传模式"] = db["遗传模式"]
-			//item["Evidence New + Check"] = db["证据项"]
-			item["Definition"] = db["Definition"]
-		} else {
-			item["Database"] = "."
-			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
-				item["报告类别-原始"] = "补充报告"
-				item["isReport"] = "Y"
-			}
-		}
-		readsPicture(item)
-	}
+	// reads_picture
+	// reads_picture_HyperLink
+	readsPicture(item)
+	// Function
 	anno.UpdateFunction(item)
+	// AF -1 -> .
+	updateAf(item)
+
 	if *acmg {
 		acmg2015.AddEvidences(item)
 		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 		anno.UpdateAutoRule(item)
 	}
-	if filterAvd(item) {
-		item["filterAvd"] = "Y"
-	}
-	updateAf(item)
 	if *cs {
 		floatFormat(item, afFloatFormatArray, 6)
 		// remove trailing zeros
 		floatFormat(item, afFloatFormatArray, -1)
+		item["#Chr"] = addChr(item["#Chr"])
+	} else {
+		annoLocaDb(item, localDb, subFlag)
 	}
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
