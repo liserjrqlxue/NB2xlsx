@@ -1181,6 +1181,9 @@ func updateNator(item map[string]string) {
 			}
 		}
 	}
+	if item["NM"] == "" && item["Gene"] == "DMD" {
+		item["NM"] = "NM_004006.2"
+	}
 	item["OMIM_EX"] = strings.TrimSuffix(item["OMIM_EX"], ",")
 	item["primerDesign"] = strings.Join(
 		[]string{
