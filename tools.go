@@ -735,10 +735,7 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 	if !ok {
 		info = item
 	}
-	var qc, aResult, bResult string
-	if item["QC"] != "pass" {
-		qc = "_等验证"
-	}
+	var tag, aResult, bResult string
 	if item["chr11"] == "N" {
 		bResult = "阴性"
 	} else {
@@ -749,22 +746,35 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 	} else {
 		aResult = item["chr16"]
 	}
+
 	if *im {
+		if item["QC"] == "pass" {
+			item["QC"] = "通过"
+		} else {
+			item["QC"] = "不通过"
+			aResult = "灰区"
+			bResult = "灰区"
+		}
+
 		if aResult == "." {
 			aResult = "灰区"
 		}
 		if bResult == "." {
 			bResult = "灰区"
 		}
+	} else {
+		if item["QC"] != "pass" {
+			tag = "_等验证"
+		}
 	}
+	info["β地贫自动化结果"] = bResult + tag
+	info["α地贫自动化结果"] = aResult + tag
+	info["β地贫_最终结果"] = bResult + tag
+	info["α地贫_最终结果"] = aResult + tag
 	info["SampleID"] = item["sample"]
 	info["地贫_QC"] = item["QC"]
 	info["β地贫_chr11"] = item["chr11"]
 	info["α地贫_chr16"] = item["chr16"]
-	info["β地贫自动化结果"] = bResult + qc
-	info["α地贫自动化结果"] = aResult + qc
-	info["β地贫_最终结果"] = bResult + qc
-	info["α地贫_最终结果"] = aResult + qc
 	db[sampleID] = info
 }
 
@@ -774,41 +784,64 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	if !ok {
 		info = item
 	}
-	if *im {
-		info["Official Report"] = "否"
-	}
 	var result, qcResult string
 	var Categorization = item["SMN1_ex7_cn"]
 	var QC = item["qc"]
 	if Categorization == "1.5" || Categorization == "1" || Categorization == "1.0" || QC != "1" {
 		qcResult = "_等验证"
 	}
-	switch Categorization {
-	case "0", "0.0":
-		result = "纯合阳性"
-		if *im {
-			info["Official Report"] = "是"
-		}
-	case "0.5":
-		result = "纯合灰区"
-	case "1", "1.0":
-		result = "杂合阳性"
-	case "1.5":
-		result = "杂合灰区"
-	default:
-		result = "阴性"
-	}
-	if QC == "1" {
-		info["SMN1_质控结果"] = "Pass"
-		switch Categorization {
-		case "0", "0.0", "1", "1.0":
+	if *im {
+		info["Official Report"] = "否"
+		if QC == "1" {
+			info["SMN1_质控结果"] = "通过"
+			switch Categorization {
+			case "0", "0.0":
+				result = "纯合阳性"
+				info["Official Report"] = "是"
+			case "1", "1.0":
+				result = "杂合阳性"
+			case "0.5", "1.5":
+				result = "灰区"
+			default:
+				if qcResult == "" {
+					result = "阴性"
+				} else {
+					result = "灰区"
+				}
+			}
 			info["SMN1 EX7 del最终结果"] = result
-		default:
-			info["SMN1 EX7 del最终结果"] = result + qcResult
+		} else {
+			info["SMN1_质控结果"] = "不通过"
+			info["SMN1 EX7 del最终结果"] = "灰区"
 		}
 	} else {
-		info["SMN1_质控结果"] = "Fail"
-		info["SMN1 EX7 del最终结果"] = result + qcResult
+		switch Categorization {
+		case "0", "0.0":
+			result = "纯合阳性"
+			if *im {
+				info["Official Report"] = "是"
+			}
+		case "0.5":
+			result = "纯合灰区"
+		case "1", "1.0":
+			result = "杂合阳性"
+		case "1.5":
+			result = "杂合灰区"
+		default:
+			result = "阴性"
+		}
+		if QC == "1" {
+			info["SMN1_质控结果"] = "Pass"
+			switch Categorization {
+			case "0", "0.0", "1", "1.0":
+				info["SMN1 EX7 del最终结果"] = result
+			default:
+				info["SMN1 EX7 del最终结果"] = result + qcResult
+			}
+		} else {
+			info["SMN1_质控结果"] = "Fail"
+			info["SMN1 EX7 del最终结果"] = result + qcResult
+		}
 	}
 	info["SMN1_检测结果"] = result
 	info["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
