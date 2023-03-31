@@ -20,8 +20,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 		avd, _   = textUtil.File2MapArray(fileName, "\t", nil)
 		sampleID = filepath.Base(fileName)
 
-		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
-		allTitle     = textUtil.File2Array(*allColumns)
+		allTitle = textUtil.File2Array(*allColumns)
 
 		subFlag = false
 
@@ -34,7 +33,11 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 
 	if len(avd) > 0 && avd[0]["SampleID"] != "" {
 		sampleID = avd[0]["SampleID"]
-		allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
+	}
+	var allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
+	if *cs {
+		allExcelPath = *prefix + "." + sampleID + "_vcfanno.xlsx"
+		allTitle = textUtil.File2Array(filepath.Join(templatePath, "vcfanno.txt"))
 	}
 
 	var details, ok1 = sampleDetail[sampleID]

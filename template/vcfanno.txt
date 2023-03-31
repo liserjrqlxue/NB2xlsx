@@ -1,0 +1,117 @@
+Chr
+Start
+Stop
+MapLoc
+SampleID
+NbGID
+Ref
+VarType
+Call
+Flank
+Zygosity
+A.Depth
+A.Ratio
+PhasedGID
+A.Index
+RepeatTag
+Filter
+MIM Gene ID
+MIM Stat
+MIM Pheno IDs
+MIM Inheritance
+CGD Condition
+CGD Inheritance
+CGD Allelic Condition
+CGD Manifestation Categories
+CGD Intervention Categories
+CGD References
+TestCode
+EntrezGeneID
+Gene Symbol
+FuncRegion
+ExIn_ID
+pfamName
+pfamId
+Function
+Transcript
+Protein
+Strand
+Primary
+cHGVS
+pHGVS
+CodonChange
+PolarChange
+MutationName
+dbSNP Note
+dbSNP Allele Count
+dbSNP Allele Freq
+dbSNP Mul Tag
+1000G ASN AF
+1000G EUR AF
+1000Gp3 AF
+1000Gp3 AF
+1000Gp3 EAS AF
+GnomAD EAS HomoAlt Count
+GnomAD EAS AF
+GnomAD HomoAlt Count
+GnomAD AF
+ESP6500 AC
+ESP6500 AF
+ExAC Filter
+ExAC EAS HomoAlt Count
+ExAC EAS AC
+ExAC EAS AF
+ExAC HomoAlt Count
+ExAC AC
+ExAC AF
+rsID
+PVFD RULE
+PVFD Homo Count
+PVFD Homo Frequency
+PVFD AC
+PVFD AF
+Panel ID
+Panel AlleleCount
+Panel AlleleFreq
+Panel Pred
+GWAS Risk Allele
+GWAS pmID
+GWAS Trait
+PhyloP Primates
+PhyloP Vertebrates
+PhyloP Placental Mammals
+Ens SIFT Score
+Ens Polyphen2HumVar Score
+Ens Polyphen2HumDiv Score
+Ens Condel Score
+Ens Condel Pred
+Cosmic MutName
+Cosmic Site
+Cosmic Histology
+Cosmic MutStat
+Cosmic ID
+HGMD ID
+HGMD QueryMode
+HGMD MutName
+HGMD Disease
+HGMD pmID
+HGMD Pred
+BGIGaP Query Tag
+BGIGaP Data Source
+BGIGaP Query Mode
+BGIGaP ID
+BGIGaP Gene
+BGIGaP MutName
+BGIGaP pmID
+BGIGaP Pathogenicity
+BGIGaP Case Reported
+BGIGaP Validation
+AutoInterpStatus
+地贫通用名
+pre_class
+pre_pro
+autoRuleName
+自动化判断
+遗传相符
+烈性突变
+突变频谱
