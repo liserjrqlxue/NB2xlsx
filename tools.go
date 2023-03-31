@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/liserjrqlxue/goUtil/stringsUtil"
 	"log"
 	"path/filepath"
 	"regexp"
@@ -159,6 +160,31 @@ func loadDb() {
 			info["productCode"] = line[1]
 			info["hospital"] = line[2]
 			sampleDetail[sampleID] = info
+		}
+	}
+
+	if *cs {
+		var region *Region
+		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)
+		for _, m := range repeatRegionArray {
+			region = &Region{
+				chr:   "",
+				start: stringsUtil.Atoi(m["Start"]),
+				end:   stringsUtil.Atoi(m["Stop"]),
+				gene:  "",
+			}
+			repeatRegion = append(repeatRegion, region)
+		}
+		var homologousRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "homologous.regions.txt"), "\t", nil)
+		for _, m := range homologousRegionArray {
+			region = newRegion(m["目标区域（疑似有同源区域）"])
+			if region != nil {
+				homologousRegion = append(homologousRegion, region)
+			}
+			region = newRegion(m["相似区域"])
+			if region != nil {
+				homologousRegion = append(homologousRegion, region)
+			}
 		}
 	}
 }
@@ -460,6 +486,30 @@ func updateAvd(item map[string]string, subFlag bool) {
 		floatFormat(item, afFloatFormatArray, 6)
 		// remove trailing zeros
 		floatFormat(item, afFloatFormatArray, -1)
+		var (
+			repeatHit     bool
+			homologousHit bool
+			start         = stringsUtil.Atoi(item["Start"])
+			end           = stringsUtil.Atoi(item["Stop"])
+			hits          []string
+		)
+		for _, region := range repeatRegion {
+			if region.gene == item["Gene Symbol"] && start > region.start && end < region.end {
+				repeatHit = true
+			}
+		}
+		for _, region := range homologousRegion {
+			if region.chr == item["#Chr"] && start > region.start && end < region.end {
+				homologousHit = true
+			}
+		}
+		if repeatHit {
+			hits = append(hits, "重复区域变异")
+		}
+		if homologousHit {
+			hits = append(hits, "同源区域变异")
+		}
+		item["需验证的变异"] = strings.Join(hits, ";")
 		item["#Chr"] = addChr(item["#Chr"])
 	} else {
 		annoLocaDb(item, localDb, subFlag)

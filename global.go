@@ -130,7 +130,9 @@ var (
 
 // CS
 var (
-	top1kGene = make(map[string]bool)
+	top1kGene        = make(map[string]bool)
+	repeatRegion     []*Region
+	homologousRegion []*Region
 )
 
 // IM

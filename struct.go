@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"github.com/liserjrqlxue/goUtil/stringsUtil"
+	"regexp"
+	"strings"
+)
 
 // GeneInfo : struct info of gene
 type GeneInfo struct {
@@ -104,4 +108,28 @@ func (info *GeneInfo) Tag4() {
 	} else if info.cnv0 && info.isAR() {
 		info.tag4 = true
 	}
+}
+
+type Region struct {
+	chr   string
+	start int
+	end   int
+	gene  string
+}
+
+var (
+	reg = regexp.MustCompile(`chr(.):(\d+)-(\d+)`)
+)
+
+func newRegion(region string) *Region {
+	var match = reg.FindStringSubmatch(region)
+	if len(match) == 4 {
+		return &Region{
+			chr:   match[1],
+			start: stringsUtil.Atoi(match[2]),
+			end:   stringsUtil.Atoi(match[3]),
+			gene:  "",
+		}
+	}
+	return nil
 }
