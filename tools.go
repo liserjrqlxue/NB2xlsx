@@ -1125,7 +1125,11 @@ func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handl
 func updateDMDCNV(item map[string]string) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
-	updateCnvTags(item, sampleID, item["gene"])
+	if *cs {
+		item["报告类别"] = "正式报告"
+	} else {
+		updateCnvTags(item, sampleID, item["gene"])
+	}
 }
 
 func updateSample(item map[string]string) {
