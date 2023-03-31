@@ -3,10 +3,10 @@ CN	EN
 否	No
 男	Male
 女	Female
-正常	normal
+正常	Normal
 污染	Contamination
-合格	pass
-不合格	fail
+合格	Pass
+不合格	Fail
 可能患病	At risk
 携带者	Carrier
 阴性	Negative
@@ -14,5 +14,10 @@ CN	EN
 杂合阳性	Heterozygous
 纯合阳性	Homozygous
 致病变异	Pathogenic
+重提取	Redraw
+重建库	Rerun
+重测序	Reseq
+提示	Exception
+合格	Pass
 Official Report.是	Included
 Official Report.否	Not included
