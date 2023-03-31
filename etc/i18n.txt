@@ -5,6 +5,7 @@ CN	EN
 女	Female
 正常	Normal
 污染	Contamination
+失败	Fail
 合格	Pass
 不合格	Fail
 可能患病	At risk
@@ -18,7 +19,6 @@ CN	EN
 重建库	Rerun
 重测序	Reseq
 提示	Exception
-合格	Pass
 QC.合格	Qualified
 QC.不合格	Unqualified
 Official Report.是	Included
