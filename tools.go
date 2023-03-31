@@ -1067,6 +1067,7 @@ func updateQC(item map[string]string, i int) {
 	item["Order"] = strconv.Itoa(i + 1)
 	item["Gender"] = item["gender_analysed"]
 	if *im {
+		sampleID = item["SampleID"]
 		updateInfo(item, sampleID)
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
