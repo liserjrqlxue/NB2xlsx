@@ -1125,11 +1125,7 @@ func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handl
 func updateDMDCNV(item map[string]string) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
-	if *cs {
-		item["报告类别"] = "正式报告"
-	} else {
-		updateCnvTags(item, sampleID, item["gene"])
-	}
+	updateCnvTags(item, sampleID, item["gene"])
 }
 
 func updateSample(item map[string]string) {
@@ -1199,6 +1195,7 @@ func updateNator(item map[string]string) {
 
 	if *cs {
 		item["Chr"] = addChr(item["Chr"])
+		item["报告类别"] = "正式报告"
 		item["P0_HyperLink"] = filepath.Join("PP100_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
 	}
 }
