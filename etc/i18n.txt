@@ -19,5 +19,7 @@ CN	EN
 重测序	Reseq
 提示	Exception
 合格	Pass
+QC.合格	Qualified
+QC.不合格	Unqualified
 Official Report.是	Included
 Official Report.否	Not included
