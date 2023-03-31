@@ -367,6 +367,11 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 		item["sampleID"] = sampleID
 		if *im {
 			updateInfo(item, sampleID)
+			if *gender == "M" || genderMap[sampleID] == "M" {
+				item["Sex"] = "M"
+			} else if *gender == "F" || genderMap[sampleID] == "F" {
+				item["Sex"] = "F"
+			}
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])
 				writeRow(excel, s, item, sheetTitle[s], rIdx)
