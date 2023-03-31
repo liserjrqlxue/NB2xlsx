@@ -232,6 +232,7 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 				item["报告类别"] = "正式报告"
 				// style
 				item["报告类别-原始"] = item["报告类别"]
+				item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
 			} else {
 				updateABC(item, sampleID)
 			}
