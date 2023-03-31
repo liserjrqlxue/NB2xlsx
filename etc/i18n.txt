@@ -25,5 +25,5 @@ QC.合格	Qualified
 QC.不合格	Unqualified
 Official Report.是	Included
 Official Report.否	Not included
-报告类别.是 Included
-报告类别.否 Not included
+报告类别.是	Included
+报告类别.否	Not included
