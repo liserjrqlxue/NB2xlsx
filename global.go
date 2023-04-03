@@ -186,3 +186,5 @@ var qcFloatFormatArray = []string{
 	"Depth>=30(%)",
 	"GC(%)",
 }
+
+var deafnessGeneList = make(map[string]bool)

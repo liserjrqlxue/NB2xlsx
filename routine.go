@@ -79,6 +79,9 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 				}
 			}
 			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
+			if subFlag && !deafnessGeneList[item["Gene Symbol"]] && item["遗传模式判读"] == "携带者" && item["报告类别-原始"] == "正式报告" {
+				item["报告类别-原始"] = "补充报告"
+			}
 			filterData = append(filterData, item)
 		}
 	}

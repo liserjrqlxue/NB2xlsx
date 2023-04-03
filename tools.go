@@ -121,6 +121,12 @@ func loadDb() {
 	for _, item := range geneSubs {
 		geneSubListMap[item["基因"]] = true
 	}
+	// load deafness gene list
+	var deafnessGenes, _ = textUtil.File2MapArray(filepath.Join(etcPath, "耳聋24基因.xlsx.Sheet1.txt"), "\t", nil)
+	for _, gene := range deafnessGenes {
+		deafnessGeneList[gene["基因"]] = true
+	}
+
 	// load gene exclude list
 	for _, key := range textUtil.File2Array(filepath.Join(etcPath, "gene.exclude.list.txt")) {
 		geneExcludeListMap[key] = true
@@ -418,13 +424,15 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 				} else {
 					item["报告类别-原始"] = "补充报告"
 				}
-
 			} else {
 				item["报告类别-原始"] = "正式报告"
 			}
 		} else {
 			item["Database"] = "NBS-out"
 			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
+				item["isReport"] = "Y"
+				item["报告类别-原始"] = "补充报告"
+			} else if subFlag && mainKey == "NM_000277.1:c.158G>A" {
 				item["isReport"] = "Y"
 				item["报告类别-原始"] = "补充报告"
 			}
