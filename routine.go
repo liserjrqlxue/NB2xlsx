@@ -36,7 +36,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	}
 	var allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
 	if *cs {
-		allExcelPath = *prefix + "." + sampleID + "_vcfanno.xlsx"
+		allExcelPath = filepath.Join(*annoDir, sampleID+"_vcfanno.xlsx")
 		allTitle = textUtil.File2Array(filepath.Join(templatePath, "vcfanno.txt"))
 	}
 

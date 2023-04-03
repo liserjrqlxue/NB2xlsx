@@ -135,6 +135,11 @@ var (
 		"",
 		"output to -prefix.xlsx,default is -batch.xlsx",
 	)
+	annoDir = flag.String(
+		"annoDir",
+		"",
+		"output sample annotation to annoDir/[sampleID]_vcfanno.xlsx for CS",
+	)
 
 	// output sheet name
 	aeSheetName = flag.String(
