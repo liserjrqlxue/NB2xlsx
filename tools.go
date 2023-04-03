@@ -1070,7 +1070,8 @@ func updateQC(item map[string]string, i int) {
 	} else {
 		if *wgs {
 			updateInfo(item, item["sampleID"])
-			item["Gender"] = genderMap[sampleID]
+			updateGender(item, item["sampleID"])
+			item["Gender"] = item["Sex"]
 			var inputGender = imInfo[sampleID]["gender"]
 			if inputGender != genderMap[sampleID] {
 				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
@@ -1130,6 +1131,7 @@ func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]st
 		}
 		if *wgs {
 			updateInfo(item, item["sampleID"])
+			updateGender(item, item["sampleID"])
 		}
 		writeRow(excel, sheetName, item, title, rIdx)
 	}
@@ -1329,6 +1331,7 @@ func updateFeature(item map[string]string) {
 func updateGeneID(item map[string]string) {
 	if *wgs {
 		updateInfo(item, item["SampleID"])
+		updateGender(item, item["SampleID"])
 	} else {
 		updateABC(item, item["SampleID"])
 	}
@@ -1337,6 +1340,7 @@ func updateGeneID(item map[string]string) {
 func updateDrug(item map[string]string) {
 	if *wgs {
 		updateInfo(item, item["样本编号"])
+		updateGender(item, item["样本编号"])
 	} else {
 		updateABC(item, item["样本编号"])
 	}
