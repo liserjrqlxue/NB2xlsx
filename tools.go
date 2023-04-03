@@ -1150,6 +1150,14 @@ var infoTitle = []string{
 	"pipeline",
 }
 
+func updateGender(item map[string]string, sampleID string) {
+	if *gender == "M" || genderMap[sampleID] == "M" {
+		item["Sex"] = "M"
+	} else if *gender == "F" || genderMap[sampleID] == "F" {
+		item["Sex"] = "F"
+	}
+}
+
 func updateInfo(item map[string]string, sampleID string) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
@@ -1313,6 +1321,7 @@ func updateFeature(item map[string]string) {
 	item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
 	if *wgs {
 		updateInfo(item, item["SampleID"])
+		updateGender(item, item["SampleID"])
 	} else {
 		updateABC(item, item["SampleID"])
 	}
