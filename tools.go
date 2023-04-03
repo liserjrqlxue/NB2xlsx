@@ -792,23 +792,19 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	}
 	if *im {
 		info["Official Report"] = "否"
+		switch Categorization {
+		case "0", "0.0":
+			result = "纯合阳性"
+			info["Official Report"] = "是"
+		case "1", "1.0":
+			result = "杂合阳性"
+		case "0.5", "1.5":
+			result = "灰区"
+		default:
+			result = "阴性"
+		}
 		if QC == "1" {
 			info["SMN1_质控结果"] = "通过"
-			switch Categorization {
-			case "0", "0.0":
-				result = "纯合阳性"
-				info["Official Report"] = "是"
-			case "1", "1.0":
-				result = "杂合阳性"
-			case "0.5", "1.5":
-				result = "灰区"
-			default:
-				if qcResult == "" {
-					result = "阴性"
-				} else {
-					result = "灰区"
-				}
-			}
 			info["SMN1 EX7 del最终结果"] = result
 		} else {
 			info["SMN1_质控结果"] = "不通过"
