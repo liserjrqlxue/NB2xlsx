@@ -143,6 +143,9 @@ func main() {
 		wait(writeDmd)
 		goUpdateCNV(excel, writeDmd)
 	}
+	if *wgs {
+		*dmdSheetName = "CNV"
+	}
 	// DMD-lumpy
 	if *lumpy != "" {
 		updateDataFile2Sheet(excel, *dmdSheetName, *lumpy, updateLumpy)
