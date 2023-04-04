@@ -12,30 +12,6 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// goWriteSampleAvd write data to sheetName of excelName
-func goWriteSampleAvd(excelName, sheetName string, title []string, data []map[string]string, done chan bool) {
-	var (
-		excel = excelize.NewFile()
-		rIdx  = 1
-	)
-	excel.NewSheet(sheetName)
-	writeTitle(excel, sheetName, title)
-	for _, item := range data {
-		if *im {
-			if geneIMListMap[item["Gene Symbol"]] {
-				rIdx++
-				writeRow(excel, sheetName, item, title, rIdx)
-			}
-		} else {
-			rIdx++
-			writeRow(excel, sheetName, item, title, rIdx)
-		}
-	}
-	log.Printf("excel.SaveAs(\"%s\") with %d variants\n", excelName, rIdx-1)
-	simpleUtil.CheckErr(excel.SaveAs(excelName))
-	<-done
-}
-
 func addChr(chr string) string {
 	return "Chr" + strings.Replace(
 		strings.Replace(chr, "chr", "", 1),

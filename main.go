@@ -142,12 +142,16 @@ func main() {
 	WriteAe(excel, runAe)
 
 	// All variant data
-	wait(localDb, runAvd)
-	goWriteAvd(excel, loadDmd, runAvd, *all)
+	wait(localDb)
+	if *im {
+		goWriteAvd(excel, "SNV&INDEL", loadDmd, runAvd, *all)
+	} else {
+		goWriteAvd(excel, *avdSheetName, loadDmd, runAvd, *all)
+	}
 
 	// write CNV after runAvd
 	// CNV
-	wait(runAvd)
+	waitWrite(runAvd)
 	if *cs {
 		*dmdSheetName = "DMD CNV"
 	} else {

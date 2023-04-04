@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/liserjrqlxue/acmg2015"
+	"github.com/liserjrqlxue/goUtil/stringsUtil"
 	"log"
 	"path/filepath"
 	"strings"
@@ -22,15 +24,14 @@ func loadAvdList() (avdArray []string) {
 }
 
 // goWriteAvd write AVD sheet to excel
-func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
+func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool, all bool) {
 	log.Println("Write AVD Start")
 	var (
-		avdArray   = loadAvdList()
-		runWrite   = make(chan bool, 1)
-		throttle   = make(chan bool, *threshold)
-		writeExcel = make(chan bool, *threshold)
-		size       = len(avdArray)
-		dbChan     = make(chan []map[string]string, size)
+		avdArray = loadAvdList()
+		runWrite = make(chan bool, 1)
+		throttle = make(chan bool, *threshold)
+		size     = len(avdArray)
+		dbChan   = make(chan []map[string]string, size)
 	)
 
 	if size == 0 {
@@ -42,26 +43,23 @@ func goWriteAvd(excel *excelize.File, runDmd, runAvd chan bool, all bool) {
 	log.Println("Start load AVD")
 
 	// wait runDmd done
-	// goroutine writeAvd in case block getAvd since more avd than threshold
 	wait(runDmd)
-	go writeAvd(excel, dbChan, size, runWrite)
-
+	// go loadAvd -> dbChan -> go writeAvd
+	go writeAvd(excel, sheetName, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
-		go getAvd(fileName, dbChan, throttle, writeExcel, all)
+		go loadAvd(fileName, dbChan, throttle, all)
 	}
 	for i := 0; i < *threshold; i++ {
-		wait(throttle, writeExcel)
+		wait(throttle)
 	}
 	waitWrite(runWrite)
+
 	log.Println("Write AVD Done")
-	<-runAvd
+
+	runAvd <- true
 }
 
-func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, throttle chan<- bool) {
-	var sheetName = *avdSheetName
-	if *im {
-		sheetName = "SNV&INDEL"
-	}
+func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]string, size int, throttle chan<- bool) {
 	var (
 		rows  = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		title = rows[0]
@@ -75,49 +73,10 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	for avd := range dbChan {
 		for _, item := range avd {
 			rIdx++
-			updateINDEX(item, "D", rIdx)
-			var sampleID = item["SampleID"]
-			item["sampleID"] = sampleID
-			if *wgs {
-				updateInfo(item, sampleID)
-			} else if *im {
-				updateInfo(item, sampleID)
-				updateColumns(item, sheetTitleMap[sheetName])
-			} else if *cs {
-				updateInfo(item, sampleID)
-
-				item["LOF"] = ""
-				item["disGroup"] = item["PP_disGroup"]
-				if top1kGene[item["Gene Symbol"]] {
-					item["是否国内（际）包装变异"] = "国内包装基因"
-				}
-				item["Database"] = "."
-				switch item["Auto ACMG + Check"] {
-				case "P":
-					item["Auto ACMG + Check"] = "Pathogenic"
-					item["Database"] = "DX1605"
-					item["是否是库内位点"] = "是"
-				case "LP":
-					item["Auto ACMG + Check"] = "Likely pathogenic"
-					item["Database"] = "DX1605"
-					item["是否是库内位点"] = "是"
-				case "", ".":
-					item["Auto ACMG + Check"] = "待解读"
-				}
-				if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
-					item["Auto ACMG + Check"] = "待解读"
-				}
-				item["突变类型"] = item["Auto ACMG + Check"]
-				item["报告类别"] = "正式报告"
-				// style
-				item["报告类别-原始"] = item["报告类别"]
-				item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
-			} else {
-				updateABC(item, sampleID)
-			}
-			writeRow(excel, sheetName, item, title, rIdx)
+			writeAvdRow(excel, sheetName, rIdx, item, title)
 		}
 		count++
+		// stop channel range
 		if count == size {
 			close(dbChan)
 		}
@@ -125,14 +84,58 @@ func writeAvd(excel *excelize.File, dbChan chan []map[string]string, size int, t
 	throttle <- true
 }
 
-func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeAll chan bool, all bool) {
+func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[string]string, title []string) {
+	updateINDEX(item, "D", rIdx)
+	var sampleID = item["SampleID"]
+	item["sampleID"] = sampleID
+	if *wgs {
+		updateInfo(item, sampleID)
+	} else if *im {
+		updateInfo(item, sampleID)
+		updateColumns(item, sheetTitleMap[sheetName])
+	} else if *cs {
+		updateInfo(item, sampleID)
+
+		item["LOF"] = ""
+		item["disGroup"] = item["PP_disGroup"]
+		if top1kGene[item["Gene Symbol"]] {
+			item["是否国内（际）包装变异"] = "国内包装基因"
+		}
+		item["Database"] = "."
+		switch item["Auto ACMG + Check"] {
+		case "P":
+			item["Auto ACMG + Check"] = "Pathogenic"
+			item["Database"] = "DX1605"
+			item["是否是库内位点"] = "是"
+		case "LP":
+			item["Auto ACMG + Check"] = "Likely pathogenic"
+			item["Database"] = "DX1605"
+			item["是否是库内位点"] = "是"
+		case "", ".":
+			item["Auto ACMG + Check"] = "待解读"
+		}
+		if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
+			item["Auto ACMG + Check"] = "待解读"
+		}
+		item["突变类型"] = item["Auto ACMG + Check"]
+		item["报告类别"] = "正式报告"
+		// style
+		item["报告类别-原始"] = item["报告类别"]
+		item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
+	} else {
+		updateABC(item, sampleID)
+	}
+	writeRow(excel, sheetName, item, title, rIdx)
+}
+
+func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
 	// block threads
 	throttle <- true
 
 	log.Printf("load avd[%s]\n", fileName)
 
 	var (
-		avd, _   = textUtil.File2MapArray(fileName, "\t", nil)
+		data, _  = textUtil.File2MapArray(fileName, "\t", nil)
 		sampleID = filepath.Base(fileName)
 
 		allTitle = textUtil.File2Array(*allColumns)
@@ -146,9 +149,14 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 		filterData []map[string]string
 	)
 
-	if len(avd) > 0 && avd[0]["SampleID"] != "" {
-		sampleID = avd[0]["SampleID"]
+	if len(data) == 0 {
+		log.Printf("skip avd of [%s]:[%s] for 0 line", sampleID, fileName)
 	}
+
+	if data[0]["SampleID"] != "" {
+		sampleID = data[0]["SampleID"]
+	}
+
 	var allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
 	if *cs {
 		allExcelPath = filepath.Join(*annoDir, sampleID+"_vcfanno.xlsx")
@@ -163,10 +171,11 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	var geneInfo, ok = SampleGeneInfo[sampleID]
 	if !ok {
 		geneInfo = make(map[string]*GeneInfo)
+		SampleGeneInfo[sampleID] = geneInfo
 	}
 
 	// cycle 1
-	for _, item := range avd {
+	for _, item := range data {
 		updateAvd(item, subFlag)
 		updateFromAvd(item, geneHash, geneInfo, sampleID)
 		if *cs {
@@ -180,7 +189,7 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	}
 
 	// cycle 2
-	for _, item := range avd {
+	for _, item := range data {
 		if *cs {
 			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
 			filterData = append(filterData, item)
@@ -202,12 +211,106 @@ func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeA
 	}
 
 	if all {
-		wait(writeAll)
-		goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
+		writeSampleAvd(allExcelPath, *allSheetName, allTitle, data)
 	}
 
 	dbChan <- filterData
 
 	// release threads
 	<-throttle
+}
+
+func updateAvd(item map[string]string, subFlag bool) {
+	updateABC(item, item["SampleID"])
+	item["HGMDorClinvar"] = "否"
+	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
+		item["HGMDorClinvar"] = "是"
+	}
+	item["ClinVar星级"] = item["ClinVar Number of gold stars"]
+	item["1000Gp3 AF"] = item["1000G AF"]
+	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
+	var gene = item["Gene Symbol"]
+	item["gene+cHGVS"] = gene + ":" + item["cHGVS"]
+	item["gene+pHGVS3"] = gene + ":" + item["pHGVS3"]
+	item["gene+pHGVS1"] = gene + ":" + item["pHGVS1"]
+	anno.Score2Pred(item)
+	updateLOF(item)
+	updateDisease(item)
+
+	if *im {
+		item["报告类别"] = "否"
+		item["In BGI database"] = "否"
+	}
+
+	// reads_picture
+	// reads_picture_HyperLink
+	readsPicture(item)
+	// Function
+	anno.UpdateFunction(item)
+	// AF -1 -> .
+	updateAf(item)
+
+	if *acmg {
+		acmg2015.AddEvidences(item)
+		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
+		anno.UpdateAutoRule(item)
+	}
+	if *cs {
+		floatFormat(item, afFloatFormatArray, 6)
+		// remove trailing zeros
+		floatFormat(item, afFloatFormatArray, -1)
+		var (
+			repeatHit     bool
+			homologousHit bool
+			start         = stringsUtil.Atoi(item["Start"])
+			end           = stringsUtil.Atoi(item["Stop"])
+			hits          []string
+		)
+		for _, region := range repeatRegion {
+			if region.gene == item["Gene Symbol"] && start > region.start && end < region.end {
+				repeatHit = true
+			}
+		}
+		for _, region := range homologousRegion {
+			if region.chr == item["#Chr"] && start > region.start && end < region.end {
+				homologousHit = true
+			}
+		}
+		if repeatHit {
+			hits = append(hits, "重复区域变异")
+		}
+		if homologousHit {
+			hits = append(hits, "同源区域变异")
+		}
+		item["需验证的变异"] = strings.Join(hits, ";")
+		item["#Chr"] = addChr(item["#Chr"])
+	} else {
+		annoLocaDb(item, localDb, subFlag)
+	}
+	item["exonCount"] = exonCount[item["Transcript"]]
+	item["引物设计"] = anno.PrimerDesign(item)
+	item["验证"] = ifCheck(item)
+}
+
+// writeSampleAvd read data and write to sheetName of excelName
+func writeSampleAvd(excelName, sheetName string, title []string, data []map[string]string) {
+	var (
+		excel = excelize.NewFile()
+		rIdx  = 1
+	)
+	excel.NewSheet(sheetName)
+	writeTitle(excel, sheetName, title)
+	for _, item := range data {
+		if *im {
+			if geneIMListMap[item["Gene Symbol"]] {
+				rIdx++
+				writeRow(excel, sheetName, item, title, rIdx)
+			}
+		} else {
+			rIdx++
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
+	log.Printf("excel.SaveAs(\"%s\") with %d variants\n", excelName, rIdx-1)
+	simpleUtil.CheckErr(excel.SaveAs(excelName))
 }

@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liserjrqlxue/acmg2015"
-	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	AES "github.com/liserjrqlxue/crypto/aes"
 	"github.com/liserjrqlxue/goUtil/jsonUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -464,78 +462,6 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 			item["filterAvd"] = "Y"
 		}
 	}
-}
-
-func updateAvd(item map[string]string, subFlag bool) {
-	updateABC(item, item["SampleID"])
-	item["HGMDorClinvar"] = "否"
-	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
-		item["HGMDorClinvar"] = "是"
-	}
-	item["ClinVar星级"] = item["ClinVar Number of gold stars"]
-	item["1000Gp3 AF"] = item["1000G AF"]
-	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
-	var gene = item["Gene Symbol"]
-	item["gene+cHGVS"] = gene + ":" + item["cHGVS"]
-	item["gene+pHGVS3"] = gene + ":" + item["pHGVS3"]
-	item["gene+pHGVS1"] = gene + ":" + item["pHGVS1"]
-	anno.Score2Pred(item)
-	updateLOF(item)
-	updateDisease(item)
-
-	if *im {
-		item["报告类别"] = "否"
-		item["In BGI database"] = "否"
-	}
-
-	// reads_picture
-	// reads_picture_HyperLink
-	readsPicture(item)
-	// Function
-	anno.UpdateFunction(item)
-	// AF -1 -> .
-	updateAf(item)
-
-	if *acmg {
-		acmg2015.AddEvidences(item)
-		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
-		anno.UpdateAutoRule(item)
-	}
-	if *cs {
-		floatFormat(item, afFloatFormatArray, 6)
-		// remove trailing zeros
-		floatFormat(item, afFloatFormatArray, -1)
-		var (
-			repeatHit     bool
-			homologousHit bool
-			start         = stringsUtil.Atoi(item["Start"])
-			end           = stringsUtil.Atoi(item["Stop"])
-			hits          []string
-		)
-		for _, region := range repeatRegion {
-			if region.gene == item["Gene Symbol"] && start > region.start && end < region.end {
-				repeatHit = true
-			}
-		}
-		for _, region := range homologousRegion {
-			if region.chr == item["#Chr"] && start > region.start && end < region.end {
-				homologousHit = true
-			}
-		}
-		if repeatHit {
-			hits = append(hits, "重复区域变异")
-		}
-		if homologousHit {
-			hits = append(hits, "同源区域变异")
-		}
-		item["需验证的变异"] = strings.Join(hits, ";")
-		item["#Chr"] = addChr(item["#Chr"])
-	} else {
-		annoLocaDb(item, localDb, subFlag)
-	}
-	item["exonCount"] = exonCount[item["Transcript"]]
-	item["引物设计"] = anno.PrimerDesign(item)
-	item["验证"] = ifCheck(item)
 }
 
 func ifCheck(item map[string]string) string {
