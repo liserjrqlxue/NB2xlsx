@@ -7,93 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/xuri/excelize/v2"
 )
-
-func getAvd(fileName string, dbChan chan<- []map[string]string, throttle, writeAll chan bool, all bool) {
-	log.Printf("load avd[%s]\n", fileName)
-	var (
-		avd, _   = textUtil.File2MapArray(fileName, "\t", nil)
-		sampleID = filepath.Base(fileName)
-
-		allTitle = textUtil.File2Array(*allColumns)
-
-		subFlag = false
-
-		geneHash = make(map[string]string)
-
-		inheritDb = make(map[string]map[string]int)
-
-		filterData []map[string]string
-	)
-
-	if len(avd) > 0 && avd[0]["SampleID"] != "" {
-		sampleID = avd[0]["SampleID"]
-	}
-	var allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
-	if *cs {
-		allExcelPath = filepath.Join(*annoDir, sampleID+"_vcfanno.xlsx")
-		allTitle = textUtil.File2Array(filepath.Join(templatePath, "vcfanno.txt"))
-	}
-
-	var details, ok1 = sampleDetail[sampleID]
-	if ok1 && details["productCode"] == "DX1968" && details["hospital"] == "南京市妇幼保健院" {
-		subFlag = true
-	}
-
-	var geneInfo, ok = SampleGeneInfo[sampleID]
-	if !ok {
-		geneInfo = make(map[string]*GeneInfo)
-	}
-
-	// cycle 1
-	for _, item := range avd {
-		updateAvd(item, subFlag)
-		updateFromAvd(item, geneHash, geneInfo, sampleID)
-		if *cs {
-			// 烈性突变
-			anno.UpdateSnvTier1(item)
-
-			// 遗传相符
-			item["Zygosity"] = anno.ZygosityFormat(item["Zygosity"])
-			anno.InheritCheck(item, inheritDb)
-		}
-	}
-
-	// cycle 2
-	for _, item := range avd {
-		if *cs {
-			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
-			filterData = append(filterData, item)
-		} else if item["filterAvd"] == "Y" {
-			var info, ok = geneInfo[item["Gene Symbol"]]
-			if !ok {
-				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
-			} else {
-				if !geneExcludeListMap[item["Gene Symbol"]] {
-					item["Database"] = info.getTag(item)
-				}
-			}
-			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-			if subFlag && !deafnessGeneList[item["Gene Symbol"]] && item["遗传模式判读"] == "携带者" && item["报告类别-原始"] == "正式报告" {
-				item["报告类别-原始"] = "补充报告"
-			}
-			filterData = append(filterData, item)
-		}
-	}
-
-	if all {
-		wait(writeAll)
-		goWriteSampleAvd(allExcelPath, *allSheetName, allTitle, avd, writeAll)
-	}
-
-	dbChan <- filterData
-
-	<-throttle
-}
 
 // goWriteSampleAvd write data to sheetName of excelName
 func goWriteSampleAvd(excelName, sheetName string, title []string, data []map[string]string, done chan bool) {
