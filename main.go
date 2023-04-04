@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -24,6 +25,16 @@ func init() {
 			log.Println("-prefix are required!")
 			os.Exit(1)
 		}
+	}
+
+	// acmg2015 init
+	if *acmg {
+		acmg2015.AutoPVS1 = *autoPVS1
+		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(*acmgDb, "\t", false)).(map[string]string)
+		for k, v := range acmgCfg {
+			acmgCfg[k] = filepath.Join(dbPath, v)
+		}
+		acmg2015.Init(acmgCfg)
 	}
 }
 
@@ -184,5 +195,11 @@ func main() {
 func wait(ch ...chan<- bool) {
 	for _, bools := range ch {
 		bools <- true
+	}
+}
+
+func waitWrite(ch ...<-chan bool) {
+	for _, bools := range ch {
+		<-bools
 	}
 }
