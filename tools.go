@@ -660,7 +660,7 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 	switch item["遗传模式merge"] {
 	case "AR":
 		return updateGeneHashAR(item, genePred)
-	case "MI":
+	case "MI", "Mi":
 		return updateGeneHashAD(item)
 	case "XLR":
 		return updateGeneHashXLR(item, genePred, gender)
