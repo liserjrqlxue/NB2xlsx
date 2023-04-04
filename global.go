@@ -188,3 +188,5 @@ var qcFloatFormatArray = []string{
 }
 
 var deafnessGeneList = make(map[string]bool)
+
+var exonCount map[string]string

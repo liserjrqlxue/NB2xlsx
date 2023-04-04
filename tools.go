@@ -136,6 +136,14 @@ func loadDb() {
 		functionExcludeMap[key] = true
 	}
 
+	// load transcript info
+	exonCount = simpleUtil.HandleError(
+		textUtil.File2Map(
+			filepath.Join(etcPath, "trans.info.txt"),
+			"\t", false,
+		),
+	).(map[string]string)
+
 	// load CNV database
 	log.Println("Load CNV database Start")
 	var cnvDbArray, _ = simpleUtil.Slice2MapArray(
@@ -522,6 +530,7 @@ func updateAvd(item map[string]string, subFlag bool) {
 	} else {
 		annoLocaDb(item, localDb, subFlag)
 	}
+	item["exonCount"] = exonCount[item["Transcript"]]
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
 }
