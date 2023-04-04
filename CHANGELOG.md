@@ -1,5 +1,56 @@
-# version
+# tags
 
+- [v0.28.0](a101c412)
+  - 2023/4/4
+  - :sparkles: 南京市妇幼保健院 DX1968 个性化需求
+  - :wrech: 遗传模式判读 支持 "Mi"
+  - IM
+    - :art: :recycle: refactor SMA CNV for IM
+  - CS
+    - :wrench: add -annoDir for CS
+  - WGS
+    - :wrench: updateGender for WGS 个特
+    - :wrench: updateGender for WGS
+    - :wrench: update lumpy and nator to CNV for WGS
+- [v0.27.0](adbcade3)
+  - 2023/3/31
+  - IM
+    - :bento: update i18n.txt
+    - :wrench: handle 灰区 and _等验证 for IM
+    - :bug: assign item["SampleID"] to sampleID for IM
+    - :bug: roll back QC for IM
+  - CS
+    - :bento: add etc/repeat.txt etc/homologous.regions.txt
+    - :sparkles: add 需验证的变异 to CS AVD
+- [v0.26.1](de6489db)
+  - 2023/3/31
+  - IM
+    - :bento: update i18n.txt
+    - :wrench: fill Sex for IM SMN1&THAL CNV
+- [v0.26.0](268f9e05)
+  - 2023/3/31
+  - :recycle: :wrench: add annoLocalDb(), addChr after ACMG
+  - :bug: filter B/LB from "自动化判断"
+  - IM
+    - :bento: update i18n.txt
+  - WGS
+    - :wrench: update CNV_type OMIM_EX primerDesign for WGS DMD CNV
+    - :wrench: try fill in CopyNum and 杂合性 for Nator
+    - :wrench: fill in NM with "NM_004006.2" when DMD lost NM
+  - CS
+    - :bento: update CS.BB.xlsx
+      - set drop list for "SMN1 EX7 del最终结果" to "阴性,杂合阳性,纯合阳性"
+      - remove sheet 地贫融合基因
+    - :wrench: add extra line to bam文件路径.txt for CS
+    - :wrench: set Database default value to "."
+    - :wrench: remove trailing zeros
+    - :wrench: assign 报告类别 to 正式报告 for CS AVD
+    - :wrench: CS: output _vcfanno.xlsx for all samples
+    - :wrench: set DMD CNV 报告类别="正式报告" for CS
+    - :wrench: unset 杂合性 , 遗传模式 "[n]" -> "," for CS DMD CNV
+- [v0.25.1](00583b35)
+  - 2023/3/30
+  - :bug: write avd after write sample avd, fix fatal error: concurrent map read and map write
 - [v0.25.0](6dd2042a)
   - 2023/3/30
   - :wrench: change -drugSheetName default value 药物 -> 药物检测结果
