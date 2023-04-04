@@ -140,6 +140,8 @@ var (
 	i18n string
 	I18n = make(map[string]map[string]string)
 
+	thalNameMap map[string]map[string]string
+
 	imSheetList = []string{
 		"Sample",
 		"QC",

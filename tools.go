@@ -144,6 +144,9 @@ func loadDb() {
 		),
 	).(map[string]string)
 
+	// load thal name
+	thalNameMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "地贫标准写法.xlsx.Sheet1.txt"), "目前流程", "\t", nil)
+
 	// load CNV database
 	log.Println("Load CNV database Start")
 	var cnvDbArray, _ = simpleUtil.Slice2MapArray(
@@ -778,6 +781,18 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 		}
 		if bResult == "." {
 			bResult = "灰区"
+		}
+		var (
+			alphaName, betaName string
+			hit                 bool
+		)
+		alphaName, hit = thalNameMap[aResult]["HTML"]
+		if hit {
+			aResult = alphaName
+		}
+		betaName, hit = thalNameMap[bResult]["HTML"]
+		if hit {
+			aResult = betaName
 		}
 	} else {
 		if item["QC"] != "pass" {
