@@ -432,7 +432,7 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 			if item["LOF"] == "YES" && !geneExcludeListMap[item["Gene Symbol"]] {
 				item["isReport"] = "Y"
 				item["报告类别-原始"] = "补充报告"
-			} else if subFlag && mainKey == "NM_000277.1:c.158G>A" {
+			} else if subFlag && mainKey == "NM_000277.1\tc.158G>A" {
 				item["isReport"] = "Y"
 				item["报告类别-原始"] = "补充报告"
 			}
