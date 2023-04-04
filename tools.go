@@ -873,7 +873,11 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	}
 	info["SMN1_检测结果"] = result
 	info["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
-	updateABC(item, sampleID)
+	if *wgs || *im || *cs {
+		updateInfo(item, sampleID)
+	} else {
+		updateABC(item, sampleID)
+	}
 	db[sampleID] = info
 }
 func updateSma2(item map[string]string, db map[string]map[string]string) {
@@ -1196,7 +1200,7 @@ func updateInfo(item map[string]string, sampleID string) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
-	if *cs || *wgs {
+	if *cs || *wgs || *im {
 		item["期数"] = item["TaskID"]
 		item["flow ID"] = item["flow ID"]
 		item["产品编号"] = item["ProductID"]
