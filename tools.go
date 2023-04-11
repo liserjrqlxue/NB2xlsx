@@ -60,35 +60,31 @@ func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, 
 func loadDiseaseDb(i18n string) {
 	// load disease database
 	log.Println("Load Disease Start")
+	var diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
 	if i18n == "EN" {
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-			filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt"),
-			"\t", nil,
-		)
+		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
+	} else if *wgs {
+		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.wgs.xlsx.Sheet2.txt")
+	}
+	var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+		diseaseTxt,
+		"\t", nil,
+	)
+	if i18n == "EN" {
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
 		for gene, m := range diseaseDb {
 			m["疾病"] = m["Condition Name"]
-			m["遗传模式"] = m["Inherited Mode"]
-			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
 			m["疾病简介"] = m["Disease Generalization"]
 			m["包装疾病分类"] = m["Condition Category"]
+			m["遗传模式"] = m["Inherited Mode"]
+			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
 			geneInheritance[gene] = m["遗传模式"]
 		}
 	} else {
-		var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
-			simpleUtil.HandleError(
-				simpleUtil.HandleError(
-					excelize.OpenFile(*diseaseExcel),
-				).(*excelize.File).
-					GetRows(*diseaseSheetName),
-			).([][]string),
-		)
-
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
-
-		for gene, info := range diseaseDb {
-			info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
-			geneInheritance[gene] = info["遗传模式"]
+		for gene, m := range diseaseDb {
+			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+			geneInheritance[gene] = m["遗传模式"]
 		}
 	}
 	log.Println("Load Database Done")
