@@ -507,19 +507,6 @@ func readsPicture(item map[string]string) {
 	item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
 }
 
-func ifPlotReads(item map[string]string) bool {
-	if item["isReport"] == "Y" {
-		return true
-	}
-	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
-		return true
-	}
-	if item["Database"] != "" {
-		return true
-	}
-	return false
-}
-
 func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {
 	if item["filterAvd"] != "Y" {
 		return
