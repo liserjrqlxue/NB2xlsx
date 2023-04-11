@@ -212,11 +212,6 @@ var (
 		filepath.Join(etcPath, "function.exclude.txt"),
 		"function list to exclude",
 	)
-	mutDb = flag.String(
-		"mutDb",
-		filepath.Join(etcPath, "已解读数据库.json.aes"),
-		"加密 已解读数据库",
-	)
 	// template
 	bcTemplate = flag.String(
 		"bcTemplate",
