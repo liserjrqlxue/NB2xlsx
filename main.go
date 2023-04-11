@@ -73,7 +73,11 @@ func main() {
 	// load local db
 	{
 		localDb <- true
-		loadLocalDb(filepath.Join(etcPath, "已解读数据库.json.aes"), localDb)
+		if *im {
+			loadLocalDb(filepath.Join(etcPath, "已解读数据库.IM.json.aes"), localDb)
+		} else {
+			loadLocalDb(filepath.Join(etcPath, "已解读数据库.json.aes"), localDb)
+		}
 	}
 
 	loadDb()
