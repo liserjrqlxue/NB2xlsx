@@ -230,20 +230,6 @@ var (
 	)
 )
 
-// disease
-var (
-	diseaseExcel = flag.String(
-		"disease",
-		filepath.Join(etcPath, "新生儿疾病库.xlsx"),
-		"disease database excel",
-	)
-	diseaseSheetName = flag.String(
-		"diseaseSheetName",
-		"Sheet2",
-		"sheet name of disease database excel",
-	)
-)
-
 // boolean
 var (
 	acmg = flag.Bool(
