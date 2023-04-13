@@ -16,7 +16,7 @@ CN	EN
 灰区	Grey zone
 杂合阳性	Heterozygous
 纯合阳性	Homozygous
-致病变异	Pathogenic
+致病变异	P
 重提取	Redraw
 重建库	Rerun
 重测序	Reseq
