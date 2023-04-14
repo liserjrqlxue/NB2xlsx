@@ -50,14 +50,13 @@ func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool
 	for _, fileName := range avdArray {
 		go loadAvd(fileName, dbChan, throttle, all)
 	}
+	emptyChan(runWrite)
 	for i := 0; i < *threshold; i++ {
 		fillChan(throttle)
 	}
-	emptyChan(runWrite)
-
-	log.Println("Write AVD Done")
 
 	fillChan(runAvd)
+	log.Println("Write AVD Done")
 }
 
 func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]string, size int, throttle chan<- bool) {
@@ -73,7 +72,6 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 
 	for avd := range dbChan {
 		count++
-		log.Printf("load %d avd", count)
 		for _, item := range avd {
 			rIdx++
 			writeAvdRow(excel, sheetName, rIdx, item, title)
@@ -83,7 +81,7 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 			close(dbChan)
 		}
 	}
-	throttle <- true
+	fillChan(throttle)
 }
 
 func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[string]string, title []string) {
