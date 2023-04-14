@@ -143,7 +143,6 @@ func main() {
 	WriteAe(excel, runAe)
 
 	// All variant data
-	emptyChan(loadDbChan)
 	if *im {
 		goWriteAvd(excel, "SNV&INDEL", loadDmdChan, runAvd, *all)
 	} else {
