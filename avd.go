@@ -71,11 +71,12 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 	}
 
 	for avd := range dbChan {
+		count++
+		log.Printf("load %d avd", count)
 		for _, item := range avd {
 			rIdx++
 			writeAvdRow(excel, sheetName, rIdx, item, title)
 		}
-		count++
 		// stop channel range
 		if count == size {
 			close(dbChan)
@@ -130,7 +131,7 @@ func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[stri
 
 func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
 	// block threads
-	throttle <- true
+	fillChan(throttle)
 
 	log.Printf("load avd[%s]\n", fileName)
 
@@ -217,7 +218,7 @@ func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan b
 	dbChan <- filterData
 
 	// release threads
-	<-throttle
+	emptyChan(throttle)
 }
 
 func updateAvd(item map[string]string, subFlag bool) {
