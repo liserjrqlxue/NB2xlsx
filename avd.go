@@ -36,27 +36,27 @@ func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool
 
 	if size == 0 {
 		log.Println("Write AVD Skip")
-		<-runAvd
+		fillChan(runAvd)
 		return
 	}
 
 	log.Println("Start load AVD")
 
 	// wait runDmd done
-	wait(runDmd)
+	emptyChan(runDmd)
 	// go loadAvd -> dbChan -> go writeAvd
 	go writeAvd(excel, sheetName, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
 		go loadAvd(fileName, dbChan, throttle, all)
 	}
 	for i := 0; i < *threshold; i++ {
-		wait(throttle)
+		fillChan(throttle)
 	}
-	waitWrite(runWrite)
+	emptyChan(runWrite)
 
 	log.Println("Write AVD Done")
 
-	runAvd <- true
+	fillChan(runAvd)
 }
 
 func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]string, size int, throttle chan<- bool) {

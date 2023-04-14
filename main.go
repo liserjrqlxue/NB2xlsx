@@ -59,10 +59,10 @@ func main() {
 
 	// un-block channel bool
 	var (
-		localDb      = make(chan bool, 1)
+		loadDbChan   = make(chan bool, 1)
 		runAe        = make(chan bool, 1)
 		runAvd       = make(chan bool, 1)
-		loadDmd      = make(chan bool, 1)
+		loadDmdChan  = make(chan bool, 1)
 		writeDmd     = make(chan bool, 1)
 		runQC        = make(chan bool, 1)
 		saveMain     = make(chan bool, 1)
@@ -72,11 +72,10 @@ func main() {
 
 	// load local db
 	{
-		localDb <- true
 		if *im {
-			loadLocalDb(filepath.Join(etcPath, "已解读数据库.IM.json.aes"), localDb)
+			loadLocalDb(filepath.Join(etcPath, "已解读数据库.IM.json.aes"), loadDbChan)
 		} else {
-			loadLocalDb(filepath.Join(etcPath, "已解读数据库.json.aes"), localDb)
+			loadLocalDb(filepath.Join(etcPath, "已解读数据库.json.aes"), loadDbChan)
 		}
 	}
 
@@ -132,34 +131,31 @@ func main() {
 
 	// QC
 	if *qc != "" {
-		wait(runQC)
 		WriteQC(excel, runQC)
 	}
 
 	// CNV
 	// QC -> DMD
-	wait(runQC, loadDmd)
-	LoadDmd(excel, loadDmd)
+	emptyChan(runQC)
+	LoadDmd(excel, loadDmdChan)
 
 	// 补充实验
-	wait(runAe)
 	WriteAe(excel, runAe)
 
 	// All variant data
-	wait(localDb)
+	emptyChan(loadDbChan)
 	if *im {
-		goWriteAvd(excel, "SNV&INDEL", loadDmd, runAvd, *all)
+		goWriteAvd(excel, "SNV&INDEL", loadDmdChan, runAvd, *all)
 	} else {
-		goWriteAvd(excel, *avdSheetName, loadDmd, runAvd, *all)
+		goWriteAvd(excel, *avdSheetName, loadDmdChan, runAvd, *all)
 	}
 
 	// write CNV after runAvd
 	// CNV
-	waitWrite(runAvd)
+	emptyChan(runAvd)
 	if *cs {
 		*dmdSheetName = "DMD CNV"
 	} else {
-		wait(writeDmd)
 		goUpdateCNV(excel, writeDmd)
 	}
 	if *wgs {
@@ -189,24 +185,24 @@ func main() {
 		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateGeneID)
 	}
 
-	wait(saveBatchCnv)
 	go goWriteBatchCnv(saveBatchCnv)
 
-	wait(runAe, writeDmd, saveMain)
+	emptyChan(runAe, writeDmd)
+
 	go saveMainExcel(excel, *prefix+".xlsx", saveMain)
 
 	// waite excel write done
-	wait(saveMain, saveBatchCnv)
+	emptyChan(saveMain, saveBatchCnv)
 	log.Println("All Done")
 }
 
-func wait(ch ...chan<- bool) {
+func fillChan(ch ...chan<- bool) {
 	for _, bools := range ch {
 		bools <- true
 	}
 }
 
-func waitWrite(ch ...<-chan bool) {
+func emptyChan(ch ...<-chan bool) {
 	for _, bools := range ch {
 		<-bools
 	}
