@@ -44,6 +44,7 @@ func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool
 
 	// wait runDmd done
 	emptyChan(runDmd)
+	log.Println("Wait DMD Done")
 	// go loadAvd -> dbChan -> go writeAvd
 	go writeAvd(excel, sheetName, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
