@@ -299,7 +299,7 @@ func writeSampleAvd(excelName, sheetName string, title []string, data []map[stri
 		rIdx  = 1
 	)
 	if *im {
-		title = sheetTitle[sheetName]
+		title = sheetTitle["SNV&INDEL"]
 	}
 	excel.NewSheet(sheetName)
 	writeTitle(excel, sheetName, title)
