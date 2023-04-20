@@ -177,7 +177,7 @@ func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan b
 	// cycle 1
 	for _, item := range data {
 		updateAvd(item, subFlag)
-		updateFromAvd(item, geneHash, geneInfo, sampleID)
+		updateFromAvd(item, geneHash, geneInfo, sampleID, subFlag)
 		if *cs {
 			// 烈性突变
 			anno.UpdateSnvTier1(item)

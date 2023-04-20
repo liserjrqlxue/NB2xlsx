@@ -499,7 +499,7 @@ func readsPicture(item map[string]string) {
 	item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
 }
 
-func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {
+func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string, subFlag bool) {
 	if item["filterAvd"] != "Y" {
 		return
 	}
@@ -512,11 +512,11 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
 		info.gender = "M"
-		UpdateGeneHash(geneHash, item, "M")
+		UpdateGeneHash(geneHash, item, "M", subFlag)
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
 		info.gender = "F"
-		UpdateGeneHash(geneHash, item, "F")
+		UpdateGeneHash(geneHash, item, "F", subFlag)
 	}
 	geneInfo[item["Gene Symbol"]] = info
 }
@@ -593,8 +593,11 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 }
 
 // UpdateGeneHash : update geneHash
-func UpdateGeneHash(geneHash, item map[string]string, gender string) {
+func UpdateGeneHash(geneHash, item map[string]string, gender string, subFlag bool) {
 	if item["isReport"] != "Y" {
+		return
+	}
+	if subFlag && item["报告类别-原始"] != "正式报告" {
 		return
 	}
 	var gene = item["Gene Symbol"]
