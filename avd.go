@@ -306,6 +306,9 @@ func writeSampleAvd(excelName, sheetName string, title []string, data []map[stri
 	for _, item := range data {
 		if *im {
 			if geneIMListMap[item["Gene Symbol"]] {
+				var sampleID = item["SampleID"]
+				updateInfo(item, sampleID)
+				updateColumns(item, sheetTitleMap["SNV&INDEL"])
 				rIdx++
 				writeRow(excel, sheetName, item, title, rIdx)
 			}
