@@ -298,6 +298,9 @@ func writeSampleAvd(excelName, sheetName string, title []string, data []map[stri
 		excel = excelize.NewFile()
 		rIdx  = 1
 	)
+	if *im {
+		title = sheetTitle[sheetName]
+	}
 	excel.NewSheet(sheetName)
 	writeTitle(excel, sheetName, title)
 	for _, item := range data {
