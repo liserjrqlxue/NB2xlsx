@@ -170,7 +170,7 @@ func WriteQC(excel *excelize.File, throttle chan bool) {
 		writeQC(excel, loadQC(*qc))
 	}
 	log.Println("Write QC Done")
-	fillChan(throttle)
+	emptyChan(throttle)
 }
 
 func updateINDEX(item map[string]string, col string, index int) {

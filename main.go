@@ -131,12 +131,13 @@ func main() {
 
 	// QC
 	if *qc != "" {
+		fillChan(runQC)
 		WriteQC(excel, runQC)
 	}
 
 	// CNV
 	// QC -> DMD
-	emptyChan(runQC)
+	fillChan(runQC)
 	LoadDmd(excel, loadDmdChan)
 
 	// 补充实验
