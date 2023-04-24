@@ -287,6 +287,10 @@ func updateAvd(item map[string]string, subFlag bool) {
 	} else {
 		annoLocaDb(item, localDb, subFlag)
 	}
+	if *im {
+		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
+		item["pHGVS"] = item["pHGVS3"]
+	}
 	item["exonCount"] = exonCount[item["Transcript"]]
 	item["引物设计"] = anno.PrimerDesign(item)
 	item["验证"] = ifCheck(item)
