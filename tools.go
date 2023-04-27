@@ -1027,9 +1027,9 @@ func updateQC(item map[string]string, i int) {
 			}
 		} else {
 			var inputGender = "null"
-			if limsInfo[item["Sample"]]["SEX"] == "1" {
+			if limsInfo[sampleID]["SEX"] == "1" {
 				inputGender = "M"
-			} else if limsInfo[item["Sample"]]["SEX"] == "2" {
+			} else if limsInfo[sampleID]["SEX"] == "2" {
 				inputGender = "F"
 			} else {
 				inputGender = "null"
@@ -1038,7 +1038,7 @@ func updateQC(item map[string]string, i int) {
 				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
 			}
 			//item["RESULT"]=item[""]
-			item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
+			item["产品编号"] = limsInfo[sampleID]["PRODUCT_CODE"]
 		}
 	}
 	updateColumns(item, sheetTitleMap["QC"])
