@@ -15,6 +15,14 @@ var (
 	templatePath = filepath.Join(exPath, "template")
 )
 
+// template
+var (
+	// template for prefix+".xlsx"
+	mainTemplate = filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx")
+	// template for prefix+".batchCNV.xlsx"
+	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
+)
+
 var (
 	geneInfoMap        = make(map[string]map[string]string)
 	geneListMap        = make(map[string]bool)

@@ -212,17 +212,6 @@ var (
 		filepath.Join(etcPath, "function.exclude.txt"),
 		"function list to exclude",
 	)
-	// template
-	bcTemplate = flag.String(
-		"bcTemplate",
-		filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx"),
-		"template to be used",
-	)
-	template = flag.String(
-		"template",
-		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
-		"template to be used",
-	)
 )
 
 // boolean

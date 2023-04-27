@@ -109,11 +109,11 @@ func main() {
 	if *im {
 		excel = initExcel()
 	} else {
-		var templateXlsx = *template
+		var templateXlsx = mainTemplate
 		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
 			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
 		}
-		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
+		excel = simpleUtil.HandleError(excelize.OpenFile(mainTemplate)).(*excelize.File)
 	}
 	styleInit(excel)
 

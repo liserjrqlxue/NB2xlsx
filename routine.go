@@ -188,7 +188,7 @@ var (
 
 func goWriteBatchCnv(throttle chan bool) {
 	var sheetName = "Sheet1"
-	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(*bcTemplate)).(*excelize.File)
+	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
 
 	updateData2Sheet(bcExcel, sheetName, BatchCnv, updateBatchCNV)
 
