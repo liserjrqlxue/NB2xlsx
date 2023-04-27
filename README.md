@@ -30,6 +30,56 @@
     - [x] [init](#init)
     - [x] [use](#use)
 
+## 使用方式
+
+### 输入参数
+
+| 参数                | 格式      | 默认值                                     | 说明                                                      |
+|-------------------|---------|-----------------------------------------|---------------------------------------------------------|
+| -batch            | string  |                                         | batch name                                              |
+| -prefix           | string  | [batch]                                 | output to [prefix].xlsx                                 |
+| -gender           | string  | F                                       | gender for all or gender map file                       |
+| -acmg             | boolean | false                                   | 是否启动ACMG2015注释                                          |
+| -autoPVS1         | boolean | false                                   | 是否使用autoPVS1的证据项结果                                      |
+| -acmgDb           | string  | etc/acmg.db.list.txt                    | ACMG2015注释数据库路径列表                                       |
+| -cs               | boolean | false                                   | if use for CS                                           |
+| -im               | boolean | false                                   | if use for im                                           |
+| -wgs              | boolean | false                                   | if use for wgs                                          |
+| -all              | boolean | false                                   | 是否输出单样品所有变异excel                                        |
+| -allColumns       | string  | etc/avd.all.columns.txt                 | 单样品excel输出列                                             |
+| -allSheetName     | string  | Sheet1                                  | 单样品excel sheet名                                         |
+| -batchCNV         | string  |                                         | batchCNV result                                         |
+| -bcTemplate       | string  | template/NB2xlsx.batchCNV.xlsx          | template to be used for batchCNV excel                  |
+| -annoDir          | string  |                                         | CS模式单样品excel输出目录，输出结果为[annoDir]/[sampleID]_vcfanno.xlsx |
+| -detail           | string  |                                         | sample info                                             |
+| -info             | string  |                                         | im info.txt                                             |
+| -lims             | string  |                                         | lims.info                                               |
+| -avd              | string  |                                         | All variants data file list, comma as sep               |
+| -avdList          | string  |                                         | All variants data file list, one path per line          |
+| -avdSheetName     | string  | All variants data                       | All variants data sheet name                            |
+| -dmd              | string  |                                         | DMD result file list, comma as sep                      |
+| -dmdList          | string  |                                         | DMD result file list, one path per line                 |
+| -lumpy            | string  |                                         | DMD-lumpy data                                          |
+| -nator            | string  |                                         | DMD-nator data                                          |
+| -dmdSheetName     | string  | CNV                                     | DMD result sheet name                                   |
+| -dipin            | string  |                                         | dipin result file                                       |
+| -sma              | string  |                                         | sma result file                                         |
+| -sma2             | string  |                                         | sma result file                                         |
+| -aeSheetName      | string  | 补充实验                                    | 补充实验sheet名                                              |
+| -feature          | string  |                                         | 个特 list                                                 |
+| -geneID           | string  |                                         | 基因ID list                                               |
+| -qc               | string  |                                         | qc excel                                                |
+| -qcSheet          | string  | QC                                      | qc sheet name                                           |
+| -bamPath          | string  |                                         | bamList file                                            |
+| -bamPathSheetName | string  | bam文件路径                                 | bamPath sheet name                                      |
+| -drug             | string  |                                         | drug result file                                        |
+| -drugSheetName    | string  |                                         | 药物检测结果                                                  |
+| -functionExclude  | string  | etc/function.exclude.txt                | function list to exclude                                |
+| -geneInfoList     | string  | etc/gene.list.txt                       | gene list to filter                                     |
+| -dropList         | string  | etc/drop.list.txt                       | drop list for excel                                     |
+| -template         | string  | template/NBS-final.result-批次号_产品编号.xlsx | template to be used                                     |
+| -threshold        | int     | 12                                      | threshold limit                                         |
+
 ## 编译安装
 
 ```shell
