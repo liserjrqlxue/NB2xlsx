@@ -1038,7 +1038,7 @@ func updateQC(item map[string]string, i int) {
 				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
 			}
 			//item["RESULT"]=item[""]
-			item["产品编号"] = limsInfo[sampleID]["PRODUCT_CODE"]
+			//item["产品编号"] = limsInfo[sampleID]["PRODUCT_CODE"]
 		}
 	}
 	updateColumns(item, sheetTitleMap["QC"])
