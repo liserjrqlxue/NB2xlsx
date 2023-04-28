@@ -24,7 +24,7 @@ func loadAvdList() (avdArray []string) {
 }
 
 // goWriteAvd write AVD sheet to excel
-func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool, all bool) {
+func goWriteAvd(excel *excelize.File, sheetName, allSheetName string, runDmd, runAvd chan bool, all bool) {
 	log.Println("Write AVD Start")
 	var (
 		avdArray = loadAvdList()
@@ -48,7 +48,7 @@ func goWriteAvd(excel *excelize.File, sheetName string, runDmd, runAvd chan bool
 	// go loadAvd -> dbChan -> go writeAvd
 	go writeAvd(excel, sheetName, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
-		go loadAvd(fileName, dbChan, throttle, all)
+		go loadAvd(fileName, allSheetName, dbChan, throttle, all)
 	}
 	emptyChan(runWrite)
 	for i := 0; i < *threshold; i++ {
@@ -128,7 +128,7 @@ func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[stri
 	writeRow(excel, sheetName, item, title, rIdx)
 }
 
-func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
+func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
 	// block threads
 	fillChan(throttle)
 
@@ -211,7 +211,7 @@ func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan b
 	}
 
 	if all {
-		writeSampleAvd(allExcelPath, allSheetName, allTitle, data)
+		writeSampleAvd(allExcelPath, sheetName, allTitle, data)
 	}
 
 	dbChan <- filterData

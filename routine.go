@@ -19,8 +19,8 @@ func addChr(chr string) string {
 	)
 }
 
-// LoadDmd load DMD sheet to excel
-func LoadDmd(excel *excelize.File, throttle chan bool) {
+// LoadDmd4Sheet load DMD sheet to excel
+func LoadDmd4Sheet(excel *excelize.File, sheetName string, throttle chan bool) {
 	log.Println("Load DMD Start")
 	var dmdArray []string
 	if *dmdFiles != "" {
@@ -30,7 +30,7 @@ func LoadDmd(excel *excelize.File, throttle chan bool) {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		loadDmd(excel, dmdArray)
+		loadDmd(excel, sheetName, dmdArray)
 	} else {
 		log.Println("Load DMD Skip")
 	}
@@ -38,11 +38,7 @@ func LoadDmd(excel *excelize.File, throttle chan bool) {
 	fillChan(throttle)
 }
 
-func loadDmd(excel *excelize.File, dmdArray []string) {
-	var sheetName = dmdSheetName
-	if *im {
-		sheetName = "DMD CNV"
-	}
+func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	//var title = rows[0]
 	var rIdx = len(rows)
@@ -81,16 +77,14 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 	}
 }
 
-func goUpdateCNV(excel *excelize.File, throttle chan bool) {
-	if *im {
-		dmdSheetName = "DMD CNV"
-	}
-	updateData2Sheet(excel, dmdSheetName, DmdCnv, updateDMDCNV)
+func goUpdateCNV(excel *excelize.File, sheetName string, throttle chan bool) {
+
+	updateData2Sheet(excel, sheetName, DmdCnv, updateDMDCNV)
 	fillChan(throttle)
 }
 
 // WriteAe write AE sheet to excel
-func WriteAe(excel *excelize.File, throttle chan bool) {
+func WriteAe(excel *excelize.File, sheetName string, throttle chan bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)
 	if *dipinResult != "" {
@@ -117,7 +111,7 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 		}
 	}
 	if len(db) > 0 {
-		writeAe(excel, db)
+		writeAe(excel, sheetName, db)
 	} else {
 		log.Println("Write AE Skip")
 	}
@@ -125,11 +119,11 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 	fillChan(throttle)
 }
 
-func writeAe(excel *excelize.File, db map[string]map[string]string) {
+func writeAe(excel *excelize.File, sheetName string, db map[string]map[string]string) {
 	if *im {
-		aeSheetName = "THAL CNV"
+		sheetName = "THAL CNV"
 	}
-	var rows = simpleUtil.HandleError(excel.GetRows(aeSheetName)).([][]string)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 	for _, item := range db {
@@ -155,19 +149,19 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 			} else {
 				updateABC(item, sampleID)
 			}
-			writeRow(excel, aeSheetName, item, title, rIdx)
+			writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
 }
 
 // WriteQC write QC sheet to excel
-func WriteQC(excel *excelize.File, throttle chan bool) {
+func WriteQC(excel *excelize.File, sheetName string, throttle chan bool) {
 	log.Println("Write QC Start")
 	if *cs {
 		var qcMaps, _ = textUtil.File2MapArray(*qc, "\t", nil)
-		writeQC(excel, qcMaps)
+		writeQC(excel, sheetName, qcMaps)
 	} else {
-		writeQC(excel, loadQC(*qc))
+		writeQC(excel, sheetName, loadQC(*qc))
 	}
 	log.Println("Write QC Done")
 	emptyChan(throttle)
@@ -186,8 +180,7 @@ var (
 	//}
 )
 
-func goWriteBatchCnv(throttle chan bool) {
-	var sheetName = "Sheet1"
+func goWriteBatchCnv(sheetName string, throttle chan bool) {
 	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
 
 	updateData2Sheet(bcExcel, sheetName, BatchCnv, updateBatchCNV)

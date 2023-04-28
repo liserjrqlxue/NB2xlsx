@@ -117,75 +117,98 @@ func main() {
 	}
 	styleInit(excel)
 
+	// fill sheets
+	// local sheet names
+	var (
+		// Additional Experiments sheet name
+		aeSheetName = "补充实验"
+		// All samples' snv Excel sheet name
+		allSheetName = "Sheet1"
+		// All variants data sheet name
+		avdSheetName = "All variants data"
+		// Bam path sheet name
+		bamPathSheetName = "bam文件路径"
+		// DMD result sheet name
+		dmdSheetName = "CNV"
+		// WGS DMD result sheet name
+		wgsDmdSheetName = "CNV"
+		// Drug sheet name
+		drugSheetName = "药物检测结果"
+		// QC sheet name
+		qcSheetName = "QC"
+		// Sample sheet name
+		sampleSheetName = "Sample"
+		// individual characteristics sheet name
+		icSheetName = "个特"
+		// Gene ID sheet name
+		geneIDSheetName = "基因ID"
+		// batchCNV Excel sheet name
+		bcSheetName = "Sheet1"
+	)
 	if *im {
-		// Sample
-		if *info != "" {
-			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
-		}
-	} else {
-		// bam文件路径
-		if *bamPath != "" {
-			updateBamPath(excel, *bamPath)
-		}
+		dmdSheetName = "DMD CNV"
+		aeSheetName = "THAL CNV"
+		avdSheetName = "SNV&INDEL"
+	}
+	if *wgs {
+		dmdSheetName = "CNV-原始"
+		wgsDmdSheetName = "CNV"
+	}
+	if *cs {
+		wgsDmdSheetName = "DMD CNV"
 	}
 
+	// Sample
+	if *im && *info != "" {
+		updateDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
+	}
+	// bam文件路径
+	if *bamPath != "" {
+		updateBamPath2Sheet(excel, bamPathSheetName, *bamPath)
+	}
 	// QC
 	if *qc != "" {
 		fillChan(runQC)
-		WriteQC(excel, runQC)
+		WriteQC(excel, qcSheetName, runQC)
 	}
-
 	// CNV
 	// QC -> DMD
 	fillChan(runQC)
-	LoadDmd(excel, loadDmdChan)
-
+	LoadDmd4Sheet(excel, dmdSheetName, loadDmdChan)
 	// 补充实验
-	WriteAe(excel, runAe)
-
+	WriteAe(excel, aeSheetName, runAe)
 	// All variant data
-	if *im {
-		goWriteAvd(excel, "SNV&INDEL", loadDmdChan, runAvd, *all)
-	} else {
-		goWriteAvd(excel, avdSheetName, loadDmdChan, runAvd, *all)
-	}
+	goWriteAvd(excel, avdSheetName, allSheetName, loadDmdChan, runAvd, *all)
 
-	// write CNV after runAvd
 	// CNV
+	// write CNV after runAvd
 	emptyChan(runAvd)
-	if *cs {
-		dmdSheetName = "DMD CNV"
-	} else {
-		goUpdateCNV(excel, writeDmd)
-	}
-	if *wgs {
-		dmdSheetName = "CNV"
+	if !*cs {
+		goUpdateCNV(excel, dmdSheetName, writeDmd)
 	}
 	// DMD-lumpy
 	if *lumpy != "" {
-		updateDataFile2Sheet(excel, dmdSheetName, *lumpy, updateLumpy)
+		updateDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
 	}
 	// DMD-nator
 	if *nator != "" {
-		updateDataFile2Sheet(excel, dmdSheetName, *nator, updateNator)
+		updateDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
 	}
-
 	// drug, no use
 	if *drugResult != "" {
 		updateDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
 	}
-
 	// 个特
 	if *featureList != "" {
-		updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
+		updateDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
 	}
-
 	// 基因ID
 	if *geneIDList != "" {
-		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateGeneID)
+		updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
 	}
 
-	go goWriteBatchCnv(saveBatchCnv)
+	// batchCNV.xlsx
+	go goWriteBatchCnv(bcSheetName, saveBatchCnv)
 
 	emptyChan(runAe, writeDmd)
 
