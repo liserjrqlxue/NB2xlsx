@@ -189,9 +189,6 @@ func goWriteBatchCnv(sheetName string, batchCnvDb []map[string]string, throttle 
 
 	updateData2Sheet(bcExcel, sheetName, batchCnvDb, updateBatchCNV)
 
-	//var lastCellName = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(BatchCnvTitle), len(BatchCnv)+1)).(string)
-	//simpleUtil.CheckErr(bcExcel.AddTable(sheetName, "A1", lastCellName, `{"table_style":"TableStyleMedium9"}`), "bcExcel.AddTable Error!")
-
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 
 	holdChan(throttle)
