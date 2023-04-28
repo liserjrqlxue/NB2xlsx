@@ -26,7 +26,7 @@ var (
 // etc
 var (
 	// ACMG2015 db list
-	acmgDb = filepath.Join(etcPath, "acmg.db.list.txt")
+	acmgDbList = filepath.Join(etcPath, "acmg.db.list.txt")
 	// samples' all snv Excel sheet title
 	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
 	// drop list for main excel
@@ -37,6 +37,11 @@ var (
 	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
 	// exclude function list
 	functionExclude = filepath.Join(etcPath, "function.exclude.txt")
+	// i18n.txt
+	i18nTxt = filepath.Join(etcPath, "i18n.txt")
+	// variant db
+	jsonAes   = filepath.Join(etcPath, "已解读数据库.json.aes")
+	jsonAesIM = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
 )
 
 var (
@@ -59,8 +64,6 @@ var (
 
 	// DmdCnv : array of DMD cnv map
 	DmdCnv []map[string]string
-	// BatchCnv : array of batch cnv map
-	BatchCnv []map[string]string
 
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)

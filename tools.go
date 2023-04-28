@@ -200,12 +200,11 @@ func loadDb() {
 	}
 }
 
-func loadLocalDb(aes string, throttle chan bool) {
+func loadLocalDb(aes string) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
 	localDb = jsonUtil.Json2MapMap(AES.DecodeFile(aes, []byte(codeKey)))
 	log.Println("Load LocalDb Done")
-	holdChan(throttle)
 }
 
 var formulaTitle = map[string]bool{
@@ -903,16 +902,22 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 	}
 }
 
-func loadBatchCNV(cnv string) {
+func loadBatchCNV(cnv string) (batchCnvDb []map[string]string) {
+	if cnv == "" {
+		log.Println("Skip Load BatchCNV for no cnv input")
+		return
+	}
+
 	log.Println("Load BatchCNV Start")
-	BatchCnv, _ = textUtil.File2MapArray(cnv, "\t", nil)
-	for _, item := range BatchCnv {
+	batchCnvDb, _ = textUtil.File2MapArray(cnv, "\t", nil)
+	for _, item := range batchCnvDb {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
 		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
 	log.Println("Load BatchCNV Done")
+	return
 }
 
 func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
@@ -1408,4 +1413,15 @@ func updateBamPath2Sheet(excel *excelize.File, sheetName, list string) {
 			}
 		}
 	}
+}
+
+func getI18n(v, k string) string {
+	var value, ok = I18n[k+"."+v][i18n]
+	if !ok {
+		value, ok = I18n[v][i18n]
+	}
+	if ok {
+		return value
+	}
+	return v
 }

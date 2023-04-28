@@ -30,23 +30,23 @@ func init() {
 	// acmg2015 init
 	if *acmg {
 		acmg2015.AutoPVS1 = *autoPVS1
-		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(acmgDb, "\t", false)).(map[string]string)
+		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(acmgDbList, "\t", false)).(map[string]string)
 		for k, v := range acmgCfg {
 			acmgCfg[k] = filepath.Join(dbPath, v)
 		}
 		acmg2015.Init(acmgCfg)
 	}
-}
 
-func getI18n(v, k string) string {
-	var value, ok = I18n[k+"."+v][i18n]
-	if !ok {
-		value, ok = I18n[v][i18n]
+	I18n, _ = textUtil.File2MapMap(i18nTxt, "CN", "\t", nil)
+
+	// load local db
+	{
+		if *im {
+			loadLocalDb(jsonAesIM)
+		} else {
+			loadLocalDb(jsonAes)
+		}
 	}
-	if ok {
-		return value
-	}
-	return v
 }
 
 func main() {
@@ -55,11 +55,8 @@ func main() {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
-	I18n, _ = textUtil.File2MapMap(filepath.Join(etcPath, "i18n.txt"), "CN", "\t", nil)
-
 	// un-block channel bool
 	var (
-		loadDbChan       = make(chan bool, 1)
 		writeAeChan      = make(chan bool, 1)
 		runAvd           = make(chan bool, 1)
 		loadDmdChan      = make(chan bool, 1)
@@ -70,24 +67,13 @@ func main() {
 	)
 	var excel *excelize.File
 
-	// load local db
-	{
-		if *im {
-			loadLocalDb(filepath.Join(etcPath, "已解读数据库.IM.json.aes"), loadDbChan)
-		} else {
-			loadLocalDb(filepath.Join(etcPath, "已解读数据库.json.aes"), loadDbChan)
-		}
-	}
-
 	loadDb()
 
 	if *lims != "" {
 		limsInfo = loadLimsInfo()
 	}
 
-	if *batchCNV != "" {
-		loadBatchCNV(*batchCNV)
-	}
+	var batchCnvDb = loadBatchCNV(*batchCNV)
 
 	if *info != "" {
 		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
@@ -198,7 +184,7 @@ func main() {
 	updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
 
 	// batchCNV.xlsx
-	go goWriteBatchCnv(bcSheetName, saveBatchCnvChan)
+	go goWriteBatchCnv(bcSheetName, batchCnvDb, saveBatchCnvChan)
 
 	go saveMainExcel(excel, *prefix+".xlsx", saveMainChan, writeAeChan, writeDmdChan)
 
