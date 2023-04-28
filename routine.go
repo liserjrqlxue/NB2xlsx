@@ -155,16 +155,20 @@ func writeAe(excel *excelize.File, sheetName string, db map[string]map[string]st
 }
 
 // WriteQC write QC sheet to excel
-func WriteQC(excel *excelize.File, sheetName string, throttle chan bool) {
+func WriteQC(excel *excelize.File, sheetName, path string) {
+	if path == "" {
+		log.Printf("skip [%s] for absence", sheetName)
+		return
+	}
+
 	log.Println("Write QC Start")
 	if *cs {
-		var qcMaps, _ = textUtil.File2MapArray(*qc, "\t", nil)
+		var qcMaps, _ = textUtil.File2MapArray(path, "\t", nil)
 		writeQC(excel, sheetName, qcMaps)
 	} else {
-		writeQC(excel, sheetName, loadQC(*qc))
+		writeQC(excel, sheetName, loadQC(path))
 	}
 	log.Println("Write QC Done")
-	waitChan(throttle)
 }
 
 func updateINDEX(item map[string]string, col string, index int) {

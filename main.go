@@ -65,7 +65,6 @@ func main() {
 		runAvd           = make(chan bool, 1)
 		loadDmdChan      = make(chan bool, 1)
 		writeDmdChan     = make(chan bool, 1)
-		runQC            = make(chan bool, 1)
 		saveMainChan     = make(chan bool, 1)
 		saveBatchCnvChan = make(chan bool, 1)
 
@@ -140,17 +139,9 @@ func main() {
 		updateDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
 	}
 	// bam文件路径
-	if *bamPath != "" {
-		updateBamPath2Sheet(excel, bamPathSheetName, *bamPath)
-	}
-	// QC
-	if *qc != "" {
-		holdChan(runQC)
-		WriteQC(excel, qcSheetName, runQC)
-	}
-	// CNV
+	updateBamPath2Sheet(excel, bamPathSheetName, *bamPath)
 	// QC -> DMD
-	holdChan(runQC)
+	WriteQC(excel, qcSheetName, *qc)
 	LoadDmd4Sheet(excel, dmdSheetName, loadDmdChan)
 	// 补充实验
 	WriteAe(excel, aeSheetName, writeAeChan)

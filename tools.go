@@ -1386,6 +1386,11 @@ func getCNVtype(gender string, item map[string]string) string {
 }
 
 func updateBamPath2Sheet(excel *excelize.File, sheetName, list string) {
+	if list == "" {
+		log.Printf("skip [%s] for absence", sheetName)
+		return
+	}
+
 	var (
 		i    int
 		path string
