@@ -1061,9 +1061,14 @@ func loadQC(qc string) (qcDb []map[string]string) {
 	return
 }
 
-type handleItem func(map[string]string)
+type handleFunc func(map[string]string)
 
-func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleItem) {
+func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleFunc) {
+	if len(db) == 0 {
+		log.Printf("skip update [%s] for empty db", sheetName)
+		return
+	}
+
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
@@ -1126,13 +1131,22 @@ func updateColumns(item, titleMap map[string]string) {
 }
 
 // File2MapArray
-func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleItem) {
+func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleFunc) {
+	if path == "" {
+		log.Printf("skip update [%s] for no path", sheetName)
+		return
+	}
+	var db, _ = textUtil.File2MapArray(path, "\t", nil)
+	if len(db) == 0 {
+		log.Printf("skip update [%s] for empty path [%s]", sheetName, path)
+		return
+	}
+
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 
-	var db, _ = textUtil.File2MapArray(path, "\t", nil)
 	for _, item := range db {
 		rIdx++
 		fn(item)
@@ -1142,13 +1156,24 @@ func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handl
 }
 
 // List of File2MapArray
-func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleItem) {
+func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleFunc) {
+	if list == "" {
+		log.Printf("skip update [%s] for no list", sheetName)
+		return
+	}
+
+	var lists = textUtil.File2Array(list)
+	if len(lists) == 0 {
+		log.Printf("skip update [%s] for empty list [%s]", sheetName, list)
+		return
+	}
+
 	log.Printf("update [%s]", sheetName)
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 
-	for _, path := range textUtil.File2Array(list) {
+	for _, path := range lists {
 		var db, _ = textUtil.File2MapArray(path, "\t", nil)
 		for _, item := range db {
 			rIdx++

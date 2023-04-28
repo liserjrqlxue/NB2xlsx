@@ -159,7 +159,7 @@ func main() {
 	}
 
 	// Sample
-	if *im && *info != "" {
+	if *im {
 		updateDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
 	}
 	// bam文件路径
@@ -187,25 +187,15 @@ func main() {
 		goUpdateCNV(excel, dmdSheetName, writeDmd)
 	}
 	// DMD-lumpy
-	if *lumpy != "" {
-		updateDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
-	}
+	updateDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
 	// DMD-nator
-	if *nator != "" {
-		updateDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
-	}
+	updateDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
 	// drug, no use
-	if *drugResult != "" {
-		updateDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
-	}
+	updateDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
 	// 个特
-	if *featureList != "" {
-		updateDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
-	}
+	updateDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
 	// 基因ID
-	if *geneIDList != "" {
-		updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
-	}
+	updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
 
 	// batchCNV.xlsx
 	go goWriteBatchCnv(bcSheetName, saveBatchCnv)
