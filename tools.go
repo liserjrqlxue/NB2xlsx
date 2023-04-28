@@ -93,7 +93,7 @@ func loadDiseaseDb(i18n string) {
 func loadDb() {
 	log.Println("Load Database Start")
 	// load gene info list
-	geneInfoMap, _ = textUtil.File2MapMap(*geneInfoList, "Gene Symbol", "\t", nil)
+	geneInfoMap, _ = textUtil.File2MapMap(geneInfoList, "Gene Symbol", "\t", nil)
 	if *im {
 		for s, m := range geneInfoMap {
 			if m["一体机过滤基因"] == "TRUE" {
@@ -105,7 +105,7 @@ func loadDb() {
 		}
 	} else {
 		// load gene list
-		for _, key := range textUtil.File2Array(*geneList) {
+		for _, key := range textUtil.File2Array(geneList) {
 			geneListMap[key] = true
 		}
 	}
@@ -126,7 +126,7 @@ func loadDb() {
 		geneExcludeListMap[key] = true
 	}
 	// load function exclude list
-	for _, key := range textUtil.File2Array(*functionExclude) {
+	for _, key := range textUtil.File2Array(functionExclude) {
 		functionExcludeMap[key] = true
 	}
 
@@ -158,7 +158,7 @@ func loadDb() {
 
 	// load drop list
 	log.Println("Load DropList Start")
-	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
+	for k, v := range simpleUtil.HandleError(textUtil.File2Map(dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
 

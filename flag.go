@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"path/filepath"
 )
 
 // flag
@@ -176,41 +175,6 @@ var (
 		"qcSheet",
 		"QC",
 		"qc sheet name",
-	)
-)
-
-// config file
-var (
-	// etc
-	acmgDb = flag.String(
-		"acmgDb",
-		filepath.Join(etcPath, "acmg.db.list.txt"),
-		"acmg db list",
-	)
-	allColumns = flag.String(
-		"allColumns",
-		filepath.Join(etcPath, "avd.all.columns.txt"),
-		"all snv sheet title",
-	)
-	dropList = flag.String(
-		"dropList",
-		filepath.Join(etcPath, "drop.list.txt"),
-		"drop list for excel",
-	)
-	geneList = flag.String(
-		"geneList",
-		filepath.Join(etcPath, "gene.list.txt"),
-		"gene list to filter",
-	)
-	geneInfoList = flag.String(
-		"geneInfoList",
-		filepath.Join(etcPath, "gene.info.txt"),
-		"gene info:Transcript and EntrezID",
-	)
-	functionExclude = flag.String(
-		"functionExclude",
-		filepath.Join(etcPath, "function.exclude.txt"),
-		"function list to exclude",
 	)
 )
 

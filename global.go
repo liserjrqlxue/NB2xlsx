@@ -23,6 +23,22 @@ var (
 	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
 )
 
+// etc
+var (
+	// ACMG2015 db list
+	acmgDb = filepath.Join(etcPath, "acmg.db.list.txt")
+	// samples' all snv Excel sheet title
+	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
+	// drop list for main excel
+	dropList = filepath.Join(etcPath, "drop.list.txt")
+	// gene list to filter
+	geneList = filepath.Join(etcPath, "gene.list.txt")
+	// gene info : Transcript and EntrezID
+	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
+	// exclude function list
+	functionExclude = filepath.Join(etcPath, "function.exclude.txt")
+)
+
 var (
 	geneInfoMap        = make(map[string]map[string]string)
 	geneListMap        = make(map[string]bool)

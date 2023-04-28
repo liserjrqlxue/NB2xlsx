@@ -138,7 +138,7 @@ func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan b
 		data, _  = textUtil.File2MapArray(fileName, "\t", nil)
 		sampleID = filepath.Base(fileName)
 
-		allTitle = textUtil.File2Array(*allColumns)
+		allTitle = textUtil.File2Array(allColumns)
 
 		subFlag = false
 
