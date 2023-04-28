@@ -23,6 +23,24 @@ var (
 	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
 )
 
+// sheet names
+var (
+	// Additional Experiments sheet name
+	aeSheetName = "补充实验"
+	// All samples' snv Excel sheet name
+	allSheetName = "Sheet1"
+	// All variants data sheet name
+	avdSheetName = "All variants data"
+	// Bam path sheet name
+	bamPathSheetName = "bam文件路径"
+	// DMD result sheet name
+	dmdSheetName = "CNV"
+	// Drug sheet name
+	drugSheetName = "药物检测结果"
+	// QC sheet name
+	qcSheetName = "QC"
+)
+
 // etc
 var (
 	// ACMG2015 db list

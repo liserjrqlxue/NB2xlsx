@@ -211,7 +211,7 @@ func loadAvd(fileName string, dbChan chan<- []map[string]string, throttle chan b
 	}
 
 	if all {
-		writeSampleAvd(allExcelPath, *allSheetName, allTitle, data)
+		writeSampleAvd(allExcelPath, allSheetName, allTitle, data)
 	}
 
 	dbChan <- filterData

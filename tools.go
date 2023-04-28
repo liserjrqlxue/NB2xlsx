@@ -988,7 +988,7 @@ func floatFormat(item map[string]string, keys []string, prec int) {
 
 // QC
 func writeQC(excel *excelize.File, db []map[string]string) {
-	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
+	var rows = simpleUtil.HandleError(excel.GetRows(qcSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 	for i, item := range db {
@@ -1003,7 +1003,7 @@ func writeQC(excel *excelize.File, db []map[string]string) {
 			updateQC(item, i)
 		}
 		updateINDEX(item, "B", rIdx)
-		writeRow(excel, *qcSheetName, item, title, rIdx)
+		writeRow(excel, qcSheetName, item, title, rIdx)
 	}
 }
 
@@ -1363,7 +1363,7 @@ func updateBamPath(excel *excelize.File, list string) {
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
 		simpleUtil.CheckErr(
 			excel.SetCellStr(
-				*bamPathSheetName,
+				bamPathSheetName,
 				axis,
 				path,
 			),
@@ -1375,7 +1375,7 @@ func updateBamPath(excel *excelize.File, list string) {
 				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, i+i2+2)).(string)
 				simpleUtil.CheckErr(
 					excel.SetCellStr(
-						*bamPathSheetName,
+						bamPathSheetName,
 						axis,
 						s,
 					),

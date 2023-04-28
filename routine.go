@@ -39,7 +39,7 @@ func LoadDmd(excel *excelize.File, throttle chan bool) {
 }
 
 func loadDmd(excel *excelize.File, dmdArray []string) {
-	var sheetName = *dmdSheetName
+	var sheetName = dmdSheetName
 	if *im {
 		sheetName = "DMD CNV"
 	}
@@ -83,9 +83,9 @@ func loadDmd(excel *excelize.File, dmdArray []string) {
 
 func goUpdateCNV(excel *excelize.File, throttle chan bool) {
 	if *im {
-		*dmdSheetName = "DMD CNV"
+		dmdSheetName = "DMD CNV"
 	}
-	updateData2Sheet(excel, *dmdSheetName, DmdCnv, updateDMDCNV)
+	updateData2Sheet(excel, dmdSheetName, DmdCnv, updateDMDCNV)
 	fillChan(throttle)
 }
 
@@ -127,9 +127,9 @@ func WriteAe(excel *excelize.File, throttle chan bool) {
 
 func writeAe(excel *excelize.File, db map[string]map[string]string) {
 	if *im {
-		*aeSheetName = "THAL CNV"
+		aeSheetName = "THAL CNV"
 	}
-	var rows = simpleUtil.HandleError(excel.GetRows(*aeSheetName)).([][]string)
+	var rows = simpleUtil.HandleError(excel.GetRows(aeSheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 	for _, item := range db {
@@ -155,7 +155,7 @@ func writeAe(excel *excelize.File, db map[string]map[string]string) {
 			} else {
 				updateABC(item, sampleID)
 			}
-			writeRow(excel, *aeSheetName, item, title, rIdx)
+			writeRow(excel, aeSheetName, item, title, rIdx)
 		}
 	}
 }

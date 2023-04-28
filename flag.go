@@ -139,43 +139,6 @@ var (
 		"",
 		"output sample annotation to annoDir/[sampleID]_vcfanno.xlsx for CS",
 	)
-
-	// output sheet name
-	aeSheetName = flag.String(
-		"aeSheetName",
-		"补充实验",
-		"Additional Experiments sheet name",
-	)
-	allSheetName = flag.String(
-		"allSheetName",
-		"Sheet1",
-		"all snv sheet name",
-	)
-	avdSheetName = flag.String(
-		"avdSheetName",
-		"All variants data",
-		"All variants data sheet name",
-	)
-	bamPathSheetName = flag.String(
-		"bamPathSheetName",
-		"bam文件路径",
-		"bamPath sheet name",
-	)
-	dmdSheetName = flag.String(
-		"dmdSheetName",
-		"CNV",
-		"DMD result sheet name",
-	)
-	drugSheetName = flag.String(
-		"drugSheetName",
-		"药物检测结果",
-		"drug sheet name",
-	)
-	qcSheetName = flag.String(
-		"qcSheet",
-		"QC",
-		"qc sheet name",
-	)
 )
 
 // boolean

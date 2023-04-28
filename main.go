@@ -147,32 +147,32 @@ func main() {
 	if *im {
 		goWriteAvd(excel, "SNV&INDEL", loadDmdChan, runAvd, *all)
 	} else {
-		goWriteAvd(excel, *avdSheetName, loadDmdChan, runAvd, *all)
+		goWriteAvd(excel, avdSheetName, loadDmdChan, runAvd, *all)
 	}
 
 	// write CNV after runAvd
 	// CNV
 	emptyChan(runAvd)
 	if *cs {
-		*dmdSheetName = "DMD CNV"
+		dmdSheetName = "DMD CNV"
 	} else {
 		goUpdateCNV(excel, writeDmd)
 	}
 	if *wgs {
-		*dmdSheetName = "CNV"
+		dmdSheetName = "CNV"
 	}
 	// DMD-lumpy
 	if *lumpy != "" {
-		updateDataFile2Sheet(excel, *dmdSheetName, *lumpy, updateLumpy)
+		updateDataFile2Sheet(excel, dmdSheetName, *lumpy, updateLumpy)
 	}
 	// DMD-nator
 	if *nator != "" {
-		updateDataFile2Sheet(excel, *dmdSheetName, *nator, updateNator)
+		updateDataFile2Sheet(excel, dmdSheetName, *nator, updateNator)
 	}
 
 	// drug, no use
 	if *drugResult != "" {
-		updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateDrug)
+		updateDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
 	}
 
 	// 个特
