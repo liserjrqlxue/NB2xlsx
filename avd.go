@@ -36,26 +36,26 @@ func goWriteAvd(excel *excelize.File, sheetName, allSheetName string, runDmd, ru
 
 	if size == 0 {
 		log.Println("Write AVD Skip")
-		fillChan(runAvd)
+		holdChan(runAvd)
 		return
 	}
 
 	log.Println("Start load AVD")
 
 	// wait runDmd done
-	emptyChan(runDmd)
+	waitChan(runDmd)
 	log.Println("Wait DMD Done")
 	// go loadAvd -> dbChan -> go writeAvd
 	go writeAvd(excel, sheetName, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
 		go loadAvd(fileName, allSheetName, dbChan, throttle, all)
 	}
-	emptyChan(runWrite)
+	waitChan(runWrite)
 	for i := 0; i < *threshold; i++ {
-		fillChan(throttle)
+		holdChan(throttle)
 	}
 
-	fillChan(runAvd)
+	holdChan(runAvd)
 	log.Println("Write AVD Done")
 }
 
@@ -81,7 +81,7 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 			close(dbChan)
 		}
 	}
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
 func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[string]string, title []string) {
@@ -130,7 +130,7 @@ func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[stri
 
 func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
 	// block threads
-	fillChan(throttle)
+	holdChan(throttle)
 
 	log.Printf("load avd[%s]\n", fileName)
 
@@ -217,7 +217,7 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 	dbChan <- filterData
 
 	// release threads
-	emptyChan(throttle)
+	waitChan(throttle)
 }
 
 func updateAvd(item map[string]string, subFlag bool) {

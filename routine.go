@@ -35,7 +35,7 @@ func LoadDmd4Sheet(excel *excelize.File, sheetName string, throttle chan bool) {
 		log.Println("Load DMD Skip")
 	}
 	log.Println("Load DMD Done")
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
 func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
@@ -80,7 +80,7 @@ func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
 func goUpdateCNV(excel *excelize.File, sheetName string, throttle chan bool) {
 
 	updateData2Sheet(excel, sheetName, DmdCnv, updateDMDCNV)
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
 // WriteAe write AE sheet to excel
@@ -116,7 +116,7 @@ func WriteAe(excel *excelize.File, sheetName string, throttle chan bool) {
 		log.Println("Write AE Skip")
 	}
 	log.Println("Write AE Done")
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
 func writeAe(excel *excelize.File, sheetName string, db map[string]map[string]string) {
@@ -164,7 +164,7 @@ func WriteQC(excel *excelize.File, sheetName string, throttle chan bool) {
 		writeQC(excel, sheetName, loadQC(*qc))
 	}
 	log.Println("Write QC Done")
-	emptyChan(throttle)
+	waitChan(throttle)
 }
 
 func updateINDEX(item map[string]string, col string, index int) {
@@ -190,12 +190,13 @@ func goWriteBatchCnv(sheetName string, throttle chan bool) {
 
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
-func saveMainExcel(excel *excelize.File, path string, throttle chan bool) {
+func saveMainExcel(excel *excelize.File, path string, throttle chan<- bool, waitChans ...<-chan bool) {
+	waitChan(waitChans...)
 	log.Printf("excel.SaveAs(\"%s\")\n", path)
 	simpleUtil.CheckErr(excel.SaveAs(path))
 	log.Println("Save main Done")
-	fillChan(throttle)
+	holdChan(throttle)
 }

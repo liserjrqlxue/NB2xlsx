@@ -59,14 +59,14 @@ func main() {
 
 	// un-block channel bool
 	var (
-		loadDbChan   = make(chan bool, 1)
-		runAe        = make(chan bool, 1)
-		runAvd       = make(chan bool, 1)
-		loadDmdChan  = make(chan bool, 1)
-		writeDmd     = make(chan bool, 1)
-		runQC        = make(chan bool, 1)
-		saveMain     = make(chan bool, 1)
-		saveBatchCnv = make(chan bool, 1)
+		loadDbChan       = make(chan bool, 1)
+		writeAeChan      = make(chan bool, 1)
+		runAvd           = make(chan bool, 1)
+		loadDmdChan      = make(chan bool, 1)
+		writeDmdChan     = make(chan bool, 1)
+		runQC            = make(chan bool, 1)
+		saveMainChan     = make(chan bool, 1)
+		saveBatchCnvChan = make(chan bool, 1)
 	)
 	var excel *excelize.File
 
@@ -168,23 +168,23 @@ func main() {
 	}
 	// QC
 	if *qc != "" {
-		fillChan(runQC)
+		holdChan(runQC)
 		WriteQC(excel, qcSheetName, runQC)
 	}
 	// CNV
 	// QC -> DMD
-	fillChan(runQC)
+	holdChan(runQC)
 	LoadDmd4Sheet(excel, dmdSheetName, loadDmdChan)
 	// 补充实验
-	WriteAe(excel, aeSheetName, runAe)
+	WriteAe(excel, aeSheetName, writeAeChan)
 	// All variant data
 	goWriteAvd(excel, avdSheetName, allSheetName, loadDmdChan, runAvd, *all)
 
 	// CNV
 	// write CNV after runAvd
-	emptyChan(runAvd)
+	waitChan(runAvd)
 	if !*cs {
-		goUpdateCNV(excel, dmdSheetName, writeDmd)
+		goUpdateCNV(excel, dmdSheetName, writeDmdChan)
 	}
 	// DMD-lumpy
 	updateDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
@@ -198,24 +198,22 @@ func main() {
 	updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
 
 	// batchCNV.xlsx
-	go goWriteBatchCnv(bcSheetName, saveBatchCnv)
+	go goWriteBatchCnv(bcSheetName, saveBatchCnvChan)
 
-	emptyChan(runAe, writeDmd)
-
-	go saveMainExcel(excel, *prefix+".xlsx", saveMain)
+	go saveMainExcel(excel, *prefix+".xlsx", saveMainChan, writeAeChan, writeDmdChan)
 
 	// waite excel write done
-	emptyChan(saveMain, saveBatchCnv)
+	waitChan(saveMainChan, saveBatchCnvChan)
 	log.Println("All Done")
 }
 
-func fillChan(ch ...chan<- bool) {
+func holdChan(ch ...chan<- bool) {
 	for _, bools := range ch {
 		bools <- true
 	}
 }
 
-func emptyChan(ch ...<-chan bool) {
+func waitChan(ch ...<-chan bool) {
 	for _, bools := range ch {
 		<-bools
 	}

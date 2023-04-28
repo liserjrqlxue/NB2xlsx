@@ -205,7 +205,7 @@ func loadLocalDb(aes string, throttle chan bool) {
 	log.Println("Load LocalDb Start")
 	localDb = jsonUtil.Json2MapMap(AES.DecodeFile(aes, []byte(codeKey)))
 	log.Println("Load LocalDb Done")
-	fillChan(throttle)
+	holdChan(throttle)
 }
 
 var formulaTitle = map[string]bool{
