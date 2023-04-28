@@ -76,17 +76,16 @@ func main() {
 	if *detail != "" {
 		var details = textUtil.File2Slice(*detail, "\t")
 		for _, line := range details {
-			var info = make(map[string]string)
+			var db = make(map[string]string)
 			var sampleID = line[0]
-			info["productCode"] = line[1]
-			info["hospital"] = line[2]
-			sampleDetail[sampleID] = info
+			db["productCode"] = line[1]
+			db["hospital"] = line[2]
+			sampleDetail[sampleID] = db
 		}
 	}
 
-	if *lims != "" {
-		limsInfo = loadLimsInfo()
-	}
+	// limsInfo for updateABC and updateQC
+	limsInfo = loadLimsInfo(*lims)
 
 	var batchCnvDb = loadBatchCNV(*batchCNV)
 
@@ -94,25 +93,13 @@ func main() {
 		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
 	}
 
-	if *cs {
-		for _, s := range textUtil.File2Array(filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")) {
-			top1kGene[s] = true
-		}
-	}
-
-	if *im {
-		parseProductCode()
-	}
-	loadDiseaseDb(i18n)
-
-	updateSheetTitleMap()
-
 	if *im {
 		excel = initExcel()
 	} else {
-		var templateXlsx = mainTemplate
-		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
-			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
+		if *wgs {
+			mainTemplate = wgsTemplate
+		} else if *cs {
+			mainTemplate = csTemplate
 		}
 		excel = simpleUtil.HandleError(excelize.OpenFile(mainTemplate)).(*excelize.File)
 	}

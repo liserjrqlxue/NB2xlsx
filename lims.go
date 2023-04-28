@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"path/filepath"
 
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -9,13 +10,17 @@ import (
 var limsHeader = filepath.Join(etcPath, "lims.info.header")
 var limsTitle = textUtil.File2Array(limsHeader)
 
-func loadLimsInfo() map[string]map[string]string {
-	var limsSlice = textUtil.File2Slice(*lims, "\t")
+func loadLimsInfo(path string) map[string]map[string]string {
 	var db = make(map[string]map[string]string)
-	for _, info := range limsSlice {
+	if path == "" {
+		log.Println("skip lims.info for absence")
+		return db
+	}
+
+	for _, line := range textUtil.File2Slice(path, "\t") {
 		var item = make(map[string]string)
-		for i := range info {
-			item[limsTitle[i]] = info[i]
+		for i := range line {
+			item[limsTitle[i]] = line[i]
 		}
 		db[item["MAIN_SAMPLE_NUM"]] = item
 	}
@@ -29,8 +34,8 @@ func updateABC(item map[string]string, sampleID string) {
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
 	}
-	var info = limsInfo[sampleID]
-	item["期数"] = info["HYBRID_LIBRARY_NUM"]
-	item["flow ID"] = info["FLOW_ID"]
-	item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + info["PRODUCT_NAME"]
+	var db = limsInfo[sampleID]
+	item["期数"] = db["HYBRID_LIBRARY_NUM"]
+	item["flow ID"] = db["FLOW_ID"]
+	item["产品编码_产品名称"] = db["PRODUCT_CODE"] + "_" + db["PRODUCT_NAME"]
 }

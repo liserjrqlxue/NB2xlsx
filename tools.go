@@ -185,7 +185,19 @@ func loadDb() {
 				homologousRegion = append(homologousRegion, region)
 			}
 		}
+
+		for _, s := range textUtil.File2Array(top1kGeneList) {
+			top1kGene[s] = true
+		}
 	}
+
+	if *im {
+		parseProductCode()
+	}
+	loadDiseaseDb(i18n)
+
+	updateSheetTitleMap()
+
 }
 
 func loadLocalDb(aes string) {
@@ -1020,11 +1032,12 @@ func updateQC(item map[string]string, i int) {
 			}
 		} else {
 			var inputGender = "null"
-			if limsInfo[sampleID]["SEX"] == "1" {
+			switch limsInfo[sampleID]["SEX"] {
+			case "1":
 				inputGender = "M"
-			} else if limsInfo[sampleID]["SEX"] == "2" {
+			case "2":
 				inputGender = "F"
-			} else {
+			default:
 				inputGender = "null"
 			}
 			if inputGender != genderMap[sampleID] {

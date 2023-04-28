@@ -19,6 +19,8 @@ var (
 var (
 	// template for prefix+".xlsx"
 	mainTemplate = filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx")
+	wgsTemplate  = filepath.Join(templatePath, "NBS.wgs.xlsx")
+	csTemplate   = filepath.Join(templatePath, "CS.BB.xlsx")
 	// template for prefix+".batchCNV.xlsx"
 	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
 )
@@ -42,6 +44,8 @@ var (
 	// variant db
 	jsonAes   = filepath.Join(etcPath, "已解读数据库.json.aes")
 	jsonAesIM = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	// top1k gene list
+	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
 )
 
 var (
