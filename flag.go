@@ -20,6 +20,12 @@ var (
 
 // input
 var (
+	// mode type
+	mode = flag.String(
+		"type",
+		"NBSP",
+		"mode of {NBSP,NBSIM,WGSNB,WGSCS}",
+	)
 	// sample info
 	detail = flag.String(
 		"detail",

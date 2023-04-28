@@ -93,17 +93,7 @@ func main() {
 		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
 	}
 
-	if *im {
-		excel = initExcel()
-	} else {
-		if *wgs {
-			mainTemplate = wgsTemplate
-		} else if *cs {
-			mainTemplate = csTemplate
-		}
-		excel = simpleUtil.HandleError(excelize.OpenFile(mainTemplate)).(*excelize.File)
-	}
-	styleInit(excel)
+	initExcel(excel, *mode)
 
 	// fill sheets
 	// local sheet names
@@ -133,16 +123,15 @@ func main() {
 		// batchCNV Excel sheet name
 		bcSheetName = "Sheet1"
 	)
-	if *im {
+	switch *mode {
+	case "NBSIM":
 		dmdSheetName = "DMD CNV"
 		aeSheetName = "THAL CNV"
 		avdSheetName = "SNV&INDEL"
-	}
-	if *wgs {
+	case "WGSNB":
 		dmdSheetName = "CNV-原始"
 		wgsDmdSheetName = "CNV"
-	}
-	if *cs {
+	case "WGSCS":
 		wgsDmdSheetName = "DMD CNV"
 	}
 
