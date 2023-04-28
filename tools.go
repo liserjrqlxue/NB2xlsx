@@ -162,18 +162,6 @@ func loadDb() {
 		dropListMap[k] = strings.Split(v, ",")
 	}
 
-	// load sample detail
-	if *detail != "" {
-		var details = textUtil.File2Slice(*detail, "\t")
-		for _, line := range details {
-			var info = make(map[string]string)
-			var sampleID = line[0]
-			info["productCode"] = line[1]
-			info["hospital"] = line[2]
-			sampleDetail[sampleID] = info
-		}
-	}
-
 	if *cs {
 		var region *Region
 		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)

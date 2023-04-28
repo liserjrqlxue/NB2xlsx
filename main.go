@@ -47,6 +47,10 @@ func init() {
 			loadLocalDb(jsonAes)
 		}
 	}
+
+	loadDb()
+
+	log.Println("init done")
 }
 
 func main() {
@@ -55,8 +59,8 @@ func main() {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
-	// un-block channel bool
 	var (
+		// un-block channel bool
 		writeAeChan      = make(chan bool, 1)
 		runAvd           = make(chan bool, 1)
 		loadDmdChan      = make(chan bool, 1)
@@ -64,10 +68,21 @@ func main() {
 		runQC            = make(chan bool, 1)
 		saveMainChan     = make(chan bool, 1)
 		saveBatchCnvChan = make(chan bool, 1)
-	)
-	var excel *excelize.File
 
-	loadDb()
+		excel *excelize.File
+	)
+
+	// load sample detail
+	if *detail != "" {
+		var details = textUtil.File2Slice(*detail, "\t")
+		for _, line := range details {
+			var info = make(map[string]string)
+			var sampleID = line[0]
+			info["productCode"] = line[1]
+			info["hospital"] = line[2]
+			sampleDetail[sampleID] = info
+		}
+	}
 
 	if *lims != "" {
 		limsInfo = loadLimsInfo()
