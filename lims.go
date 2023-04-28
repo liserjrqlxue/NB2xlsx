@@ -10,21 +10,43 @@ import (
 var limsHeader = filepath.Join(etcPath, "lims.info.header")
 var limsTitle = textUtil.File2Array(limsHeader)
 
-func loadLimsInfo(path string) map[string]map[string]string {
-	var db = make(map[string]map[string]string)
-	if path == "" {
+func loadSamplesInfo(lims, detail, info string) (limsDb, detailDb, infoDb map[string]map[string]string) {
+	limsDb = make(map[string]map[string]string)
+	detailDb = make(map[string]map[string]string)
+	infoDb = make(map[string]map[string]string)
+
+	if lims == "" {
 		log.Println("skip lims.info for absence")
-		return db
+	} else {
+		for _, line := range textUtil.File2Slice(lims, "\t") {
+			var item = make(map[string]string)
+			for i := range line {
+				item[limsTitle[i]] = line[i]
+			}
+			limsDb[item["MAIN_SAMPLE_NUM"]] = item
+		}
+
 	}
 
-	for _, line := range textUtil.File2Slice(path, "\t") {
-		var item = make(map[string]string)
-		for i := range line {
-			item[limsTitle[i]] = line[i]
+	if detail == "" {
+		log.Println("skip detail for absence")
+	} else {
+		for _, line := range textUtil.File2Slice(detail, "\t") {
+			var db = make(map[string]string)
+			var sampleID = line[0]
+			db["productCode"] = line[1]
+			db["hospital"] = line[2]
+			detailDb[sampleID] = db
 		}
-		db[item["MAIN_SAMPLE_NUM"]] = item
 	}
-	return db
+
+	if info == "" {
+		log.Println("skip info.txt for absence")
+	} else {
+		infoDb, _ = textUtil.File2MapMap(info, "sampleID", "\t", nil)
+	}
+
+	return
 }
 
 func updateABC(item map[string]string, sampleID string) {

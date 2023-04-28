@@ -59,6 +59,11 @@ func main() {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
+	// limsInfo for updateABC and updateQC
+	// sampleDetail for subFlag
+	// imInfo for parseProductCode, updateInfo, updateQC
+	limsInfo, sampleDetail, imInfo = loadSamplesInfo(*lims, *detail, *info)
+
 	var (
 		// un-block channel bool
 		saveMainChan     = make(chan bool, 1)
@@ -67,26 +72,11 @@ func main() {
 		excel *excelize.File
 	)
 
-	// load sample detail
-	if *detail != "" {
-		var details = textUtil.File2Slice(*detail, "\t")
-		for _, line := range details {
-			var db = make(map[string]string)
-			var sampleID = line[0]
-			db["productCode"] = line[1]
-			db["hospital"] = line[2]
-			sampleDetail[sampleID] = db
-		}
-	}
-
-	// limsInfo for updateABC and updateQC
-	limsInfo = loadLimsInfo(*lims)
-
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
 	useBatchCNV(*batchCNV, "Sheet1", saveBatchCnvChan)
 
-	if *info != "" {
-		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
+	if *mode == "NBSIM" {
+		parseProductCode()
 	}
 
 	go createMainExcel(excel, *prefix+".xlsx", *mode, *all, saveMainChan)

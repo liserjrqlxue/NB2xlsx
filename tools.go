@@ -191,9 +191,6 @@ func loadDb() {
 		}
 	}
 
-	if *im {
-		parseProductCode()
-	}
 	loadDiseaseDb(i18n)
 
 	updateSheetTitleMap()
