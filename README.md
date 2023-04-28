@@ -67,6 +67,27 @@
 | -drugSheetName | string  |         | 药物检测结果                                                                                                      |
 | -threshold     | int     | 12      | threshold limit                                                                                             |
 
+## goroutine
+
+- main
+  - useBatchCnv
+    - go goWriteBatchCnv
+      - holdChan(saveBatchCnvChan)
+  - go createExcel
+    - fillExcel
+      - writeAvd2Sheet
+        - go writeAvd
+          - range dbChan
+          - holdChan(runWrite)
+        - go loadAvd
+          - holdChan(throttle)
+            - dbChan <- filterData
+          - waitChan(throttle)
+        - waitChan(runWrite)
+        - holdChan(throttle)
+    - holdChan(saveMainChan)
+  - waitChan(saveMainChan, saveBatchCnvChan)
+
 ## 编译安装
 
 ```shell
