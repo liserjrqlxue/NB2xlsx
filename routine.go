@@ -77,14 +77,14 @@ func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
 	}
 }
 
-func goUpdateCNV(excel *excelize.File, sheetName string, throttle chan bool) {
+func goUpdateCNV(excel *excelize.File, sheetName string, throttle chan<- bool) {
 
 	updateData2Sheet(excel, sheetName, DmdCnv, updateDMDCNV)
 	holdChan(throttle)
 }
 
 // WriteAe write AE sheet to excel
-func WriteAe(excel *excelize.File, sheetName string, throttle chan bool) {
+func WriteAe(excel *excelize.File, sheetName string, throttle chan<- bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)
 	if *dipinResult != "" {
@@ -194,13 +194,5 @@ func goWriteBatchCnv(sheetName string, batchCnvDb []map[string]string, throttle 
 
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 
-	holdChan(throttle)
-}
-
-func saveMainExcel(excel *excelize.File, path string, throttle chan<- bool, waitChans ...<-chan bool) {
-	waitChan(waitChans...)
-	log.Printf("excel.SaveAs(\"%s\")\n", path)
-	simpleUtil.CheckErr(excel.SaveAs(path))
-	log.Println("Save main Done")
 	holdChan(throttle)
 }
