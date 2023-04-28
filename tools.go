@@ -902,21 +902,29 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 	}
 }
 
-func loadBatchCNV(cnv string) (batchCnvDb []map[string]string) {
+func useBatchCNV(cnv, sheetName string, throttle chan<- bool) {
+	var db []map[string]string
 	if cnv == "" {
 		log.Println("Skip Load BatchCNV for no cnv input")
-		return
+	} else {
+		db, _ = textUtil.File2MapArray(*batchCNV, "\t", nil)
 	}
 
-	log.Println("Load BatchCNV Start")
-	batchCnvDb, _ = textUtil.File2MapArray(cnv, "\t", nil)
+	batchCNV2SampleGeneInfo(db)
+
+	// batchCNV.xlsx
+	go goWriteBatchCnv(sheetName, db, throttle)
+
+	return
+}
+
+func batchCNV2SampleGeneInfo(batchCnvDb []map[string]string) {
 	for _, item := range batchCnvDb {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
 		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
-	log.Println("Load BatchCNV Done")
 	return
 }
 
@@ -1067,34 +1075,6 @@ func loadQC(qc string) (qcDb []map[string]string) {
 	return
 }
 
-type handleFunc func(map[string]string)
-
-func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleFunc) {
-	if len(db) == 0 {
-		log.Printf("skip update [%s] for empty db", sheetName)
-		return
-	}
-
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, item := range db {
-		rIdx++
-		fn(item)
-		if *im {
-			updateInfo(item, item["sampleID"])
-			updateColumns(item, sheetTitleMap[sheetName])
-		}
-		if *wgs {
-			updateInfo(item, item["sampleID"])
-			updateGender(item, item["sampleID"])
-		}
-		writeRow(excel, sheetName, item, title, rIdx)
-	}
-}
-
 var infoTitle = []string{
 	"sampleID",
 	"SampleType",
@@ -1133,59 +1113,6 @@ func updateInfo(item map[string]string, sampleID string) {
 func updateColumns(item, titleMap map[string]string) {
 	for k, v := range titleMap {
 		item[v] = item[k]
-	}
-}
-
-// File2MapArray
-func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleFunc) {
-	if path == "" {
-		log.Printf("skip update [%s] for no path", sheetName)
-		return
-	}
-	var db, _ = textUtil.File2MapArray(path, "\t", nil)
-	if len(db) == 0 {
-		log.Printf("skip update [%s] for empty path [%s]", sheetName, path)
-		return
-	}
-
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, item := range db {
-		rIdx++
-		fn(item)
-		updateINDEX(item, "D", rIdx)
-		writeRow(excel, sheetName, item, title, rIdx)
-	}
-}
-
-// List of File2MapArray
-func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleFunc) {
-	if list == "" {
-		log.Printf("skip update [%s] for no list", sheetName)
-		return
-	}
-
-	var lists = textUtil.File2Array(list)
-	if len(lists) == 0 {
-		log.Printf("skip update [%s] for empty list [%s]", sheetName, list)
-		return
-	}
-
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, path := range lists {
-		var db, _ = textUtil.File2MapArray(path, "\t", nil)
-		for _, item := range db {
-			rIdx++
-			fn(item)
-			writeRow(excel, sheetName, item, title, rIdx)
-		}
 	}
 }
 
@@ -1430,4 +1357,14 @@ func getI18n(v, k string) string {
 		return value
 	}
 	return v
+}
+
+func loadFilesAndList(files, list string) (lists []string) {
+	if files != "" {
+		lists = strings.Split(files, ",")
+	}
+	if list != "" {
+		lists = append(lists, textUtil.File2Array(list)...)
+	}
+	return
 }

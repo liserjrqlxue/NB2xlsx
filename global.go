@@ -66,9 +66,6 @@ var (
 	dropListMap     = make(map[string][]string)
 	genderMap       = make(map[string]string)
 
-	// DmdCnv : array of DMD cnv map
-	DmdCnv []map[string]string
-
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)
 	limsInfo       = make(map[string]map[string]string)

@@ -20,9 +20,8 @@ func addChr(chr string) string {
 }
 
 // LoadDmd4Sheet load DMD sheet to excel
-func LoadDmd4Sheet(excel *excelize.File, sheetName string, throttle chan bool) {
+func LoadDmd4Sheet(excel *excelize.File, sheetName string, dmdArray []string) (dmdResult []map[string]string) {
 	log.Println("Load DMD Start")
-	var dmdArray []string
 	if *dmdFiles != "" {
 		dmdArray = strings.Split(*dmdFiles, ",")
 	}
@@ -30,15 +29,16 @@ func LoadDmd4Sheet(excel *excelize.File, sheetName string, throttle chan bool) {
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		loadDmd(excel, sheetName, dmdArray)
+		dmdResult = loadDmd(excel, sheetName, dmdArray)
 	} else {
 		log.Println("Load DMD Skip")
 	}
 	log.Println("Load DMD Done")
-	holdChan(throttle)
+
+	return
 }
 
-func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
+func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) (dmdResult []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	//var title = rows[0]
 	var rIdx = len(rows)
@@ -71,16 +71,11 @@ func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) {
 				addDatabase2Cnv(item)
 				updateColumns(item, sheetTitleMap[sheetName])
 			}
-			DmdCnv = append(DmdCnv, item)
+			dmdResult = append(dmdResult, item)
 			//writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
-}
-
-func goUpdateCNV(excel *excelize.File, sheetName string, throttle chan<- bool) {
-
-	updateData2Sheet(excel, sheetName, DmdCnv, updateDMDCNV)
-	holdChan(throttle)
+	return
 }
 
 // WriteAe write AE sheet to excel
@@ -184,10 +179,10 @@ var (
 	//}
 )
 
-func goWriteBatchCnv(sheetName string, batchCnvDb []map[string]string, throttle chan bool) {
+func goWriteBatchCnv(sheetName string, batchCnvDb []map[string]string, throttle chan<- bool) {
 	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
 
-	updateData2Sheet(bcExcel, sheetName, batchCnvDb, updateBatchCNV)
+	writeData2Sheet(bcExcel, sheetName, batchCnvDb, updateBatchCNV)
 
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 

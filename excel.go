@@ -8,19 +8,20 @@ import (
 	"path/filepath"
 )
 
-func newExcelIM(sheetNames []string) *excelize.File {
-	var excel = excelize.NewFile()
-	for _, s := range sheetNames {
-		excel.NewSheet(s)
-		var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
-		var title []string
-		for _, m := range titleMaps {
-			title = append(title, m[columnName])
-		}
-		writeTitle(excel, s, title)
-	}
-	excel.DeleteSheet("Sheet1")
-	return excel
+func createMainExcel(excel *excelize.File, path, mode string, all bool, throttle chan<- bool) {
+	initExcel(excel, mode)
+	fillExcel(excel, mode, all)
+
+	simpleUtil.CheckErr(excel.SaveAs(path))
+	log.Printf("excel.SaveAs(\"%s\"):\n", path)
+	log.Println("Save main Done")
+
+	holdChan(throttle)
+}
+
+func initExcel(excel *excelize.File, mode string) {
+	excel = newExcel(mode)
+	styleInit(excel)
 }
 
 func newExcel(mode string) *excelize.File {
@@ -37,6 +38,36 @@ func newExcel(mode string) *excelize.File {
 		log.Fatalf("mode [%s] not suppoort!", mode)
 	}
 	return nil
+}
+
+func newExcelIM(sheetNames []string) *excelize.File {
+	var excel = excelize.NewFile()
+	for _, s := range sheetNames {
+		excel.NewSheet(s)
+		var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
+		var title []string
+		for _, m := range titleMaps {
+			title = append(title, m[columnName])
+		}
+		writeTitle(excel, s, title)
+	}
+	excel.DeleteSheet("Sheet1")
+	return excel
+}
+
+func styleInit(excel *excelize.File) {
+	colorRGB = simpleUtil.HandleError(textUtil.File2Map(filepath.Join(etcPath, "color.RGB.tsv"), "\t", false)).(map[string]string)
+	checkColor = colorRGB["red"]
+	formalRreportColor = colorRGB["corn flower blue"]
+	supplementaryReportColor = colorRGB["yellow green"]
+	var checkFont = `"font":{"color":"` + checkColor + `"}`
+	var formalFill = `"fill":{"type":"pattern","pattern":1,"color":["` + formalRreportColor + `"]}`
+	var supplementaryFill = `"fill":{"type":"pattern","pattern":1,"color":["` + supplementaryReportColor + `"]}`
+	formalStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + formalFill + `}`)).(int)
+	supplementaryStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + supplementaryFill + `}`)).(int)
+	//checkStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + checkFont + `}`)).(int)
+	formalCheckStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + formalFill + `,` + checkFont + `}`)).(int)
+	supplementaryCheckStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + supplementaryFill + `,` + checkFont + `}`)).(int)
 }
 
 // fillExcel fill sheets
@@ -68,10 +99,8 @@ func fillExcel(excel *excelize.File, mode string, all bool) {
 		// batchCNV Excel sheet name
 
 		// un-block channel bool
-		runAvd       = make(chan bool, 1)
-		loadDmdChan  = make(chan bool, 1)
-		writeAeChan  = make(chan bool, 1)
-		writeDmdChan = make(chan bool, 1)
+		runAvd      = make(chan bool, 1)
+		writeAeChan = make(chan bool, 1)
 	)
 	switch mode {
 	case "NBSIM":
@@ -86,67 +115,126 @@ func fillExcel(excel *excelize.File, mode string, all bool) {
 	}
 	// Sample
 	if mode == "NBSIM" {
-		updateDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
+		writeDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
 	}
 	// bam文件路径
 	updateBamPath2Sheet(excel, bamPathSheetName, *bamPath)
 	// QC -> DMD
 	WriteQC(excel, qcSheetName, *qc)
-	LoadDmd4Sheet(excel, dmdSheetName, loadDmdChan)
+	var dmdResult = LoadDmd4Sheet(
+		excel,
+		dmdSheetName,
+		loadFilesAndList(*dmdFiles, *dmdList),
+	)
 	// 补充实验
 	WriteAe(excel, aeSheetName, writeAeChan)
-	// All variant data
-	goWriteAvd(excel, avdSheetName, allSheetName, loadDmdChan, runAvd, all)
+	// DMD -> All variant data
+	writeAvd2Sheet(
+		excel,
+		avdSheetName,
+		allSheetName,
+		loadFilesAndList(*avdFiles, *avdList),
+		runAvd,
+		all,
+	)
 
 	// CNV
 	// write CNV after runAvd
 	waitChan(runAvd)
 	if mode != "WGSCS" {
-		goUpdateCNV(excel, dmdSheetName, writeDmdChan)
+		writeData2Sheet(excel, dmdSheetName, dmdResult, updateDMDCNV)
 	}
 	// DMD-lumpy
-	updateDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
+	writeDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
 	// DMD-nator
-	updateDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
+	writeDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
 	// drug, no use
-	updateDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
+	writeDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
 	// 个特
-	updateDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
+	writeDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
 	// 基因ID
-	updateDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
+	writeDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
 
-	waitChan(writeAeChan, writeDmdChan)
+	waitChan(writeAeChan)
 }
 
-func initExcel(excel *excelize.File, mode string) {
-	excel = newExcel(mode)
-	styleInit(excel)
+type handleFunc func(map[string]string)
+
+func writeData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleFunc) {
+	if len(db) == 0 {
+		log.Printf("skip update [%s] for empty db", sheetName)
+		return
+	}
+
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, item := range db {
+		rIdx++
+		fn(item)
+		if *im {
+			updateInfo(item, item["sampleID"])
+			updateColumns(item, sheetTitleMap[sheetName])
+		}
+		if *wgs {
+			updateInfo(item, item["sampleID"])
+			updateGender(item, item["sampleID"])
+		}
+		writeRow(excel, sheetName, item, title, rIdx)
+	}
 }
 
-func styleInit(excel *excelize.File) {
-	colorRGB = simpleUtil.HandleError(textUtil.File2Map(filepath.Join(etcPath, "color.RGB.tsv"), "\t", false)).(map[string]string)
-	checkColor = colorRGB["red"]
-	formalRreportColor = colorRGB["corn flower blue"]
-	supplementaryReportColor = colorRGB["yellow green"]
-	var checkFont = `"font":{"color":"` + checkColor + `"}`
-	var formalFill = `"fill":{"type":"pattern","pattern":1,"color":["` + formalRreportColor + `"]}`
-	var supplementaryFill = `"fill":{"type":"pattern","pattern":1,"color":["` + supplementaryReportColor + `"]}`
-	formalStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + formalFill + `}`)).(int)
-	supplementaryStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + supplementaryFill + `}`)).(int)
-	//checkStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + checkFont + `}`)).(int)
-	formalCheckStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + formalFill + `,` + checkFont + `}`)).(int)
-	supplementaryCheckStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + supplementaryFill + `,` + checkFont + `}`)).(int)
+// writeDataFile2Sheet File2MapArray fill in sheet with fn
+func writeDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleFunc) {
+	if path == "" {
+		log.Printf("skip update [%s] for no path", sheetName)
+		return
+	}
+	var db, _ = textUtil.File2MapArray(path, "\t", nil)
+	if len(db) == 0 {
+		log.Printf("skip update [%s] for empty path [%s]", sheetName, path)
+		return
+	}
+
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, item := range db {
+		rIdx++
+		fn(item)
+		updateINDEX(item, "D", rIdx)
+		writeRow(excel, sheetName, item, title, rIdx)
+	}
 }
 
-func createExcel(excel *excelize.File, path, mode string, all bool, throttle chan<- bool) {
-	initExcel(excel, mode)
-	fillExcel(excel, mode, all)
-	saveMainExcel(excel, path)
-	holdChan(throttle)
-}
+// writeDataList2Sheet list of File2MapArray fill in sheet with fn
+func writeDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleFunc) {
+	if list == "" {
+		log.Printf("skip update [%s] for no list", sheetName)
+		return
+	}
 
-func saveMainExcel(excel *excelize.File, path string) {
-	log.Printf("excel.SaveAs(\"%s\")\n", path)
-	simpleUtil.CheckErr(excel.SaveAs(path))
-	log.Println("Save main Done")
+	var lists = textUtil.File2Array(list)
+	if len(lists) == 0 {
+		log.Printf("skip update [%s] for empty list [%s]", sheetName, list)
+		return
+	}
+
+	log.Printf("update [%s]", sheetName)
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
+	var title = rows[0]
+	var rIdx = len(rows)
+
+	for _, path := range lists {
+		var db, _ = textUtil.File2MapArray(path, "\t", nil)
+		for _, item := range db {
+			rIdx++
+			fn(item)
+			writeRow(excel, sheetName, item, title, rIdx)
+		}
+	}
 }

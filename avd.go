@@ -13,21 +13,10 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func loadAvdList() (avdArray []string) {
-	if *avdFiles != "" {
-		avdArray = strings.Split(*avdFiles, ",")
-	}
-	if *avdList != "" {
-		avdArray = append(avdArray, textUtil.File2Array(*avdList)...)
-	}
-	return avdArray
-}
-
-// goWriteAvd write AVD sheet to excel
-func goWriteAvd(excel *excelize.File, sheetName, allSheetName string, runDmd, runAvd chan bool, all bool) {
+// writeAvd2Sheet write AVD sheet to excel
+func writeAvd2Sheet(excel *excelize.File, sheetName, allSheetName string, avdArray []string, runAvd chan<- bool, all bool) {
 	log.Println("Write AVD Start")
 	var (
-		avdArray = loadAvdList()
 		runWrite = make(chan bool, 1)
 		throttle = make(chan bool, *threshold)
 		size     = len(avdArray)
@@ -43,7 +32,6 @@ func goWriteAvd(excel *excelize.File, sheetName, allSheetName string, runDmd, ru
 	log.Println("Start load AVD")
 
 	// wait runDmd done
-	waitChan(runDmd)
 	log.Println("Wait DMD Done")
 	// go loadAvd -> dbChan -> go writeAvd
 	go writeAvd(excel, sheetName, dbChan, size, runWrite)

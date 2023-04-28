@@ -82,17 +82,14 @@ func main() {
 	// limsInfo for updateABC and updateQC
 	limsInfo = loadLimsInfo(*lims)
 
-	var batchCnvDb = loadBatchCNV(*batchCNV)
+	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
+	useBatchCNV(*batchCNV, "Sheet1", saveBatchCnvChan)
 
 	if *info != "" {
 		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
 	}
 
-	go createExcel(excel, *prefix+".xlsx", *mode, *all, saveMainChan)
-
-	// batchCNV.xlsx
-	var bcSheetName = "Sheet1"
-	go goWriteBatchCnv(bcSheetName, batchCnvDb, saveBatchCnvChan)
+	go createMainExcel(excel, *prefix+".xlsx", *mode, *all, saveMainChan)
 
 	// waite excel write done
 	waitChan(saveMainChan, saveBatchCnvChan)
