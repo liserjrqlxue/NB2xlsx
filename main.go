@@ -27,6 +27,8 @@ func init() {
 		}
 	}
 
+	modeType = ModeMap[*mode]
+
 	// acmg2015 init
 	if *acmg {
 		acmg2015.AutoPVS1 = *autoPVS1
@@ -41,14 +43,14 @@ func init() {
 
 	// load local db
 	{
-		if *im {
+		if modeType == NBSIM {
 			loadLocalDb(jsonAesIM)
 		} else {
 			loadLocalDb(jsonAes)
 		}
 	}
 
-	loadDb()
+	loadDb(modeType)
 
 	log.Println("init done")
 }
@@ -73,13 +75,13 @@ func main() {
 	)
 
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
-	useBatchCNV(*batchCNV, "Sheet1", saveBatchCnvChan)
+	useBatchCNV(*batchCNV, "Sheet1", modeType, saveBatchCnvChan)
 
-	if *mode == "NBSIM" {
+	if modeType == NBSIM {
 		parseProductCode()
 	}
 
-	go createMainExcel(excel, *prefix+".xlsx", *mode, *all, saveMainChan)
+	go createMainExcel(excel, *prefix+".xlsx", modeType, *all, saveMainChan)
 
 	// waite excel write done
 	waitChan(saveMainChan, saveBatchCnvChan)

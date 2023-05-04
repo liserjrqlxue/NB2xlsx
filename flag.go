@@ -147,7 +147,6 @@ var (
 	)
 )
 
-// boolean
 var (
 	acmg = flag.Bool(
 		"acmg",
@@ -163,20 +162,5 @@ var (
 		"autoPVS1",
 		false,
 		"is use autoPVS1",
-	)
-	cs = flag.Bool(
-		"cs",
-		false,
-		"if use for CS",
-	)
-	im = flag.Bool(
-		"im",
-		false,
-		"if use for im",
-	)
-	wgs = flag.Bool(
-		"wgs",
-		false,
-		"if use for wgs",
 	)
 )

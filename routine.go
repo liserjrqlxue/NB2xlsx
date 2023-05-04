@@ -20,7 +20,7 @@ func addChr(chr string) string {
 }
 
 // LoadDmd4Sheet load DMD sheet to excel
-func LoadDmd4Sheet(excel *excelize.File, sheetName string, dmdArray []string) (dmdResult []map[string]string) {
+func LoadDmd4Sheet(excel *excelize.File, sheetName string, mode Mode, dmdArray []string) (dmdResult []map[string]string) {
 	log.Println("Load DMD Start")
 	if *dmdFiles != "" {
 		dmdArray = strings.Split(*dmdFiles, ",")
@@ -29,7 +29,7 @@ func LoadDmd4Sheet(excel *excelize.File, sheetName string, dmdArray []string) (d
 		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
 	}
 	if len(dmdArray) > 0 {
-		dmdResult = loadDmd(excel, sheetName, dmdArray)
+		dmdResult = loadDmd(excel, sheetName, mode, dmdArray)
 	} else {
 		log.Println("Load DMD Skip")
 	}
@@ -38,7 +38,7 @@ func LoadDmd4Sheet(excel *excelize.File, sheetName string, dmdArray []string) (d
 	return
 }
 
-func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) (dmdResult []map[string]string) {
+func loadDmd(excel *excelize.File, sheetName string, mode Mode, dmdArray []string) (dmdResult []map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	//var title = rows[0]
 	var rIdx = len(rows)
@@ -67,7 +67,7 @@ func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) (dmdResu
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
 			updateINDEX(item, "D", rIdx)
-			if *im {
+			if mode == NBSIM {
 				addDatabase2Cnv(item)
 				updateColumns(item, sheetTitleMap[sheetName])
 			}
@@ -79,13 +79,13 @@ func loadDmd(excel *excelize.File, sheetName string, dmdArray []string) (dmdResu
 }
 
 // WriteAe write AE sheet to excel
-func WriteAe(excel *excelize.File, sheetName string, throttle chan<- bool) {
+func WriteAe(excel *excelize.File, sheetName string, mode Mode, throttle chan<- bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)
 	if *dipinResult != "" {
 		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
 		for _, item := range dipin {
-			updateDipin(item, db)
+			updateDipin(item, db, mode)
 		}
 	}
 	if *smaResult != "" {
@@ -94,19 +94,19 @@ func WriteAe(excel *excelize.File, sheetName string, throttle chan<- bool) {
 		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
 		writeTitle(smaXlsx, "Sheet1", smaTitle)
 		for i, item := range sma {
-			updateSma(item, db)
-			writeRow(smaXlsx, "Sheet1", item, smaTitle, i+2)
+			updateSma(item, db, mode)
+			writeRow(smaXlsx, "Sheet1", item, smaTitle, i+2, mode)
 		}
 		simpleUtil.CheckErr(smaXlsx.SaveAs(*prefix + ".SMA_result.xlsx"))
 	}
 	if *sma2Result != "" {
 		var sma, _ = textUtil.File2MapArray(*sma2Result, "\t", nil)
 		for _, item := range sma {
-			updateSma2(item, db)
+			updateSma2(item, db, mode)
 		}
 	}
 	if len(db) > 0 {
-		writeAe(excel, sheetName, db)
+		writeAe(excel, sheetName, mode, db)
 	} else {
 		log.Println("Write AE Skip")
 	}
@@ -114,54 +114,52 @@ func WriteAe(excel *excelize.File, sheetName string, throttle chan<- bool) {
 	holdChan(throttle)
 }
 
-func writeAe(excel *excelize.File, sheetName string, db map[string]map[string]string) {
-	if *im {
-		sheetName = "THAL CNV"
-	}
+func writeAe(excel *excelize.File, sheetName string, mode Mode, db map[string]map[string]string) {
 	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 	for _, item := range db {
 		rIdx++
-		updateAe(item)
+		updateAe(item, mode)
 		updateINDEX(item, "D", rIdx)
 		var sampleID = item["SampleID"]
 		item["sampleID"] = sampleID
-		if *im {
-			updateInfo(item, sampleID)
+		switch mode {
+		case NBSP:
+			updateABC(item, sampleID)
+			writeRow(excel, sheetName, item, title, rIdx, mode)
+		case NBSIM:
+			updateInfo(item, sampleID, mode)
 			updateGender(item, sampleID)
 			for _, s := range []string{"THAL CNV", "SMN1 CNV"} {
 				updateColumns(item, sheetTitleMap[s])
-				writeRow(excel, s, item, sheetTitle[s], rIdx)
+				writeRow(excel, s, item, sheetTitle[s], rIdx, mode)
 			}
-		} else {
-			if *cs {
-				item["sex"] = item["Sex"]
-				updateInfo(item, sampleID)
-			} else if *wgs {
-				updateGender(item, sampleID)
-				updateInfo(item, sampleID)
-			} else {
-				updateABC(item, sampleID)
-			}
-			writeRow(excel, sheetName, item, title, rIdx)
+		case WGSNB:
+			updateGender(item, sampleID)
+			updateInfo(item, sampleID, mode)
+			writeRow(excel, sheetName, item, title, rIdx, mode)
+		case WGSCS:
+			item["sex"] = item["Sex"]
+			updateInfo(item, sampleID, mode)
+			writeRow(excel, sheetName, item, title, rIdx, mode)
 		}
 	}
 }
 
 // WriteQC write QC sheet to excel
-func WriteQC(excel *excelize.File, sheetName, path string) {
+func WriteQC(excel *excelize.File, sheetName, path string, mode Mode) {
 	if path == "" {
 		log.Printf("skip [%s] for absence", sheetName)
 		return
 	}
 
 	log.Println("Write QC Start")
-	if *cs {
+	if mode == WGSCS {
 		var qcMaps, _ = textUtil.File2MapArray(path, "\t", nil)
-		writeQC(excel, sheetName, qcMaps)
+		writeQC(excel, sheetName, mode, qcMaps)
 	} else {
-		writeQC(excel, sheetName, loadQC(path))
+		writeQC(excel, sheetName, mode, loadQC(path))
 	}
 	log.Println("Write QC Done")
 }
@@ -179,10 +177,10 @@ var (
 	//}
 )
 
-func goWriteBatchCnv(sheetName string, batchCnvDb []map[string]string, throttle chan<- bool) {
+func goWriteBatchCnv(sheetName string, mode Mode, batchCnvDb []map[string]string, throttle chan<- bool) {
 	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
 
-	writeData2Sheet(bcExcel, sheetName, batchCnvDb, updateBatchCNV)
+	writeData2Sheet(bcExcel, sheetName, mode, batchCnvDb, updateBatchCNV)
 
 	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
 

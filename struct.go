@@ -6,6 +6,29 @@ import (
 	"strings"
 )
 
+type Mode int
+
+const (
+	NBSP Mode = iota
+	NBSIM
+	WGSNB
+	WGSCS
+)
+
+var ModeSet = []string{"NBSP", "NBSIM", "WGSNB", "WGSCS"}
+
+var ModeMap = func() map[string]Mode {
+	var db = make(map[string]Mode)
+	for i, str := range ModeSet {
+		db[str] = Mode(i)
+	}
+	return db
+}()
+
+func (m Mode) String() string {
+	return ModeSet[m]
+}
+
 // GeneInfo : struct info of gene
 type GeneInfo struct {
 	gene                    string

@@ -49,6 +49,10 @@ var (
 )
 
 var (
+	modeType Mode
+)
+
+var (
 	geneInfoMap        = make(map[string]map[string]string)
 	geneListMap        = make(map[string]bool)
 	geneIMListMap      = make(map[string]bool)

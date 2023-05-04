@@ -14,7 +14,7 @@ import (
 )
 
 // writeAvd2Sheet write AVD sheet to excel
-func writeAvd2Sheet(excel *excelize.File, sheetName, allSheetName string, avdArray []string, runAvd chan<- bool, all bool) {
+func writeAvd2Sheet(excel *excelize.File, sheetName, allSheetName string, mode Mode, avdArray []string, runAvd chan<- bool, all bool) {
 	log.Println("Write AVD Start")
 	var (
 		runWrite = make(chan bool, 1)
@@ -34,9 +34,9 @@ func writeAvd2Sheet(excel *excelize.File, sheetName, allSheetName string, avdArr
 	// wait runDmd done
 	log.Println("Wait DMD Done")
 	// go loadAvd -> dbChan -> go writeAvd
-	go writeAvd(excel, sheetName, dbChan, size, runWrite)
+	go writeAvd(excel, sheetName, mode, dbChan, size, runWrite)
 	for _, fileName := range avdArray {
-		go loadAvd(fileName, allSheetName, dbChan, throttle, all)
+		go loadAvd(fileName, allSheetName, mode, dbChan, throttle, all)
 	}
 	waitChan(runWrite)
 	for i := 0; i < *threshold; i++ {
@@ -47,14 +47,14 @@ func writeAvd2Sheet(excel *excelize.File, sheetName, allSheetName string, avdArr
 	log.Println("Write AVD Done")
 }
 
-func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]string, size int, throttle chan<- bool) {
+func writeAvd(excel *excelize.File, sheetName string, mode Mode, dbChan chan []map[string]string, size int, throttle chan<- bool) {
 	var (
 		rows  = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 		title = rows[0]
 		rIdx  = len(rows)
 		count = 0
 	)
-	if *im {
+	if mode == NBSIM {
 		title = sheetTitle[sheetName]
 	}
 
@@ -62,7 +62,7 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 		count++
 		for _, item := range avd {
 			rIdx++
-			writeAvdRow(excel, sheetName, rIdx, item, title)
+			writeAvdRow(excel, sheetName, mode, rIdx, item, title)
 		}
 		// stop channel range
 		if count == size {
@@ -72,17 +72,20 @@ func writeAvd(excel *excelize.File, sheetName string, dbChan chan []map[string]s
 	holdChan(throttle)
 }
 
-func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[string]string, title []string) {
+func writeAvdRow(excel *excelize.File, sheetName string, mode Mode, rIdx int, item map[string]string, title []string) {
 	updateINDEX(item, "D", rIdx)
 	var sampleID = item["SampleID"]
 	item["sampleID"] = sampleID
-	if *wgs {
-		updateInfo(item, sampleID)
-	} else if *im {
-		updateInfo(item, sampleID)
+	switch mode {
+	case NBSP:
+		updateABC(item, sampleID)
+	case NBSIM:
+		updateInfo(item, sampleID, mode)
 		updateColumns(item, sheetTitleMap[sheetName])
-	} else if *cs {
-		updateInfo(item, sampleID)
+	case WGSNB:
+		updateInfo(item, sampleID, mode)
+	case WGSCS:
+		updateInfo(item, sampleID, mode)
 
 		item["LOF"] = ""
 		item["disGroup"] = item["PP_disGroup"]
@@ -110,13 +113,11 @@ func writeAvdRow(excel *excelize.File, sheetName string, rIdx int, item map[stri
 		// style
 		item["报告类别-原始"] = item["报告类别"]
 		item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
-	} else {
-		updateABC(item, sampleID)
 	}
-	writeRow(excel, sheetName, item, title, rIdx)
+	writeRow(excel, sheetName, item, title, rIdx, mode)
 }
 
-func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
+func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
 	// block threads
 	holdChan(throttle)
 
@@ -146,7 +147,7 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 	}
 
 	var allExcelPath = strings.Join([]string{*prefix, "all", sampleID, "xlsx"}, ".")
-	if *cs {
+	if mode == WGSCS {
 		allExcelPath = filepath.Join(*annoDir, sampleID+"_vcfanno.xlsx")
 		allTitle = textUtil.File2Array(filepath.Join(templatePath, "vcfanno.txt"))
 	}
@@ -164,9 +165,9 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 
 	// cycle 1
 	for _, item := range data {
-		updateAvd(item, subFlag)
+		updateAvd(item, subFlag, mode)
 		updateFromAvd(item, geneHash, geneInfo, sampleID, subFlag)
-		if *cs {
+		if mode == WGSCS {
 			// 烈性突变
 			anno.UpdateSnvTier1(item)
 
@@ -178,7 +179,7 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 
 	// cycle 2
 	for _, item := range data {
-		if *cs {
+		if mode == WGSCS {
 			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
 			filterData = append(filterData, item)
 		} else if item["filterAvd"] == "Y" {
@@ -199,7 +200,7 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 	}
 
 	if all {
-		writeSampleAvd(allExcelPath, sheetName, allTitle, data)
+		writeSampleAvd(allExcelPath, sheetName, mode, allTitle, data)
 	}
 
 	dbChan <- filterData
@@ -208,7 +209,7 @@ func loadAvd(fileName, sheetName string, dbChan chan<- []map[string]string, thro
 	waitChan(throttle)
 }
 
-func updateAvd(item map[string]string, subFlag bool) {
+func updateAvd(item map[string]string, subFlag bool, mode Mode) {
 	updateABC(item, item["SampleID"])
 	item["HGMDorClinvar"] = "否"
 	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
@@ -223,9 +224,9 @@ func updateAvd(item map[string]string, subFlag bool) {
 	item["gene+pHGVS1"] = gene + ":" + item["pHGVS1"]
 	anno.Score2Pred(item)
 	updateLOF(item)
-	updateDisease(item)
+	updateDisease(item, mode)
 
-	if *im {
+	if mode == NBSIM {
 		item["报告类别"] = "否"
 		item["In BGI database"] = "否"
 	}
@@ -243,7 +244,8 @@ func updateAvd(item map[string]string, subFlag bool) {
 		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
 		anno.UpdateAutoRule(item)
 	}
-	if *cs {
+	switch mode {
+	case WGSCS:
 		floatFormat(item, afFloatFormatArray, 6)
 		// remove trailing zeros
 		floatFormat(item, afFloatFormatArray, -1)
@@ -272,12 +274,12 @@ func updateAvd(item map[string]string, subFlag bool) {
 		}
 		item["需验证的变异"] = strings.Join(hits, ";")
 		item["#Chr"] = addChr(item["#Chr"])
-	} else {
-		annoLocaDb(item, localDb, subFlag)
-	}
-	if *im {
+	case NBSIM:
+		annoLocaDb(item, localDb, subFlag, mode)
 		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
 		item["pHGVS"] = item["pHGVS3"]
+	default:
+		annoLocaDb(item, localDb, subFlag, mode)
 	}
 	item["exonCount"] = exonCount[item["Transcript"]]
 	item["引物设计"] = anno.PrimerDesign(item)
@@ -285,28 +287,28 @@ func updateAvd(item map[string]string, subFlag bool) {
 }
 
 // writeSampleAvd read data and write to sheetName of excelName
-func writeSampleAvd(excelName, sheetName string, title []string, data []map[string]string) {
+func writeSampleAvd(excelName, sheetName string, mode Mode, title []string, data []map[string]string) {
 	var (
 		excel = excelize.NewFile()
 		rIdx  = 1
 	)
-	if *im {
+	if mode == NBSIM {
 		title = sheetTitle["SNV&INDEL"]
 	}
 	excel.NewSheet(sheetName)
 	writeTitle(excel, sheetName, title)
 	for _, item := range data {
-		if *im {
+		if mode == NBSIM {
 			if geneIMListMap[item["Gene Symbol"]] {
 				var sampleID = item["SampleID"]
-				updateInfo(item, sampleID)
+				updateInfo(item, sampleID, mode)
 				updateColumns(item, sheetTitleMap["SNV&INDEL"])
 				rIdx++
-				writeRow(excel, sheetName, item, title, rIdx)
+				writeRow(excel, sheetName, item, title, rIdx, mode)
 			}
 		} else {
 			rIdx++
-			writeRow(excel, sheetName, item, title, rIdx)
+			writeRow(excel, sheetName, item, title, rIdx, mode)
 		}
 	}
 	log.Printf("excel.SaveAs(\"%s\") with %d variants\n", excelName, rIdx-1)

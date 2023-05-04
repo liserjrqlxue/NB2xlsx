@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func createMainExcel(excel *excelize.File, path, mode string, all bool, throttle chan<- bool) {
+func createMainExcel(excel *excelize.File, path string, mode Mode, all bool, throttle chan<- bool) {
 	initExcel(excel, mode)
 	fillExcel(excel, mode, all)
 
@@ -19,20 +19,20 @@ func createMainExcel(excel *excelize.File, path, mode string, all bool, throttle
 	holdChan(throttle)
 }
 
-func initExcel(excel *excelize.File, mode string) {
+func initExcel(excel *excelize.File, mode Mode) {
 	excel = newExcel(mode)
 	styleInit(excel)
 }
 
-func newExcel(mode string) *excelize.File {
+func newExcel(mode Mode) *excelize.File {
 	switch mode {
-	case "NBSIM":
-		return newExcelIM(imSheetList)
-	case "NBSP":
+	case NBSP:
 		return simpleUtil.HandleError(excelize.OpenFile(mainTemplate)).(*excelize.File)
-	case "WGSNB":
+	case NBSIM:
+		return newExcelIM(imSheetList)
+	case WGSNB:
 		return simpleUtil.HandleError(excelize.OpenFile(wgsTemplate)).(*excelize.File)
-	case "WGSCS":
+	case WGSCS:
 		return simpleUtil.HandleError(excelize.OpenFile(csTemplate)).(*excelize.File)
 	default:
 		log.Fatalf("mode [%s] not suppoort!", mode)
@@ -71,7 +71,7 @@ func styleInit(excel *excelize.File) {
 }
 
 // fillExcel fill sheets
-func fillExcel(excel *excelize.File, mode string, all bool) {
+func fillExcel(excel *excelize.File, mode Mode, all bool) {
 	var (
 		// local sheet names
 		// Additional Experiments sheet name
@@ -103,36 +103,38 @@ func fillExcel(excel *excelize.File, mode string, all bool) {
 		writeAeChan = make(chan bool, 1)
 	)
 	switch mode {
-	case "NBSIM":
+	case NBSIM:
 		dmdSheetName = "DMD CNV"
 		aeSheetName = "THAL CNV"
 		avdSheetName = "SNV&INDEL"
-	case "WGSNB":
+	case WGSNB:
 		dmdSheetName = "CNV-原始"
 		wgsDmdSheetName = "CNV"
-	case "WGSCS":
+	case WGSCS:
 		wgsDmdSheetName = "DMD CNV"
 	}
 	// Sample
-	if mode == "NBSIM" {
-		writeDataFile2Sheet(excel, sampleSheetName, *info, updateSample)
+	if mode == NBSIM {
+		writeDataFile2Sheet(excel, sampleSheetName, *info, mode, updateSample)
 	}
 	// bam文件路径
-	updateBamPath2Sheet(excel, bamPathSheetName, *bamPath)
+	updateBamPath2Sheet(excel, bamPathSheetName, *bamPath, mode)
 	// QC -> DMD
-	WriteQC(excel, qcSheetName, *qc)
+	WriteQC(excel, qcSheetName, *qc, mode)
 	var dmdResult = LoadDmd4Sheet(
 		excel,
 		dmdSheetName,
+		mode,
 		loadFilesAndList(*dmdFiles, *dmdList),
 	)
 	// 补充实验
-	WriteAe(excel, aeSheetName, writeAeChan)
+	WriteAe(excel, aeSheetName, mode, writeAeChan)
 	// DMD -> All variant data
 	writeAvd2Sheet(
 		excel,
 		avdSheetName,
 		allSheetName,
+		mode,
 		loadFilesAndList(*avdFiles, *avdList),
 		runAvd,
 		all,
@@ -141,26 +143,26 @@ func fillExcel(excel *excelize.File, mode string, all bool) {
 	// CNV
 	// write CNV after runAvd
 	waitChan(runAvd)
-	if mode != "WGSCS" {
-		writeData2Sheet(excel, dmdSheetName, dmdResult, updateDMDCNV)
+	if mode != WGSCS {
+		writeData2Sheet(excel, dmdSheetName, mode, dmdResult, updateDMDCNV)
 	}
 	// DMD-lumpy
-	writeDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, updateLumpy)
+	writeDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, mode, updateLumpy)
 	// DMD-nator
-	writeDataFile2Sheet(excel, wgsDmdSheetName, *nator, updateNator)
+	writeDataFile2Sheet(excel, wgsDmdSheetName, *nator, mode, updateNator)
 	// drug, no use
-	writeDataFile2Sheet(excel, drugSheetName, *drugResult, updateDrug)
+	writeDataFile2Sheet(excel, drugSheetName, *drugResult, mode, updateDrug)
 	// 个特
-	writeDataList2Sheet(excel, icSheetName, *featureList, updateFeature)
+	writeDataList2Sheet(excel, icSheetName, *featureList, mode, updateFeature)
 	// 基因ID
-	writeDataList2Sheet(excel, geneIDSheetName, *geneIDList, updateGeneID)
+	writeDataList2Sheet(excel, geneIDSheetName, *geneIDList, mode, updateGeneID)
 
 	waitChan(writeAeChan)
 }
 
-type handleFunc func(map[string]string)
+type handleFunc func(map[string]string, Mode)
 
-func writeData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleFunc) {
+func writeData2Sheet(excel *excelize.File, sheetName string, mode Mode, db []map[string]string, fn handleFunc) {
 	if len(db) == 0 {
 		log.Printf("skip update [%s] for empty db", sheetName)
 		return
@@ -173,21 +175,21 @@ func writeData2Sheet(excel *excelize.File, sheetName string, db []map[string]str
 
 	for _, item := range db {
 		rIdx++
-		fn(item)
-		if *im {
-			updateInfo(item, item["sampleID"])
+		fn(item, mode)
+		switch mode {
+		case NBSIM:
+			updateInfo(item, item["sampleID"], mode)
 			updateColumns(item, sheetTitleMap[sheetName])
-		}
-		if *wgs {
-			updateInfo(item, item["sampleID"])
+		case WGSNB:
+			updateInfo(item, item["sampleID"], mode)
 			updateGender(item, item["sampleID"])
 		}
-		writeRow(excel, sheetName, item, title, rIdx)
+		writeRow(excel, sheetName, item, title, rIdx, mode)
 	}
 }
 
 // writeDataFile2Sheet File2MapArray fill in sheet with fn
-func writeDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleFunc) {
+func writeDataFile2Sheet(excel *excelize.File, sheetName, path string, mode Mode, fn handleFunc) {
 	if path == "" {
 		log.Printf("skip update [%s] for no path", sheetName)
 		return
@@ -205,14 +207,14 @@ func writeDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handle
 
 	for _, item := range db {
 		rIdx++
-		fn(item)
+		fn(item, mode)
 		updateINDEX(item, "D", rIdx)
-		writeRow(excel, sheetName, item, title, rIdx)
+		writeRow(excel, sheetName, item, title, rIdx, mode)
 	}
 }
 
 // writeDataList2Sheet list of File2MapArray fill in sheet with fn
-func writeDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleFunc) {
+func writeDataList2Sheet(excel *excelize.File, sheetName, list string, mode Mode, fn handleFunc) {
 	if list == "" {
 		log.Printf("skip update [%s] for no list", sheetName)
 		return
@@ -233,8 +235,8 @@ func writeDataList2Sheet(excel *excelize.File, sheetName, list string, fn handle
 		var db, _ = textUtil.File2MapArray(path, "\t", nil)
 		for _, item := range db {
 			rIdx++
-			fn(item)
-			writeRow(excel, sheetName, item, title, rIdx)
+			fn(item, mode)
+			writeRow(excel, sheetName, item, title, rIdx, mode)
 		}
 	}
 }
