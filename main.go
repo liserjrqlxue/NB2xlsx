@@ -7,7 +7,6 @@ import (
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
 	"github.com/liserjrqlxue/version"
-	"github.com/xuri/excelize/v2"
 	"log"
 	"os"
 	"path/filepath"
@@ -70,8 +69,6 @@ func main() {
 		// un-block channel bool
 		saveMainChan     = make(chan bool, 1)
 		saveBatchCnvChan = make(chan bool, 1)
-
-		excel *excelize.File
 	)
 
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
@@ -81,7 +78,7 @@ func main() {
 		parseProductCode()
 	}
 
-	go createMainExcel(excel, *prefix+".xlsx", modeType, *all, saveMainChan)
+	go createMainExcel(*prefix+".xlsx", modeType, *all, saveMainChan)
 
 	// waite excel write done
 	waitChan(saveMainChan, saveBatchCnvChan)

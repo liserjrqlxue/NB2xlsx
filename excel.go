@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-func createMainExcel(excel *excelize.File, path string, mode Mode, all bool, throttle chan<- bool) {
-	initExcel(excel, mode)
+func createMainExcel(path string, mode Mode, all bool, throttle chan<- bool) {
+	var excel = initExcel(mode)
 	fillExcel(excel, mode, all)
 
 	simpleUtil.CheckErr(excel.SaveAs(path))
@@ -19,9 +19,10 @@ func createMainExcel(excel *excelize.File, path string, mode Mode, all bool, thr
 	holdChan(throttle)
 }
 
-func initExcel(excel *excelize.File, mode Mode) {
-	excel = newExcel(mode)
+func initExcel(mode Mode) *excelize.File {
+	var excel = newExcel(mode)
 	styleInit(excel)
+	return excel
 }
 
 func newExcel(mode Mode) *excelize.File {
