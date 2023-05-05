@@ -62,7 +62,8 @@ func writeAvd(excel *excelize.File, sheetName string, mode Mode, dbChan chan []m
 		count++
 		for _, item := range avd {
 			rIdx++
-			writeAvdRow(excel, sheetName, mode, rIdx, item, title)
+			updateINDEX(item, "D", rIdx)
+			writeRowNoI18n(excel, sheetName, item, title, rIdx)
 		}
 		// stop channel range
 		if count == size {
@@ -70,51 +71,6 @@ func writeAvd(excel *excelize.File, sheetName string, mode Mode, dbChan chan []m
 		}
 	}
 	holdChan(throttle)
-}
-
-func writeAvdRow(excel *excelize.File, sheetName string, mode Mode, rIdx int, item map[string]string, title []string) {
-	updateINDEX(item, "D", rIdx)
-	var sampleID = item["SampleID"]
-	item["sampleID"] = sampleID
-	switch mode {
-	case NBSP:
-		updateABC(item, sampleID)
-	case NBSIM:
-		updateInfo(item, sampleID, mode)
-		updateColumns(item, sheetTitleMap[sheetName])
-	case WGSNB:
-		updateInfo(item, sampleID, mode)
-	case WGSCS:
-		updateInfo(item, sampleID, mode)
-
-		item["LOF"] = ""
-		item["disGroup"] = item["PP_disGroup"]
-		if top1kGene[item["Gene Symbol"]] {
-			item["是否国内（际）包装变异"] = "国内包装基因"
-		}
-		item["Database"] = "."
-		switch item["Auto ACMG + Check"] {
-		case "P":
-			item["Auto ACMG + Check"] = "Pathogenic"
-			item["Database"] = "DX1605"
-			item["是否是库内位点"] = "是"
-		case "LP":
-			item["Auto ACMG + Check"] = "Likely pathogenic"
-			item["Database"] = "DX1605"
-			item["是否是库内位点"] = "是"
-		case "", ".":
-			item["Auto ACMG + Check"] = "待解读"
-		}
-		if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
-			item["Auto ACMG + Check"] = "待解读"
-		}
-		item["突变类型"] = item["Auto ACMG + Check"]
-		item["报告类别"] = "正式报告"
-		// style
-		item["报告类别-原始"] = item["报告类别"]
-		item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
-	}
-	writeRow(excel, sheetName, item, title, rIdx, mode)
 }
 
 func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]string, throttle chan bool, all bool) {
@@ -165,52 +121,58 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 
 	// cycle 1
 	for _, item := range data {
-		updateAvd(item, subFlag, mode)
+		updateAvd(item, sampleID, subFlag, mode)
 		updateFromAvd(item, geneHash, geneInfo, sampleID, subFlag)
-		if mode == WGSCS {
-			// 烈性突变
-			anno.UpdateSnvTier1(item)
 
-			// 遗传相符
-			item["Zygosity"] = anno.ZygosityFormat(item["Zygosity"])
+		item["sampleID"] = sampleID
+		switch mode {
+		case WGSCS:
 			anno.InheritCheck(item, inheritDb)
+		default:
+			if item["filterAvd"] == "Y" {
+				var info, ok = geneInfo[item["Gene Symbol"]]
+				if !ok {
+					log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
+				} else {
+					if !geneExcludeListMap[item["Gene Symbol"]] {
+						item["Database"] = info.getTag(item)
+					}
+				}
+				item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
+				if subFlag && !deafnessGeneList[item["Gene Symbol"]] && item["遗传模式判读"] == "携带者" && item["报告类别-原始"] == "正式报告" {
+					item["报告类别-原始"] = "补充报告"
+				}
+				filterData = append(filterData, item)
+			}
 		}
 	}
 
 	// cycle 2
-	for _, item := range data {
-		if mode == WGSCS {
+	if mode == WGSCS {
+		for _, item := range data {
 			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
-			filterData = append(filterData, item)
-		} else if item["filterAvd"] == "Y" {
-			var info, ok = geneInfo[item["Gene Symbol"]]
-			if !ok {
-				log.Fatalf("geneInfo build error:\t%+v\n", geneInfo)
-			} else {
-				if !geneExcludeListMap[item["Gene Symbol"]] {
-					item["Database"] = info.getTag(item)
-				}
-			}
-			item["遗传模式判读"] = geneHash[item["Gene Symbol"]]
-			if subFlag && !deafnessGeneList[item["Gene Symbol"]] && item["遗传模式判读"] == "携带者" && item["报告类别-原始"] == "正式报告" {
-				item["报告类别-原始"] = "补充报告"
-			}
-			filterData = append(filterData, item)
 		}
+		filterData = data
 	}
+
+	dbChan <- filterData
 
 	if all {
 		writeSampleAvd(allExcelPath, sheetName, mode, allTitle, data)
 	}
 
-	dbChan <- filterData
-
 	// release threads
 	waitChan(throttle)
 }
 
-func updateAvd(item map[string]string, subFlag bool, mode Mode) {
-	updateABC(item, item["SampleID"])
+func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode) {
+	// sex
+	if *gender == "M" || genderMap[sampleID] == "M" {
+		item["Sex"] = "M"
+	} else if *gender == "F" || genderMap[sampleID] == "F" {
+		item["Sex"] = "F"
+	}
+
 	item["HGMDorClinvar"] = "否"
 	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
 		item["HGMDorClinvar"] = "是"
@@ -245,7 +207,22 @@ func updateAvd(item map[string]string, subFlag bool, mode Mode) {
 		anno.UpdateAutoRule(item)
 	}
 	switch mode {
+	case NBSP:
+		updateABC(item, sampleID)
+	case NBSIM:
+		annoLocaDb(item, localDb, subFlag, mode)
+		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
+		item["pHGVS"] = item["pHGVS3"]
+		updateInfo(item, sampleID, mode)
+		updateColumns(item, sheetTitleMap["SNV&INDEL"])
+		for _, k := range sheetTitle["SNV&INDEL"] {
+			item[k] = getI18n(item[k], k)
+		}
+	case WGSNB:
+		updateInfo(item, sampleID, mode)
 	case WGSCS:
+		updateInfo(item, sampleID, mode)
+
 		floatFormat(item, afFloatFormatArray, 6)
 		// remove trailing zeros
 		floatFormat(item, afFloatFormatArray, -1)
@@ -274,10 +251,39 @@ func updateAvd(item map[string]string, subFlag bool, mode Mode) {
 		}
 		item["需验证的变异"] = strings.Join(hits, ";")
 		item["#Chr"] = addChr(item["#Chr"])
-	case NBSIM:
-		annoLocaDb(item, localDb, subFlag, mode)
-		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
-		item["pHGVS"] = item["pHGVS3"]
+
+		// 烈性突变
+		anno.UpdateSnvTier1(item)
+
+		// 遗传相符
+		item["Zygosity"] = anno.ZygosityFormat(item["Zygosity"])
+
+		item["LOF"] = ""
+		item["disGroup"] = item["PP_disGroup"]
+		if top1kGene[item["Gene Symbol"]] {
+			item["是否国内（际）包装变异"] = "国内包装基因"
+		}
+		item["Database"] = "."
+		switch item["Auto ACMG + Check"] {
+		case "P":
+			item["Auto ACMG + Check"] = "Pathogenic"
+			item["Database"] = "DX1605"
+			item["是否是库内位点"] = "是"
+		case "LP":
+			item["Auto ACMG + Check"] = "Likely pathogenic"
+			item["Database"] = "DX1605"
+			item["是否是库内位点"] = "是"
+		case "", ".":
+			item["Auto ACMG + Check"] = "待解读"
+		}
+		if item["Auto ACMG + Check"] == "" || item["Auto ACMG + Check"] == "." {
+			item["Auto ACMG + Check"] = "待解读"
+		}
+		item["突变类型"] = item["Auto ACMG + Check"]
+		item["报告类别"] = "正式报告"
+		// style
+		item["报告类别-原始"] = item["报告类别"]
+		item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
 	default:
 		annoLocaDb(item, localDb, subFlag, mode)
 	}
@@ -292,23 +298,21 @@ func writeSampleAvd(excelName, sheetName string, mode Mode, title []string, data
 		excel = excelize.NewFile()
 		rIdx  = 1
 	)
+	excel.NewSheet(sheetName)
 	if mode == NBSIM {
 		title = sheetTitle["SNV&INDEL"]
-	}
-	excel.NewSheet(sheetName)
-	writeTitle(excel, sheetName, title)
-	for _, item := range data {
-		if mode == NBSIM {
+		writeTitle(excel, sheetName, title)
+		for _, item := range data {
 			if geneIMListMap[item["Gene Symbol"]] {
-				var sampleID = item["SampleID"]
-				updateInfo(item, sampleID, mode)
-				updateColumns(item, sheetTitleMap["SNV&INDEL"])
 				rIdx++
-				writeRow(excel, sheetName, item, title, rIdx, mode)
+				writeRowNoI18n(excel, sheetName, item, title, rIdx)
 			}
-		} else {
+		}
+	} else {
+		writeTitle(excel, sheetName, title)
+		for _, item := range data {
 			rIdx++
-			writeRow(excel, sheetName, item, title, rIdx, mode)
+			writeRowNoI18n(excel, sheetName, item, title, rIdx)
 		}
 	}
 	log.Printf("excel.SaveAs(\"%s\") with %d variants\n", excelName, rIdx-1)

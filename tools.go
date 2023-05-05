@@ -847,6 +847,43 @@ func updateAe(item map[string]string, mode Mode) {
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
 }
 
+func writeRowNoI18n(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
+	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
+	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
+	for j, k := range title {
+		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
+		if formulaTitle[k] {
+			simpleUtil.CheckErr(excel.SetCellFormula(sheetName, axis, item[k]))
+		} else if hyperLinkTitle[k] {
+			simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, item[k]))
+			simpleUtil.CheckErr(excel.SetCellHyperLink(sheetName, axis, item[k+"_HyperLink"], "External"))
+		} else {
+			simpleUtil.CheckErr(excel.SetCellValue(sheetName, axis, item[k]))
+		}
+		var list, ok = dropListMap[k]
+		if ok {
+			var dvRange = excelize.NewDataValidation(true)
+			dvRange.Sqref = axis
+			simpleUtil.CheckErr(dvRange.SetDropList(list))
+			simpleUtil.CheckErr(excel.AddDataValidation(sheetName, dvRange))
+		}
+	}
+	var formalID, supplementaryID int
+	if item["验证"] == "Y" {
+		formalID = formalCheckStyleID
+		supplementaryID = supplementaryCheckStyleID
+	} else {
+		formalID = formalStyleID
+		supplementaryID = supplementaryStyleID
+	}
+	switch item["报告类别-原始"] {
+	case "正式报告":
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, formalID), sheetName, axis0, axis1)
+	case "补充报告":
+		simpleUtil.CheckErr(excel.SetCellStyle(sheetName, axis0, axis1, supplementaryID), sheetName, axis0, axis1)
+	}
+}
+
 func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int, mode Mode) {
 	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
 	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
