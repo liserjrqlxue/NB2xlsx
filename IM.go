@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/liserjrqlxue/goUtil/textUtil"
-	"github.com/xuri/excelize/v2"
 	"log"
 	"path/filepath"
 )
@@ -38,19 +37,4 @@ func updateSheetTitleMap() {
 		sheetTitle[s] = title
 		sheetTitleMap[s] = titleMap
 	}
-}
-
-func initExcel() *excelize.File {
-	var excel = excelize.NewFile()
-	for _, s := range imSheetList {
-		excel.NewSheet(s)
-		var titleMaps, _ = textUtil.File2MapArray(filepath.Join(templatePath, s+".txt"), "\t", nil)
-		var title []string
-		for _, m := range titleMaps {
-			title = append(title, m[columnName])
-		}
-		writeTitle(excel, s, title)
-	}
-	excel.DeleteSheet("Sheet1")
-	return excel
 }

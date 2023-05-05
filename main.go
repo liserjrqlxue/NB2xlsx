@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/liserjrqlxue/acmg2015"
 	"github.com/liserjrqlxue/goUtil/osUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -25,17 +26,33 @@ func init() {
 			os.Exit(1)
 		}
 	}
-}
 
-func getI18n(v, k string) string {
-	var value, ok = I18n[k+"."+v][i18n]
-	if !ok {
-		value, ok = I18n[v][i18n]
+	modeType = ModeMap[*mode]
+
+	// acmg2015 init
+	if *acmg {
+		acmg2015.AutoPVS1 = *autoPVS1
+		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(acmgDbList, "\t", false)).(map[string]string)
+		for k, v := range acmgCfg {
+			acmgCfg[k] = filepath.Join(dbPath, v)
+		}
+		acmg2015.Init(acmgCfg)
 	}
-	if ok {
-		return value
+
+	I18n, _ = textUtil.File2MapMap(i18nTxt, "CN", "\t", nil)
+
+	// load local db
+	{
+		if modeType == NBSIM {
+			loadLocalDb(jsonAesIM)
+		} else {
+			loadLocalDb(jsonAes)
+		}
 	}
-	return v
+
+	loadDb(modeType)
+
+	log.Println("init done")
 }
 
 func main() {
@@ -44,145 +61,41 @@ func main() {
 		genderMap = simpleUtil.HandleError(textUtil.File2Map(*gender, "\t", false)).(map[string]string)
 	}
 
-	I18n, _ = textUtil.File2MapMap(filepath.Join(etcPath, "i18n.txt"), "CN", "\t", nil)
+	// limsInfo for updateABC and updateQC
+	// sampleDetail for subFlag
+	// imInfo for parseProductCode, updateInfo, updateQC
+	limsInfo, sampleDetail, imInfo = loadSamplesInfo(*lims, *detail, *info)
 
-	// un-block channel bool
 	var (
-		localDb      = make(chan bool, 1)
-		runAe        = make(chan bool, 1)
-		runAvd       = make(chan bool, 1)
-		loadDmd      = make(chan bool, 1)
-		writeDmd     = make(chan bool, 1)
-		runQC        = make(chan bool, 1)
-		saveMain     = make(chan bool, 1)
-		saveBatchCnv = make(chan bool, 1)
+		// un-block channel bool
+		saveMainChan     = make(chan bool, 1)
+		saveBatchCnvChan = make(chan bool, 1)
+
+		excel *excelize.File
 	)
-	var excel *excelize.File
 
-	// load local db
-	{
-		localDb <- true
-		loadLocalDb(localDb)
-	}
+	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
+	useBatchCNV(*batchCNV, "Sheet1", modeType, saveBatchCnvChan)
 
-	loadDb()
-
-	if *lims != "" {
-		limsInfo = loadLimsInfo()
-	}
-
-	if *batchCNV != "" {
-		loadBatchCNV(*batchCNV)
-	}
-
-	if *info != "" {
-		imInfo, _ = textUtil.File2MapMap(*info, "sampleID", "\t", nil)
-	}
-
-	if *cs {
-		for _, s := range textUtil.File2Array(filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")) {
-			top1kGene[s] = true
-		}
-	}
-
-	if *im {
+	if modeType == NBSIM {
 		parseProductCode()
 	}
-	loadDiseaseDb(i18n)
 
-	updateSheetTitleMap()
-
-	if *im {
-		excel = initExcel()
-	} else {
-		var templateXlsx = *template
-		if *wgs && templateXlsx == filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx") {
-			templateXlsx = filepath.Join(templatePath, "NBS.wgs.xlsx")
-		}
-		excel = simpleUtil.HandleError(excelize.OpenFile(*template)).(*excelize.File)
-	}
-	styleInit(excel)
-
-	if *im {
-		// Sample
-		if *info != "" {
-			updateDataFile2Sheet(excel, "Sample", *info, updateSample)
-		}
-	} else {
-		// bam文件路径
-		if *bamPath != "" {
-			updateBamPath(excel, *bamPath)
-		}
-	}
-
-	// QC
-	if *qc != "" {
-		wait(runQC)
-		WriteQC(excel, runQC)
-	}
-
-	// CNV
-	// QC -> DMD
-	wait(runQC, loadDmd)
-	LoadDmd(excel, loadDmd)
-
-	// 补充实验
-	wait(runAe)
-	WriteAe(excel, runAe)
-
-	// All variant data
-	wait(localDb, runAvd)
-	goWriteAvd(excel, loadDmd, runAvd, *all)
-
-	// write CNV after runAvd
-	// CNV
-	wait(runAvd)
-	if *cs {
-		*dmdSheetName = "DMD CNV"
-	} else {
-		wait(writeDmd)
-		goUpdateCNV(excel, writeDmd)
-	}
-	if *wgs {
-		*dmdSheetName = "CNV"
-	}
-	// DMD-lumpy
-	if *lumpy != "" {
-		updateDataFile2Sheet(excel, *dmdSheetName, *lumpy, updateLumpy)
-	}
-	// DMD-nator
-	if *nator != "" {
-		updateDataFile2Sheet(excel, *dmdSheetName, *nator, updateNator)
-	}
-
-	// drug, no use
-	if *drugResult != "" {
-		updateDataFile2Sheet(excel, *drugSheetName, *drugResult, updateDrug)
-	}
-
-	// 个特
-	if *featureList != "" {
-		updateDataList2Sheet(excel, "个特", *featureList, updateFeature)
-	}
-
-	// 基因ID
-	if *geneIDList != "" {
-		updateDataList2Sheet(excel, "基因ID", *geneIDList, updateGeneID)
-	}
-
-	wait(saveBatchCnv)
-	go goWriteBatchCnv(saveBatchCnv)
-
-	wait(runAe, writeDmd, saveMain)
-	go saveMainExcel(excel, *prefix+".xlsx", saveMain)
+	go createMainExcel(excel, *prefix+".xlsx", modeType, *all, saveMainChan)
 
 	// waite excel write done
-	wait(saveMain, saveBatchCnv)
+	waitChan(saveMainChan, saveBatchCnvChan)
 	log.Println("All Done")
 }
 
-func wait(ch ...chan<- bool) {
+func holdChan(ch ...chan<- bool) {
 	for _, bools := range ch {
 		bools <- true
+	}
+}
+
+func waitChan(ch ...<-chan bool) {
+	for _, bools := range ch {
+		<-bools
 	}
 }

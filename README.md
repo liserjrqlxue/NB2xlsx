@@ -30,6 +30,64 @@
     - [x] [init](#init)
     - [x] [use](#use)
 
+## 使用方式
+
+### 输入参数
+
+| 参数             | 格式      | 默认值     | 说明                                                                                                          |
+|----------------|---------|---------|-------------------------------------------------------------------------------------------------------------|
+| -batch         | string  |         | batch name, use for hyperlink [batch].result_batCNV-dipin/chr11_chr16_chrX_cnemap/[sampleID]_W30S25_cne.jpg |
+| -prefix        | string  | [batch] | output to [prefix].xlsx and [prefix].*                                                                      |
+| -gender        | string  | F       | gender for all or gender map file                                                                           |
+| -acmg          | boolean | false   | 是否启动ACMG2015注释                                                                                              |
+| -autoPVS1      | boolean | false   | 是否使用autoPVS1的证据项结果                                                                                          |
+| -cs            | boolean | false   | if use for CS                                                                                               |
+| -im            | boolean | false   | if use for im                                                                                               |
+| -wgs           | boolean | false   | if use for wgs                                                                                              |
+| -all           | boolean | false   | 是否输出单样品所有变异excel                                                                                            |
+| -batchCNV      | string  |         | batchCNV result                                                                                             |
+| -annoDir       | string  |         | CS模式单样品excel输出目录，输出结果为[annoDir]/[sampleID]_vcfanno.xlsx                                                     |
+| -detail        | string  |         | sample info                                                                                                 |
+| -info          | string  |         | im info.txt                                                                                                 |
+| -lims          | string  |         | lims.info                                                                                                   |
+| -avd           | string  |         | All variants data file list, comma as sep                                                                   |
+| -avdList       | string  |         | All variants data file list, one path per line                                                              |
+| -dmd           | string  |         | DMD result file list, comma as sep                                                                          |
+| -dmdList       | string  |         | DMD result file list, one path per line                                                                     |
+| -lumpy         | string  |         | DMD-lumpy data                                                                                              |
+| -nator         | string  |         | DMD-nator data                                                                                              |
+| -dipin         | string  |         | dipin result file                                                                                           |
+| -sma           | string  |         | sma result file                                                                                             |
+| -sma2          | string  |         | sma result file                                                                                             |
+| -feature       | string  |         | 个特 list                                                                                                     |
+| -geneID        | string  |         | 基因ID list                                                                                                   |
+| -qc            | string  |         | qc excel                                                                                                    |
+| -bamPath       | string  |         | bamList file                                                                                                |
+| -drug          | string  |         | drug result file                                                                                            |
+| -drugSheetName | string  |         | 药物检测结果                                                                                                      |
+| -threshold     | int     | 12      | threshold limit                                                                                             |
+
+## goroutine
+
+- main
+  - useBatchCnv
+    - go goWriteBatchCnv
+      - holdChan(saveBatchCnvChan)
+  - go createExcel
+    - fillExcel
+      - writeAvd2Sheet
+        - go writeAvd
+          - range dbChan
+          - holdChan(runWrite)
+        - go loadAvd
+          - holdChan(throttle)
+            - dbChan <- filterData
+          - waitChan(throttle)
+        - waitChan(runWrite)
+        - holdChan(throttle)
+    - holdChan(saveMainChan)
+  - waitChan(saveMainChan, saveBatchCnvChan)
+
 ## 编译安装
 
 ```shell

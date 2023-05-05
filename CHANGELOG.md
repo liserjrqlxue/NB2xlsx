@@ -1,5 +1,43 @@
 # tags
 
+- [v0.31.0](9adde753)
+  - 2023/4/20
+  - :sparkles: only UpdateGeneHash for 正式报告 when subFlag
+  - :bento: :wrench: add column 是否是包装位点, inherit 是否是包装位点 from db
+  - :thread: in case no -qc
+  - IM
+    - :wrench: writeSampleAvd use IM title, updateInfo and updateColumns
+    - :bento: update 新生儿疾病库.EN.xlsx to 新生儿疾病库V2.2(英文)-2023.4.19: update SMN1
+- [v0.30.1](30e3dc60
+  - 2023/4/14
+  - :ambulance: fix channel block, wait runWrite before fill threshold
+  - :loud_sound: load %d avd, log Wait DMD Done
+  - IM
+    - :wrench: i18n: 致病变异 Pathogenic -> P
+    -
+- [v0.30.0](171bce6a)
+  - 2023/4/11
+  - :art: :recycle: move functions to avd.go, and other refator code
+  - :bento: add 药物不合格位点个数 to NBS.wgs.xlsx QC sheet
+  - :bento: add 新生儿疾病库.xlsx.Sheet2.txt 新生儿疾病库.wgs.xlsx.Sheet2.txt
+  - update 新生儿疾病库.xlsx.Sheet2.txt to V2.2(中文)-2023.4.6
+  - :fire: delete -diseaseExcel, -dieaseSheetName and -mutDb
+  - :rotating_light: :fire: delete unused ifPlotReads
+  - :wrench: add param aes to loadLocalDb
+  - IM
+    - :wrench: use 已解读数据库.IM.json.aes for IM
+    - :bento: add 已解读数据库.IM.json.aes V1.0-20230411
+  - CS
+    - :wrench: fill SMA_result for WGS IM CS
+- [v0.29.0](b622ccfb)
+  - 2023/4/4
+  - :sparkle: use 地贫标准写法
+  - :bento: add 地贫标准写法.xlsx.Sheet1.txt
+- [v0.28.1](b622ccfb)
+  - 2023/4/4
+  - :memo: add 地贫标准写法
+  - :bento: add trans.info.txt
+  - :sparkle: add exonCount for PrimerDesign
 - [v0.28.0](a101c412)
   - 2023/4/4
   - :sparkles: 南京市妇幼保健院 DX1968 个性化需求

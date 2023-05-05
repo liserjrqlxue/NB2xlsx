@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"path/filepath"
 
 	"github.com/liserjrqlxue/goUtil/textUtil"
@@ -9,17 +10,43 @@ import (
 var limsHeader = filepath.Join(etcPath, "lims.info.header")
 var limsTitle = textUtil.File2Array(limsHeader)
 
-func loadLimsInfo() map[string]map[string]string {
-	var limsSlice = textUtil.File2Slice(*lims, "\t")
-	var db = make(map[string]map[string]string)
-	for _, info := range limsSlice {
-		var item = make(map[string]string)
-		for i := range info {
-			item[limsTitle[i]] = info[i]
+func loadSamplesInfo(lims, detail, info string) (limsDb, detailDb, infoDb map[string]map[string]string) {
+	limsDb = make(map[string]map[string]string)
+	detailDb = make(map[string]map[string]string)
+	infoDb = make(map[string]map[string]string)
+
+	if lims == "" {
+		log.Println("skip lims.info for absence")
+	} else {
+		for _, line := range textUtil.File2Slice(lims, "\t") {
+			var item = make(map[string]string)
+			for i := range line {
+				item[limsTitle[i]] = line[i]
+			}
+			limsDb[item["MAIN_SAMPLE_NUM"]] = item
 		}
-		db[item["MAIN_SAMPLE_NUM"]] = item
+
 	}
-	return db
+
+	if detail == "" {
+		log.Println("skip detail for absence")
+	} else {
+		for _, line := range textUtil.File2Slice(detail, "\t") {
+			var db = make(map[string]string)
+			var sampleID = line[0]
+			db["productCode"] = line[1]
+			db["hospital"] = line[2]
+			detailDb[sampleID] = db
+		}
+	}
+
+	if info == "" {
+		log.Println("skip info.txt for absence")
+	} else {
+		infoDb, _ = textUtil.File2MapMap(info, "sampleID", "\t", nil)
+	}
+
+	return
 }
 
 func updateABC(item map[string]string, sampleID string) {
@@ -29,8 +56,8 @@ func updateABC(item map[string]string, sampleID string) {
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
 	}
-	var info = limsInfo[sampleID]
-	item["期数"] = info["HYBRID_LIBRARY_NUM"]
-	item["flow ID"] = info["FLOW_ID"]
-	item["产品编码_产品名称"] = info["PRODUCT_CODE"] + "_" + info["PRODUCT_NAME"]
+	var db = limsInfo[sampleID]
+	item["期数"] = db["HYBRID_LIBRARY_NUM"]
+	item["flow ID"] = db["FLOW_ID"]
+	item["产品编码_产品名称"] = db["PRODUCT_CODE"] + "_" + db["PRODUCT_NAME"]
 }

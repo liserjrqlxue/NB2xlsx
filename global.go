@@ -15,6 +15,43 @@ var (
 	templatePath = filepath.Join(exPath, "template")
 )
 
+// template
+var (
+	// template for prefix+".xlsx"
+	mainTemplate = filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx")
+	wgsTemplate  = filepath.Join(templatePath, "NBS.wgs.xlsx")
+	csTemplate   = filepath.Join(templatePath, "CS.BB.xlsx")
+	// template for prefix+".batchCNV.xlsx"
+	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
+)
+
+// etc
+var (
+	// ACMG2015 db list
+	acmgDbList = filepath.Join(etcPath, "acmg.db.list.txt")
+	// samples' all snv Excel sheet title
+	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
+	// drop list for main excel
+	dropList = filepath.Join(etcPath, "drop.list.txt")
+	// gene list to filter
+	geneList = filepath.Join(etcPath, "gene.list.txt")
+	// gene info : Transcript and EntrezID
+	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
+	// exclude function list
+	functionExclude = filepath.Join(etcPath, "function.exclude.txt")
+	// i18n.txt
+	i18nTxt = filepath.Join(etcPath, "i18n.txt")
+	// variant db
+	jsonAes   = filepath.Join(etcPath, "已解读数据库.json.aes")
+	jsonAesIM = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	// top1k gene list
+	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
+)
+
+var (
+	modeType Mode
+)
+
 var (
 	geneInfoMap        = make(map[string]map[string]string)
 	geneListMap        = make(map[string]bool)
@@ -32,11 +69,6 @@ var (
 	cnvDb           = make(map[string]map[string]string)
 	dropListMap     = make(map[string][]string)
 	genderMap       = make(map[string]string)
-
-	// DmdCnv : array of DMD cnv map
-	DmdCnv []map[string]string
-	// BatchCnv : array of batch cnv map
-	BatchCnv []map[string]string
 
 	// SampleGeneInfo : sampleID -> GeneSymbol -> *GeneInfo
 	SampleGeneInfo = make(map[string]map[string]*GeneInfo)

@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liserjrqlxue/acmg2015"
-	"github.com/liserjrqlxue/anno2xlsx/v2/anno"
 	AES "github.com/liserjrqlxue/crypto/aes"
 	"github.com/liserjrqlxue/goUtil/jsonUtil"
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -59,48 +57,44 @@ func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, 
 	}
 }
 
-func loadDiseaseDb(i18n string) {
+func loadDiseaseDb(i18n string, mode Mode) {
 	// load disease database
 	log.Println("Load Disease Start")
+	var diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
 	if i18n == "EN" {
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-			filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt"),
-			"\t", nil,
-		)
+		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
+	} else if mode == WGSNB {
+		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.wgs.xlsx.Sheet2.txt")
+	}
+	var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+		diseaseTxt,
+		"\t", nil,
+	)
+	if i18n == "EN" {
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
 		for gene, m := range diseaseDb {
 			m["疾病"] = m["Condition Name"]
-			m["遗传模式"] = m["Inherited Mode"]
-			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
 			m["疾病简介"] = m["Disease Generalization"]
 			m["包装疾病分类"] = m["Condition Category"]
+			m["遗传模式"] = m["Inherited Mode"]
+			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
 			geneInheritance[gene] = m["遗传模式"]
 		}
 	} else {
-		var diseaseMapArray, diseaseTitle = simpleUtil.Slice2MapArray(
-			simpleUtil.HandleError(
-				simpleUtil.HandleError(
-					excelize.OpenFile(*diseaseExcel),
-				).(*excelize.File).
-					GetRows(*diseaseSheetName),
-			).([][]string),
-		)
-
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
-
-		for gene, info := range diseaseDb {
-			info["遗传模式merge"] = mergeSep(info["遗传模式"], diseaseSep)
-			geneInheritance[gene] = info["遗传模式"]
+		for gene, m := range diseaseDb {
+			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+			geneInheritance[gene] = m["遗传模式"]
 		}
 	}
 	log.Println("Load Database Done")
 }
 
-func loadDb() {
+func loadDb(mode Mode) {
 	log.Println("Load Database Start")
 	// load gene info list
-	geneInfoMap, _ = textUtil.File2MapMap(*geneInfoList, "Gene Symbol", "\t", nil)
-	if *im {
+	geneInfoMap, _ = textUtil.File2MapMap(geneInfoList, "Gene Symbol", "\t", nil)
+	if mode == NBSIM {
 		for s, m := range geneInfoMap {
 			if m["一体机过滤基因"] == "TRUE" {
 				geneIMListMap[s] = true
@@ -111,7 +105,7 @@ func loadDb() {
 		}
 	} else {
 		// load gene list
-		for _, key := range textUtil.File2Array(*geneList) {
+		for _, key := range textUtil.File2Array(geneList) {
 			geneListMap[key] = true
 		}
 	}
@@ -132,7 +126,7 @@ func loadDb() {
 		geneExcludeListMap[key] = true
 	}
 	// load function exclude list
-	for _, key := range textUtil.File2Array(*functionExclude) {
+	for _, key := range textUtil.File2Array(functionExclude) {
 		functionExcludeMap[key] = true
 	}
 
@@ -164,23 +158,11 @@ func loadDb() {
 
 	// load drop list
 	log.Println("Load DropList Start")
-	for k, v := range simpleUtil.HandleError(textUtil.File2Map(*dropList, "\t", false)).(map[string]string) {
+	for k, v := range simpleUtil.HandleError(textUtil.File2Map(dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
 	}
 
-	// load sample detail
-	if *detail != "" {
-		var details = textUtil.File2Slice(*detail, "\t")
-		for _, line := range details {
-			var info = make(map[string]string)
-			var sampleID = line[0]
-			info["productCode"] = line[1]
-			info["hospital"] = line[2]
-			sampleDetail[sampleID] = info
-		}
-	}
-
-	if *cs {
+	if mode == WGSCS {
 		var region *Region
 		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)
 		for _, m := range repeatRegionArray {
@@ -203,15 +185,23 @@ func loadDb() {
 				homologousRegion = append(homologousRegion, region)
 			}
 		}
+
+		for _, s := range textUtil.File2Array(top1kGeneList) {
+			top1kGene[s] = true
+		}
 	}
+
+	loadDiseaseDb(i18n, mode)
+
+	updateSheetTitleMap()
+
 }
 
-func loadLocalDb(throttle chan bool) {
+func loadLocalDb(aes string) {
 	// load 已解读数据库
 	log.Println("Load LocalDb Start")
-	localDb = jsonUtil.Json2MapMap(AES.DecodeFile(*mutDb, []byte(codeKey)))
+	localDb = jsonUtil.Json2MapMap(AES.DecodeFile(aes, []byte(codeKey)))
 	log.Println("Load LocalDb Done")
-	<-throttle
 }
 
 var formulaTitle = map[string]bool{
@@ -328,7 +318,7 @@ func updateLOF(item map[string]string) {
 	}
 }
 
-func updateDisease(item map[string]string) {
+func updateDisease(item map[string]string, mode Mode) {
 	var gene = item["Gene Symbol"]
 	var disease, ok = diseaseDb[gene]
 	if ok {
@@ -340,7 +330,7 @@ func updateDisease(item map[string]string) {
 		item["包装疾病分类"] = disease["包装疾病分类"]
 		item["报告逻辑"] = disease["报告逻辑"]
 	}
-	if *cs {
+	if mode == WGSCS {
 		item["遗传模式"] = item["Inheritance"]
 		item["疾病中文名"] = item["Chinese disease name"]
 		item["中文-疾病背景"] = item["Chinese disease introduction"]
@@ -403,7 +393,7 @@ func updateAf(item map[string]string) {
 	}
 }
 
-func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subFlag bool) {
+func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subFlag bool, mode Mode) {
 	var (
 		transcript = item["Transcript"]
 		c          = item["cHGVS"]
@@ -423,7 +413,7 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 	}
 	if ok {
 		if db["是否是包装位点"] == "是" {
-			if *im {
+			if mode == NBSIM {
 				item["报告类别"] = "是"
 				item["In BGI database"] = "是"
 			}
@@ -448,6 +438,7 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 				item["报告类别-原始"] = "补充报告"
 			}
 		}
+		item["是否是包装位点"] = db["是否是包装位点"]
 		item["参考文献"] = db["Reference"]
 		item["位点关联疾病"] = db["Disease"]
 		item["位点关联遗传模式"] = db["遗传模式"]
@@ -464,78 +455,6 @@ func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subF
 			item["filterAvd"] = "Y"
 		}
 	}
-}
-
-func updateAvd(item map[string]string, subFlag bool) {
-	updateABC(item, item["SampleID"])
-	item["HGMDorClinvar"] = "否"
-	if isHGMD[item["HGMD Pred"]] || isClinVar[item["ClinVar Significance"]] {
-		item["HGMDorClinvar"] = "是"
-	}
-	item["ClinVar星级"] = item["ClinVar Number of gold stars"]
-	item["1000Gp3 AF"] = item["1000G AF"]
-	item["1000Gp3 EAS AF"] = item["1000G EAS AF"]
-	var gene = item["Gene Symbol"]
-	item["gene+cHGVS"] = gene + ":" + item["cHGVS"]
-	item["gene+pHGVS3"] = gene + ":" + item["pHGVS3"]
-	item["gene+pHGVS1"] = gene + ":" + item["pHGVS1"]
-	anno.Score2Pred(item)
-	updateLOF(item)
-	updateDisease(item)
-
-	if *im {
-		item["报告类别"] = "否"
-		item["In BGI database"] = "否"
-	}
-
-	// reads_picture
-	// reads_picture_HyperLink
-	readsPicture(item)
-	// Function
-	anno.UpdateFunction(item)
-	// AF -1 -> .
-	updateAf(item)
-
-	if *acmg {
-		acmg2015.AddEvidences(item)
-		item["自动化判断"] = acmg2015.PredACMG2015(item, *autoPVS1)
-		anno.UpdateAutoRule(item)
-	}
-	if *cs {
-		floatFormat(item, afFloatFormatArray, 6)
-		// remove trailing zeros
-		floatFormat(item, afFloatFormatArray, -1)
-		var (
-			repeatHit     bool
-			homologousHit bool
-			start         = stringsUtil.Atoi(item["Start"])
-			end           = stringsUtil.Atoi(item["Stop"])
-			hits          []string
-		)
-		for _, region := range repeatRegion {
-			if region.gene == item["Gene Symbol"] && start > region.start && end < region.end {
-				repeatHit = true
-			}
-		}
-		for _, region := range homologousRegion {
-			if region.chr == item["#Chr"] && start > region.start && end < region.end {
-				homologousHit = true
-			}
-		}
-		if repeatHit {
-			hits = append(hits, "重复区域变异")
-		}
-		if homologousHit {
-			hits = append(hits, "同源区域变异")
-		}
-		item["需验证的变异"] = strings.Join(hits, ";")
-		item["#Chr"] = addChr(item["#Chr"])
-	} else {
-		annoLocaDb(item, localDb, subFlag)
-	}
-	item["exonCount"] = exonCount[item["Transcript"]]
-	item["引物设计"] = anno.PrimerDesign(item)
-	item["验证"] = ifCheck(item)
 }
 
 func ifCheck(item map[string]string) string {
@@ -577,20 +496,7 @@ func readsPicture(item map[string]string) {
 	item["reads_picture_HyperLink"] = filepath.Join("reads_picture", png)
 }
 
-func ifPlotReads(item map[string]string) bool {
-	if item["isReport"] == "Y" {
-		return true
-	}
-	if isClinVar[item["ClinVar Significance"]] || isHGMD[item["HGMD Pred"]] {
-		return true
-	}
-	if item["Database"] != "" {
-		return true
-	}
-	return false
-}
-
-func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string) {
+func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string, subFlag bool) {
 	if item["filterAvd"] != "Y" {
 		return
 	}
@@ -603,11 +509,11 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
 		info.gender = "M"
-		UpdateGeneHash(geneHash, item, "M")
+		UpdateGeneHash(geneHash, item, "M", subFlag)
 	} else if *gender == "F" || genderMap[sampleID] == "F" {
 		item["Sex"] = "F"
 		info.gender = "F"
-		UpdateGeneHash(geneHash, item, "F")
+		UpdateGeneHash(geneHash, item, "F", subFlag)
 	}
 	geneInfo[item["Gene Symbol"]] = info
 }
@@ -684,8 +590,11 @@ func updateGeneHash(item map[string]string, genePred, gender string) string {
 }
 
 // UpdateGeneHash : update geneHash
-func UpdateGeneHash(geneHash, item map[string]string, gender string) {
+func UpdateGeneHash(geneHash, item map[string]string, gender string, subFlag bool) {
 	if item["isReport"] != "Y" {
+		return
+	}
+	if subFlag && item["报告类别-原始"] != "正式报告" {
 		return
 	}
 	var gene = item["Gene Symbol"]
@@ -749,11 +658,11 @@ func updateP(item map[string]string, k, v, suffix string) {
 	item[k+"_HyperLink"] = filepath.Join("DMD_exon_graph", sampleID+suffix)
 }
 
-func updateDipin(item map[string]string, db map[string]map[string]string) {
+func updateDipin(item map[string]string, db map[string]map[string]string, mode Mode) {
 	var sampleID = item["sample"]
-	var info, ok = db[sampleID]
+	var infos, ok = db[sampleID]
 	if !ok {
-		info = item
+		infos = item
 	}
 	var tag, aResult, bResult string
 	if item["chr11"] == "N" {
@@ -767,7 +676,7 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 		aResult = item["chr16"]
 	}
 
-	if *im {
+	if mode == NBSIM {
 		if item["QC"] == "pass" {
 			item["QC"] = "通过"
 		} else {
@@ -799,22 +708,22 @@ func updateDipin(item map[string]string, db map[string]map[string]string) {
 			tag = "_等验证"
 		}
 	}
-	info["β地贫自动化结果"] = bResult + tag
-	info["α地贫自动化结果"] = aResult + tag
-	info["β地贫_最终结果"] = bResult + tag
-	info["α地贫_最终结果"] = aResult + tag
-	info["SampleID"] = item["sample"]
-	info["地贫_QC"] = item["QC"]
-	info["β地贫_chr11"] = item["chr11"]
-	info["α地贫_chr16"] = item["chr16"]
-	db[sampleID] = info
+	infos["β地贫自动化结果"] = bResult + tag
+	infos["α地贫自动化结果"] = aResult + tag
+	infos["β地贫_最终结果"] = bResult + tag
+	infos["α地贫_最终结果"] = aResult + tag
+	infos["SampleID"] = item["sample"]
+	infos["地贫_QC"] = item["QC"]
+	infos["β地贫_chr11"] = item["chr11"]
+	infos["α地贫_chr16"] = item["chr16"]
+	db[sampleID] = infos
 }
 
-func updateSma(item map[string]string, db map[string]map[string]string) {
+func updateSma(item map[string]string, db map[string]map[string]string, mode Mode) {
 	var sampleID = item["SampleID"]
-	var info, ok = db[sampleID]
+	var infos, ok = db[sampleID]
 	if !ok {
-		info = item
+		infos = item
 	}
 	var result, qcResult string
 	var Categorization = item["SMN1_ex7_cn"]
@@ -822,12 +731,12 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 	if Categorization == "1.5" || Categorization == "1" || Categorization == "1.0" || QC != "1" {
 		qcResult = "_等验证"
 	}
-	if *im {
-		info["Official Report"] = "否"
+	if mode == NBSIM {
+		infos["Official Report"] = "否"
 		switch Categorization {
 		case "0", "0.0":
 			result = "纯合阳性"
-			info["Official Report"] = "是"
+			infos["Official Report"] = "是"
 		case "1", "1.0":
 			result = "杂合阳性"
 		case "0.5", "1.5":
@@ -836,18 +745,18 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 			result = "阴性"
 		}
 		if QC == "1" {
-			info["SMN1_质控结果"] = "通过"
-			info["SMN1 EX7 del最终结果"] = result
+			infos["SMN1_质控结果"] = "通过"
+			infos["SMN1 EX7 del最终结果"] = result
 		} else {
-			info["SMN1_质控结果"] = "不通过"
-			info["SMN1 EX7 del最终结果"] = "灰区"
+			infos["SMN1_质控结果"] = "不通过"
+			infos["SMN1 EX7 del最终结果"] = "灰区"
 		}
 	} else {
 		switch Categorization {
 		case "0", "0.0":
 			result = "纯合阳性"
-			if *im {
-				info["Official Report"] = "是"
+			if mode == NBSIM {
+				infos["Official Report"] = "是"
 			}
 		case "0.5":
 			result = "纯合灰区"
@@ -859,80 +768,82 @@ func updateSma(item map[string]string, db map[string]map[string]string) {
 			result = "阴性"
 		}
 		if QC == "1" {
-			info["SMN1_质控结果"] = "Pass"
+			infos["SMN1_质控结果"] = "Pass"
 			switch Categorization {
 			case "0", "0.0", "1", "1.0":
-				info["SMN1 EX7 del最终结果"] = result
+				infos["SMN1 EX7 del最终结果"] = result
 			default:
-				info["SMN1 EX7 del最终结果"] = result + qcResult
+				infos["SMN1 EX7 del最终结果"] = result + qcResult
 			}
 		} else {
-			info["SMN1_质控结果"] = "Fail"
-			info["SMN1 EX7 del最终结果"] = result + qcResult
+			infos["SMN1_质控结果"] = "Fail"
+			infos["SMN1 EX7 del最终结果"] = result + qcResult
 		}
 	}
-	info["SMN1_检测结果"] = result
-	info["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
-	if *wgs || *im || *cs {
-		updateInfo(item, sampleID)
-	} else {
+	infos["SMN1_检测结果"] = result
+	infos["SMN2_ex7_cn"] = item["SMN2_ex7_cn"]
+	if mode == NBSP {
 		updateABC(item, sampleID)
+	} else {
+		updateInfo(item, sampleID, mode)
+
 	}
-	db[sampleID] = info
+	db[sampleID] = infos
 }
-func updateSma2(item map[string]string, db map[string]map[string]string) {
+func updateSma2(item map[string]string, db map[string]map[string]string, mode Mode) {
 	var sampleID = item["Sample"]
-	var info, ok = db[sampleID]
+	var infos, ok = db[sampleID]
 	if !ok {
-		info = item
+		infos = item
 	}
-	info["SMN1_CN"] = item["SMN1_CN"]
-	info["SMN1_CN_raw"] = item["SMN1_CN_raw"]
-	if *cs {
-		info["SMN1_质控结果"] = "fail"
-		info["SMN1_检测结果"] = ""
-		info["SMN1 EX7 del最终结果"] = "_等验证"
-		if info["SMN1_CN"] == "None" {
-			info["SMN1_检测结果"] = "."
+	infos["SMN1_CN"] = item["SMN1_CN"]
+	infos["SMN1_CN_raw"] = item["SMN1_CN_raw"]
+	if mode == WGSCS {
+		infos["SMN1_质控结果"] = "fail"
+		infos["SMN1_检测结果"] = ""
+		infos["SMN1 EX7 del最终结果"] = "_等验证"
+		if infos["SMN1_CN"] == "None" {
+			infos["SMN1_检测结果"] = "."
 		} else {
-			var cn, err = strconv.ParseFloat(info["SMN1_CN"], 64)
+			var cn, err = strconv.ParseFloat(infos["SMN1_CN"], 64)
 			if err == nil {
 				if cn == 0 {
-					info["SMN1_质控结果"] = "pass"
-					info["SMN1_检测结果"] = "纯合阳性"
-					info["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
+					infos["SMN1_质控结果"] = "pass"
+					infos["SMN1_检测结果"] = "纯合阳性"
+					infos["SMN1 EX7 del最终结果"] = "纯合阳性_等验证"
 				} else if cn == 0.5 {
-					info["SMN1_质控结果"] = "pass"
-					info["SMN1_检测结果"] = "纯合灰区"
-					info["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
+					infos["SMN1_质控结果"] = "pass"
+					infos["SMN1_检测结果"] = "纯合灰区"
+					infos["SMN1 EX7 del最终结果"] = "纯合灰区_等验证"
 
 				} else if cn == 1 {
-					info["SMN1_质控结果"] = "pass"
-					info["SMN1_检测结果"] = "杂合阳性"
-					info["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
+					infos["SMN1_质控结果"] = "pass"
+					infos["SMN1_检测结果"] = "杂合阳性"
+					infos["SMN1 EX7 del最终结果"] = "杂合阳性_等验证"
 
 				} else if cn == 1.5 {
-					info["SMN1_质控结果"] = "pass"
-					info["SMN1_检测结果"] = "杂合灰区"
-					info["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
+					infos["SMN1_质控结果"] = "pass"
+					infos["SMN1_检测结果"] = "杂合灰区"
+					infos["SMN1 EX7 del最终结果"] = "杂合灰区_等验证"
 
 				} else if cn >= 2 {
-					info["SMN1_质控结果"] = "pass"
-					info["SMN1_检测结果"] = "阴性"
-					info["SMN1 EX7 del最终结果"] = "阴性"
+					infos["SMN1_质控结果"] = "pass"
+					infos["SMN1_检测结果"] = "阴性"
+					infos["SMN1 EX7 del最终结果"] = "阴性"
 				}
 			}
 		}
 	}
-	db[sampleID] = info
+	db[sampleID] = infos
 }
 
-func updateAe(item map[string]string) {
-	if *wgs {
+func updateAe(item map[string]string, mode Mode) {
+	switch mode {
+	case WGSNB:
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W60S50_cne.jpg")
-	} else if *cs {
+	case WGSCS:
 		item["HyperLink"] = filepath.Join("batCNV", item["SampleID"]+"_W60S50_cne.jpg")
-	} else {
+	default:
 		item["HyperLink"] = filepath.Join(*batch+".result_batCNV-dipin", "chr11_chr16_chrX_cnemap", item["SampleID"]+"_W30S25_cne.jpg")
 	}
 	item["β地贫_chr11_HyperLink"] = item["HyperLink"]
@@ -943,11 +854,11 @@ func updateAe(item map[string]string) {
 	item["F8int22h-10.8k&12k最终结果"] = "检测范围外"
 }
 
-func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int) {
+func writeRow(excel *excelize.File, sheetName string, item map[string]string, title []string, rIdx int, mode Mode) {
 	var axis0 = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, rIdx)).(string)
 	var axis1 = simpleUtil.HandleError(excelize.CoordinatesToCellName(len(title), rIdx)).(string)
 	for j, k := range title {
-		if *im {
+		if mode == NBSIM {
 			item[k] = getI18n(item[k], k)
 		}
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, rIdx)).(string)
@@ -990,16 +901,30 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 	}
 }
 
-func loadBatchCNV(cnv string) {
-	log.Println("Load BatchCNV Start")
-	BatchCnv, _ = textUtil.File2MapArray(cnv, "\t", nil)
-	for _, item := range BatchCnv {
+func useBatchCNV(cnv, sheetName string, mode Mode, throttle chan<- bool) {
+	var db []map[string]string
+	if cnv == "" {
+		log.Println("Skip Load BatchCNV for no cnv input")
+	} else {
+		db, _ = textUtil.File2MapArray(*batchCNV, "\t", nil)
+	}
+
+	batchCNV2SampleGeneInfo(db)
+
+	// batchCNV.xlsx
+	go goWriteBatchCnv(sheetName, mode, db, throttle)
+
+	return
+}
+
+func batchCNV2SampleGeneInfo(batchCnvDb []map[string]string) {
+	for _, item := range batchCnvDb {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
 		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
-	log.Println("Load BatchCNV Done")
+	return
 }
 
 func updateSampleGeneInfo(cn float64, sampleID string, genes ...string) {
@@ -1074,60 +999,59 @@ func floatFormat(item map[string]string, keys []string, prec int) {
 }
 
 // QC
-func writeQC(excel *excelize.File, db []map[string]string) {
-	var rows = simpleUtil.HandleError(excel.GetRows(*qcSheetName)).([][]string)
+func writeQC(excel *excelize.File, sheetName string, mode Mode, db []map[string]string) {
+	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
 	var title = rows[0]
 	var rIdx = len(rows)
 	for i, item := range db {
 		rIdx++
-		if *cs {
+		if mode == WGSCS {
 			item["Q20(%)"] = item["Q20"]
 			item["Q30(%)"] = item["Q30"]
 			item["sampleID"] = item["Sample"]
 			floatFormat(item, qcFloatFormatArray, 2)
-			updateInfo(item, item["Sample"])
+			updateInfo(item, item["Sample"], mode)
 		} else {
-			updateQC(item, i)
+			updateQC(item, i, mode)
 		}
 		updateINDEX(item, "B", rIdx)
-		writeRow(excel, *qcSheetName, item, title, rIdx)
+		writeRow(excel, sheetName, item, title, rIdx, mode)
 	}
 }
 
-func updateQC(item map[string]string, i int) {
+func updateQC(item map[string]string, i int, mode Mode) {
 	var sampleID = item["sampleID"]
 	item["Order"] = strconv.Itoa(i + 1)
 	item["Gender"] = item["gender_analysed"]
-	if *im {
-		updateInfo(item, sampleID)
+	switch mode {
+	case NBSIM:
+		updateInfo(item, sampleID, mode)
 		if item["gender_analysed"] != item["gender"] {
 			item["Gender"] = item["gender"] + "!!!Sequenced" + item["gender_analysed"]
 		}
-	} else {
-		if *wgs {
-			updateInfo(item, item["sampleID"])
-			updateGender(item, item["sampleID"])
-			item["Gender"] = item["Sex"]
-			var inputGender = imInfo[sampleID]["gender"]
-			if inputGender != genderMap[sampleID] {
-				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
-			}
-		} else {
-			var inputGender = "null"
-			if limsInfo[item["Sample"]]["SEX"] == "1" {
-				inputGender = "M"
-			} else if limsInfo[item["Sample"]]["SEX"] == "2" {
-				inputGender = "F"
-			} else {
-				inputGender = "null"
-			}
-			if inputGender != genderMap[sampleID] {
-				item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
-			}
-			//item["RESULT"]=item[""]
-			item["产品编号"] = limsInfo[item["Sample"]]["PRODUCT_CODE"]
+	case WGSNB:
+		updateInfo(item, item["sampleID"], mode)
+		updateGender(item, item["sampleID"])
+		item["Gender"] = item["Sex"]
+		var inputGender = imInfo[sampleID]["gender"]
+		if inputGender != genderMap[sampleID] {
+			item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
+		}
+	default:
+		var inputGender = "null"
+		switch limsInfo[sampleID]["SEX"] {
+		case "1":
+			inputGender = "M"
+		case "2":
+			inputGender = "F"
+		default:
+			inputGender = "null"
+		}
+		if inputGender != genderMap[sampleID] {
+			item["Gender"] = inputGender + "!!!Sequenced" + genderMap[sampleID]
 		}
 	}
+
 	updateColumns(item, sheetTitleMap["QC"])
 }
 
@@ -1148,29 +1072,6 @@ func loadQC(qc string) (qcDb []map[string]string) {
 		}
 	}
 	return
-}
-
-type handleItem func(map[string]string)
-
-func updateData2Sheet(excel *excelize.File, sheetName string, db []map[string]string, fn handleItem) {
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, item := range db {
-		rIdx++
-		fn(item)
-		if *im {
-			updateInfo(item, item["sampleID"])
-			updateColumns(item, sheetTitleMap[sheetName])
-		}
-		if *wgs {
-			updateInfo(item, item["sampleID"])
-			updateGender(item, item["sampleID"])
-		}
-		writeRow(excel, sheetName, item, title, rIdx)
-	}
 }
 
 var infoTitle = []string{
@@ -1196,11 +1097,11 @@ func updateGender(item map[string]string, sampleID string) {
 	}
 }
 
-func updateInfo(item map[string]string, sampleID string) {
+func updateInfo(item map[string]string, sampleID string, mode Mode) {
 	for _, s := range infoTitle {
 		item[s] = imInfo[sampleID][s]
 	}
-	if *cs || *wgs || *im {
+	if mode != NBSP {
 		item["期数"] = item["TaskID"]
 		item["flow ID"] = item["flow ID"]
 		item["产品编号"] = item["ProductID"]
@@ -1214,57 +1115,24 @@ func updateColumns(item, titleMap map[string]string) {
 	}
 }
 
-// File2MapArray
-func updateDataFile2Sheet(excel *excelize.File, sheetName, path string, fn handleItem) {
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	var db, _ = textUtil.File2MapArray(path, "\t", nil)
-	for _, item := range db {
-		rIdx++
-		fn(item)
-		updateINDEX(item, "D", rIdx)
-		writeRow(excel, sheetName, item, title, rIdx)
-	}
-}
-
-// List of File2MapArray
-func updateDataList2Sheet(excel *excelize.File, sheetName, list string, fn handleItem) {
-	log.Printf("update [%s]", sheetName)
-	var rows = simpleUtil.HandleError(excel.GetRows(sheetName)).([][]string)
-	var title = rows[0]
-	var rIdx = len(rows)
-
-	for _, path := range textUtil.File2Array(list) {
-		var db, _ = textUtil.File2MapArray(path, "\t", nil)
-		for _, item := range db {
-			rIdx++
-			fn(item)
-			writeRow(excel, sheetName, item, title, rIdx)
-		}
-	}
-}
-
-func updateDMDCNV(item map[string]string) {
+func updateDMDCNV(item map[string]string, mode Mode) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
 	updateCnvTags(item, sampleID, item["gene"])
 }
 
-func updateSample(item map[string]string) {
+func updateSample(item map[string]string, mode Mode) {
 	updateColumns(item, sheetTitleMap["Sample"])
 }
 
-func updateNator(item map[string]string) {
+func updateNator(item map[string]string, mode Mode) {
 	var sampleID = item["Sample"]
 	item["#sample"] = sampleID
 	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
 	item["Source"] = "Nator"
 	updateABC(item, sampleID)
-	updateInfo(item, sampleID)
+	updateInfo(item, sampleID, mode)
 	item["gender"] = item["Sex"]
 
 	switch item["CNV_type"] {
@@ -1318,7 +1186,7 @@ func updateNator(item map[string]string) {
 		"; ",
 	)
 
-	if *cs {
+	if mode == WGSCS {
 		item["Chr"] = addChr(item["Chr"])
 		item["报告类别"] = "正式报告"
 		item["P0_HyperLink"] = filepath.Join("PP100_exon_graph", item["SampleID"]+".DMD.NM_004006.2.png")
@@ -1342,7 +1210,7 @@ func updateDMDHyperlLink(item map[string]string) {
 	}
 }
 
-func updateLumpy(item map[string]string) {
+func updateLumpy(item map[string]string, mode Mode) {
 
 	item["Chr"] = item["CHROM"]
 	item["Start"] = item["POS"]
@@ -1351,38 +1219,38 @@ func updateLumpy(item map[string]string) {
 	item["Gene"] = item["OMIM_Gene"]
 	item["OMIM_EX"] = item["OMIM_exon"]
 
-	updateNator(item)
+	updateNator(item, mode)
 	item["Source"] = "Lumpy"
 }
 
-func updateFeature(item map[string]string) {
+func updateFeature(item map[string]string, mode Mode) {
 	item["参考文献"] = strings.ReplaceAll(item["参考文献"], "<br/>", "\n")
-	if *wgs {
-		updateInfo(item, item["SampleID"])
+	if mode == WGSNB {
+		updateInfo(item, item["SampleID"], mode)
 		updateGender(item, item["SampleID"])
 	} else {
 		updateABC(item, item["SampleID"])
 	}
 }
-func updateGeneID(item map[string]string) {
-	if *wgs {
-		updateInfo(item, item["SampleID"])
+func updateGeneID(item map[string]string, mode Mode) {
+	if mode == WGSNB {
+		updateInfo(item, item["SampleID"], mode)
 		updateGender(item, item["SampleID"])
 	} else {
 		updateABC(item, item["SampleID"])
 	}
 }
 
-func updateDrug(item map[string]string) {
-	if *wgs {
-		updateInfo(item, item["样本编号"])
+func updateDrug(item map[string]string, mode Mode) {
+	if mode == WGSNB {
+		updateInfo(item, item["样本编号"], mode)
 		updateGender(item, item["样本编号"])
 	} else {
 		updateABC(item, item["样本编号"])
 	}
 }
 
-func updateBatchCNV(item map[string]string) {
+func updateBatchCNV(item map[string]string, mode Mode) {
 	var sampleID = item["sample"]
 	item["sampleID"] = sampleID
 	var genes = strings.Split(item["gene"], ",")
@@ -1443,7 +1311,12 @@ func getCNVtype(gender string, item map[string]string) string {
 	return ""
 }
 
-func updateBamPath(excel *excelize.File, list string) {
+func updateBamPath2Sheet(excel *excelize.File, sheetName, list string, mode Mode) {
+	if list == "" {
+		log.Printf("skip [%s] for absence", sheetName)
+		return
+	}
+
 	var (
 		i    int
 		path string
@@ -1452,19 +1325,19 @@ func updateBamPath(excel *excelize.File, list string) {
 		var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(1, i+1)).(string)
 		simpleUtil.CheckErr(
 			excel.SetCellStr(
-				*bamPathSheetName,
+				sheetName,
 				axis,
 				path,
 			),
 		)
 	}
-	if *cs {
+	if mode == WGSCS {
 		for i2, line := range textUtil.File2Slice(filepath.Join(templatePath, "bam文件路径.txt"), "\t") {
 			for j, s := range line {
 				var axis = simpleUtil.HandleError(excelize.CoordinatesToCellName(j+1, i+i2+2)).(string)
 				simpleUtil.CheckErr(
 					excel.SetCellStr(
-						*bamPathSheetName,
+						sheetName,
 						axis,
 						s,
 					),
@@ -1472,4 +1345,25 @@ func updateBamPath(excel *excelize.File, list string) {
 			}
 		}
 	}
+}
+
+func getI18n(v, k string) string {
+	var value, ok = I18n[k+"."+v][i18n]
+	if !ok {
+		value, ok = I18n[v][i18n]
+	}
+	if ok {
+		return value
+	}
+	return v
+}
+
+func loadFilesAndList(files, list string) (lists []string) {
+	if files != "" {
+		lists = strings.Split(files, ",")
+	}
+	if list != "" {
+		lists = append(lists, textUtil.File2Array(list)...)
+	}
+	return
 }

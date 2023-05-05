@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"path/filepath"
 )
 
 // flag
@@ -21,6 +20,12 @@ var (
 
 // input
 var (
+	// mode type
+	mode = flag.String(
+		"type",
+		"NBSP",
+		"mode of {NBSP,NBSIM,WGSNB,WGSCS}",
+	)
 	// sample info
 	detail = flag.String(
 		"detail",
@@ -140,111 +145,8 @@ var (
 		"",
 		"output sample annotation to annoDir/[sampleID]_vcfanno.xlsx for CS",
 	)
-
-	// output sheet name
-	aeSheetName = flag.String(
-		"aeSheetName",
-		"补充实验",
-		"Additional Experiments sheet name",
-	)
-	allSheetName = flag.String(
-		"allSheetName",
-		"Sheet1",
-		"all snv sheet name",
-	)
-	avdSheetName = flag.String(
-		"avdSheetName",
-		"All variants data",
-		"All variants data sheet name",
-	)
-	bamPathSheetName = flag.String(
-		"bamPathSheetName",
-		"bam文件路径",
-		"bamPath sheet name",
-	)
-	dmdSheetName = flag.String(
-		"dmdSheetName",
-		"CNV",
-		"DMD result sheet name",
-	)
-	drugSheetName = flag.String(
-		"drugSheetName",
-		"药物检测结果",
-		"drug sheet name",
-	)
-	qcSheetName = flag.String(
-		"qcSheet",
-		"QC",
-		"qc sheet name",
-	)
 )
 
-// config file
-var (
-	// etc
-	acmgDb = flag.String(
-		"acmgDb",
-		filepath.Join(etcPath, "acmg.db.list.txt"),
-		"acmg db list",
-	)
-	allColumns = flag.String(
-		"allColumns",
-		filepath.Join(etcPath, "avd.all.columns.txt"),
-		"all snv sheet title",
-	)
-	dropList = flag.String(
-		"dropList",
-		filepath.Join(etcPath, "drop.list.txt"),
-		"drop list for excel",
-	)
-	geneList = flag.String(
-		"geneList",
-		filepath.Join(etcPath, "gene.list.txt"),
-		"gene list to filter",
-	)
-	geneInfoList = flag.String(
-		"geneInfoList",
-		filepath.Join(etcPath, "gene.info.txt"),
-		"gene info:Transcript and EntrezID",
-	)
-	functionExclude = flag.String(
-		"functionExclude",
-		filepath.Join(etcPath, "function.exclude.txt"),
-		"function list to exclude",
-	)
-	mutDb = flag.String(
-		"mutDb",
-		filepath.Join(etcPath, "已解读数据库.json.aes"),
-		"加密 已解读数据库",
-	)
-	// template
-	bcTemplate = flag.String(
-		"bcTemplate",
-		filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx"),
-		"template to be used",
-	)
-	template = flag.String(
-		"template",
-		filepath.Join(templatePath, "NBS-final.result-批次号_产品编号.xlsx"),
-		"template to be used",
-	)
-)
-
-// disease
-var (
-	diseaseExcel = flag.String(
-		"disease",
-		filepath.Join(etcPath, "新生儿疾病库.xlsx"),
-		"disease database excel",
-	)
-	diseaseSheetName = flag.String(
-		"diseaseSheetName",
-		"Sheet2",
-		"sheet name of disease database excel",
-	)
-)
-
-// boolean
 var (
 	acmg = flag.Bool(
 		"acmg",
@@ -260,20 +162,5 @@ var (
 		"autoPVS1",
 		false,
 		"is use autoPVS1",
-	)
-	cs = flag.Bool(
-		"cs",
-		false,
-		"if use for CS",
-	)
-	im = flag.Bool(
-		"im",
-		false,
-		"if use for im",
-	)
-	wgs = flag.Bool(
-		"wgs",
-		false,
-		"if use for wgs",
 	)
 )
