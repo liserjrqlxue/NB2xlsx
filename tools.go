@@ -143,14 +143,7 @@ func loadDb(mode Mode) {
 
 	// load CNV database
 	log.Println("Load CNV database Start")
-	var cnvDbArray, _ = simpleUtil.Slice2MapArray(
-		simpleUtil.HandleError(
-			simpleUtil.HandleError(
-				excelize.OpenFile(filepath.Join(etcPath, "CNV配置文件.xlsx")),
-			).(*excelize.File).
-				GetRows("CNV库配置文件"),
-		).([][]string),
-	)
+	var cnvDbArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "CNV配置文件.xlsx.CNV库配置文件.txt"), "\t", nil)
 	for _, m := range cnvDbArray {
 		var key = m["Gene Symbol"] + " " + m["Function"]
 		cnvDb[key] = m
