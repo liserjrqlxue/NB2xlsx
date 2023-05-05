@@ -22,12 +22,6 @@ func addChr(chr string) string {
 // LoadDmd4Sheet load DMD sheet to excel
 func LoadDmd4Sheet(excel *excelize.File, sheetName string, mode Mode, dmdArray []string) (dmdResult []map[string]string) {
 	log.Println("Load DMD Start")
-	if *dmdFiles != "" {
-		dmdArray = strings.Split(*dmdFiles, ",")
-	}
-	if *dmdList != "" {
-		dmdArray = append(dmdArray, textUtil.File2Array(*dmdList)...)
-	}
 	if len(dmdArray) > 0 {
 		dmdResult = loadDmd(excel, sheetName, mode, dmdArray)
 	} else {
