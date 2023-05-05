@@ -121,7 +121,6 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 
 	// cycle 1
 	for _, item := range data {
-		item["sampleID"] = sampleID
 		updateAvd(item, sampleID, subFlag, mode)
 		updateFromAvd(item, geneHash, geneInfo, sampleID, subFlag)
 
@@ -208,6 +207,7 @@ func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode)
 	}
 	switch mode {
 	case NBSP:
+		annoLocaDb(item, localDb, subFlag, mode)
 		updateABC(item, sampleID)
 	case NBSIM:
 		annoLocaDb(item, localDb, subFlag, mode)
