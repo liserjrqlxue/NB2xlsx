@@ -30,6 +30,7 @@ func init() {
 
 	// acmg2015 init
 	if *acmg {
+		log.Println("ACMG2015 init")
 		acmg2015.AutoPVS1 = *autoPVS1
 		var acmgCfg = simpleUtil.HandleError(textUtil.File2Map(acmgDbList, "\t", false)).(map[string]string)
 		for k, v := range acmgCfg {
