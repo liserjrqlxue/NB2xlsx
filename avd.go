@@ -121,10 +121,10 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 
 	// cycle 1
 	for _, item := range data {
+		item["sampleID"] = sampleID
 		updateAvd(item, sampleID, subFlag, mode)
 		updateFromAvd(item, geneHash, geneInfo, sampleID, subFlag)
 
-		item["sampleID"] = sampleID
 		switch mode {
 		case WGSCS:
 			anno.InheritCheck(item, inheritDb)
