@@ -50,6 +50,8 @@ var (
 	jsonAes    = filepath.Join(etcPath, "已解读数据库.json.aes")
 	jsonAesIM  = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
 	jsonAesWGS = filepath.Join(etcPath, "已解读数据库.wgs.json.aes")
+	// lims header
+	limsHeader = filepath.Join(etcPath, "lims.info.header.txt")
 	// top1k gene list
 	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
 )

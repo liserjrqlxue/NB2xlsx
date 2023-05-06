@@ -2,13 +2,9 @@ package main
 
 import (
 	"log"
-	"path/filepath"
 
 	"github.com/liserjrqlxue/goUtil/textUtil"
 )
-
-var limsHeader = filepath.Join(etcPath, "lims.info.header")
-var limsTitle = textUtil.File2Array(limsHeader)
 
 func loadSamplesInfo(lims, detail, info string) (limsDb, detailDb, infoDb map[string]map[string]string) {
 	limsDb = make(map[string]map[string]string)
@@ -18,6 +14,7 @@ func loadSamplesInfo(lims, detail, info string) (limsDb, detailDb, infoDb map[st
 	if lims == "" {
 		log.Println("skip lims.info for absence")
 	} else {
+		var limsTitle = textUtil.File2Array(limsHeader)
 		for _, line := range textUtil.File2Slice(lims, "\t") {
 			var item = make(map[string]string)
 			for i := range line {
