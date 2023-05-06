@@ -184,8 +184,6 @@ func loadDb(mode Mode) {
 		}
 	}
 
-	loadDiseaseDb(i18n, mode)
-
 	updateSheetTitleMap()
 
 }

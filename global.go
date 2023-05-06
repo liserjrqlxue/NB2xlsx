@@ -42,8 +42,9 @@ var (
 	// i18n.txt
 	i18nTxt = filepath.Join(etcPath, "i18n.txt")
 	// variant db
-	jsonAes   = filepath.Join(etcPath, "已解读数据库.json.aes")
-	jsonAesIM = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	jsonAes    = filepath.Join(etcPath, "已解读数据库.json.aes")
+	jsonAesIM  = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	jsonAesWGS = filepath.Join(etcPath, "已解读数据库.wgs.json.aes")
 	// top1k gene list
 	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
 )

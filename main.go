@@ -42,12 +42,13 @@ func init() {
 	I18n, _ = textUtil.File2MapMap(i18nTxt, "CN", "\t", nil)
 
 	// load local db
-	{
-		if modeType == NBSIM {
-			loadLocalDb(jsonAesIM)
-		} else {
-			loadLocalDb(jsonAes)
-		}
+	switch modeType {
+	case NBSP:
+		loadLocalDb(jsonAes)
+	case NBSIM:
+		loadLocalDb(jsonAesIM)
+	case WGSNB:
+		loadLocalDb(jsonAesWGS)
 	}
 
 	loadDb(modeType)
@@ -78,6 +79,7 @@ func main() {
 	if modeType == NBSIM {
 		parseProductCode()
 	}
+	loadDiseaseDb(i18n, modeType)
 
 	go createMainExcel(*prefix+".xlsx", modeType, *all, saveMainChan)
 
