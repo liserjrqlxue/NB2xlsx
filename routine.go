@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -84,7 +83,7 @@ func WriteAe(excel *excelize.File, sheetName string, mode Mode, throttle chan<- 
 	}
 	if *smaResult != "" {
 		var smaXlsx = excelize.NewFile()
-		var smaTitle = textUtil.File2Array(filepath.Join(etcPath, "title.sma.txt"))
+		var smaTitle = textUtil.File2Array(titleSMA)
 		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
 		writeTitle(smaXlsx, "Sheet1", smaTitle)
 		for i, item := range sma {

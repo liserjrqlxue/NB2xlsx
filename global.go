@@ -23,6 +23,8 @@ var (
 	csTemplate   = filepath.Join(templatePath, "CS.BB.xlsx")
 	// template for prefix+".batchCNV.xlsx"
 	bcTemplate = filepath.Join(templatePath, "NB2xlsx.batchCNV.xlsx")
+	// title of SMA_result.Sheet1
+	titleSMA = filepath.Join(templatePath, "SMA_result.Sheet1.txt")
 )
 
 // etc
@@ -56,6 +58,7 @@ var (
 	tag7geneTxt = filepath.Join(etcPath, "tag7.gene.txt")
 	// top1k gene list
 	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
+	//
 )
 
 var (
