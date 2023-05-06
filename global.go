@@ -33,8 +33,9 @@ var (
 	acmgDbList = filepath.Join(etcPath, "acmg.db.list.txt")
 	// samples' all snv Excel sheet title
 	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
-	// RGB color
-	rgb = filepath.Join(etcPath, "RGB.txt")
+
+	// CNV database
+	cnvDbTxt = filepath.Join(etcPath, "CNV配置文件.xlsx.CNV库配置文件.txt")
 
 	// disease db
 	diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
@@ -82,10 +83,19 @@ var (
 	// product
 	productTxt = filepath.Join(etcPath, "product.txt")
 
+	// RGB color
+	rgb = filepath.Join(etcPath, "RGB.txt")
+
 	// repeat region for WGSCS
 	regionRepeat = filepath.Join(etcPath, "region.repeat.txt")
 	// homologous region for WGSCS
 	regionHomologous = filepath.Join(etcPath, "region.homologous.txt")
+
+	// transcript info
+	transcriptInfo = filepath.Join(etcPath, "trans.info.txt")
+
+	// thalassemia name
+	thalName = filepath.Join(etcPath, "地贫标准写法.xlsx.Sheet1.txt")
 )
 
 var (

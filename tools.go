@@ -183,19 +183,14 @@ func loadDb(mode Mode) {
 	}
 
 	// load transcript info
-	exonCount = simpleUtil.HandleError(
-		textUtil.File2Map(
-			filepath.Join(etcPath, "trans.info.txt"),
-			"\t", false,
-		),
-	).(map[string]string)
+	exonCount = simpleUtil.HandleError(textUtil.File2Map(transcriptInfo, "\t", false)).(map[string]string)
 
 	// load thal name
-	thalNameMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "地贫标准写法.xlsx.Sheet1.txt"), "目前流程", "\t", nil)
+	thalNameMap, _ = textUtil.File2MapMap(thalName, "目前流程", "\t", nil)
 
 	// load CNV database
 	log.Println("Load CNV database")
-	var cnvDbArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "CNV配置文件.xlsx.CNV库配置文件.txt"), "\t", nil)
+	var cnvDbArray, _ = textUtil.File2MapArray(cnvDbTxt, "\t", nil)
 	for _, m := range cnvDbArray {
 		var key = m["Gene Symbol"] + " " + m["Function"]
 		cnvDb[key] = m
