@@ -94,7 +94,12 @@ func loadDb(mode Mode) {
 	log.Println("Load Database Start")
 	// load gene info list
 	geneInfoMap, _ = textUtil.File2MapMap(geneInfoList, "Gene Symbol", "\t", nil)
-	if mode == NBSIM {
+	switch mode {
+	case NBSP:
+		for _, key := range textUtil.File2Array(geneList) {
+			geneListMap[key] = true
+		}
+	case NBSIM:
 		for s, m := range geneInfoMap {
 			if m["一体机过滤基因"] == "TRUE" {
 				geneIMListMap[s] = true
@@ -103,10 +108,36 @@ func loadDb(mode Mode) {
 				}
 			}
 		}
-	} else {
-		// load gene list
-		for _, key := range textUtil.File2Array(geneList) {
+	case WGSNB:
+		for _, key := range textUtil.File2Array(geneListWGS) {
 			geneListMap[key] = true
+		}
+	case WGSCS:
+		var region *Region
+		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)
+		for _, m := range repeatRegionArray {
+			region = &Region{
+				chr:   "",
+				start: stringsUtil.Atoi(m["Start"]),
+				end:   stringsUtil.Atoi(m["Stop"]),
+				gene:  "",
+			}
+			repeatRegion = append(repeatRegion, region)
+		}
+		var homologousRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "homologous.regions.txt"), "\t", nil)
+		for _, m := range homologousRegionArray {
+			region = newRegion(m["目标区域（疑似有同源区域）"])
+			if region != nil {
+				homologousRegion = append(homologousRegion, region)
+			}
+			region = newRegion(m["相似区域"])
+			if region != nil {
+				homologousRegion = append(homologousRegion, region)
+			}
+		}
+
+		for _, s := range textUtil.File2Array(top1kGeneList) {
+			top1kGene[s] = true
 		}
 	}
 
@@ -153,35 +184,6 @@ func loadDb(mode Mode) {
 	log.Println("Load DropList Start")
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
-	}
-
-	if mode == WGSCS {
-		var region *Region
-		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)
-		for _, m := range repeatRegionArray {
-			region = &Region{
-				chr:   "",
-				start: stringsUtil.Atoi(m["Start"]),
-				end:   stringsUtil.Atoi(m["Stop"]),
-				gene:  "",
-			}
-			repeatRegion = append(repeatRegion, region)
-		}
-		var homologousRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "homologous.regions.txt"), "\t", nil)
-		for _, m := range homologousRegionArray {
-			region = newRegion(m["目标区域（疑似有同源区域）"])
-			if region != nil {
-				homologousRegion = append(homologousRegion, region)
-			}
-			region = newRegion(m["相似区域"])
-			if region != nil {
-				homologousRegion = append(homologousRegion, region)
-			}
-		}
-
-		for _, s := range textUtil.File2Array(top1kGeneList) {
-			top1kGene[s] = true
-		}
 	}
 
 	updateSheetTitleMap()

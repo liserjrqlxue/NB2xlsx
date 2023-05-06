@@ -34,7 +34,8 @@ var (
 	// drop list for main excel
 	dropList = filepath.Join(etcPath, "drop.list.txt")
 	// gene list to filter
-	geneList = filepath.Join(etcPath, "gene.list.txt")
+	geneList    = filepath.Join(etcPath, "gene.list.txt")
+	geneListWGS = filepath.Join(etcPath, "gene.list.wgs.txt")
 	// gene info : Transcript and EntrezID
 	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
 	// exclude function list
