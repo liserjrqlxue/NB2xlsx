@@ -72,19 +72,19 @@ func loadDmd(excel *excelize.File, sheetName string, mode Mode, dmdArray []strin
 }
 
 // WriteAe write AE sheet to excel
-func WriteAe(excel *excelize.File, sheetName string, mode Mode, throttle chan<- bool) {
+func WriteAe(excel *excelize.File, sheetName, dipinResult, smaResult string, mode Mode, throttle chan<- bool) {
 	log.Println("Write AE Start")
 	var db = make(map[string]map[string]string)
-	if *dipinResult != "" {
-		var dipin, _ = textUtil.File2MapArray(*dipinResult, "\t", nil)
+	if dipinResult != "" {
+		var dipin, _ = textUtil.File2MapArray(dipinResult, "\t", nil)
 		for _, item := range dipin {
 			updateDipin(item, db, mode)
 		}
 	}
-	if *smaResult != "" {
+	if smaResult != "" {
 		var smaXlsx = excelize.NewFile()
 		var smaTitle = textUtil.File2Array(titleSMA)
-		var sma, _ = textUtil.File2MapArray(*smaResult, "\t", nil)
+		var sma, _ = textUtil.File2MapArray(smaResult, "\t", nil)
 		writeTitle(smaXlsx, "Sheet1", smaTitle)
 		for i, item := range sma {
 			updateSma(item, db, mode)

@@ -129,7 +129,7 @@ func fillExcel(excel *excelize.File, mode Mode, all bool) {
 		loadFilesAndList(*dmdFiles, *dmdList),
 	)
 	// 补充实验
-	WriteAe(excel, aeSheetName, mode, writeAeChan)
+	WriteAe(excel, aeSheetName, *dipinResult, *smaResult, mode, writeAeChan)
 	// DMD -> All variant data
 	writeAvd2Sheet(
 		excel,
