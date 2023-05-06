@@ -71,18 +71,10 @@ func main() {
 	}
 	loadDiseaseDb(i18n, modeType)
 
-	var (
-		// un-block channel bool
-		saveMainChan = make(chan bool, 1)
-	)
-
+	createMainExcel(*prefix+".xlsx", modeType, *all)
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
 	useBatchCNV(*batchCNV, *prefix+".batchCNV.xlsx", "Sheet1", modeType)
 
-	go createMainExcel(*prefix+".xlsx", modeType, *all, saveMainChan)
-
-	// waite excel write done
-	waitChan(saveMainChan)
 	log.Println("All Done")
 }
 

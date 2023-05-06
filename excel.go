@@ -8,15 +8,13 @@ import (
 	"path/filepath"
 )
 
-func createMainExcel(path string, mode Mode, all bool, throttle chan<- bool) {
+func createMainExcel(path string, mode Mode, all bool) {
 	var excel = initExcel(mode)
 	fillExcel(excel, mode, all)
 
 	simpleUtil.CheckErr(excel.SaveAs(path))
 	log.Printf("excel.SaveAs(\"%s\"):\n", path)
 	log.Println("Save main Done")
-
-	holdChan(throttle)
 }
 
 func initExcel(mode Mode) *excelize.File {
@@ -135,8 +133,6 @@ func fillExcel(excel *excelize.File, mode Mode, all bool) {
 		mode,
 		loadFilesAndList(*dmdFiles, *dmdList),
 	)
-	// 补充实验
-	WriteAe(excel, aeSheetName, *dipinResult, *smaResult, mode, writeAeChan)
 	// DMD -> All variant data
 	writeAvd2Sheet(
 		excel,
@@ -158,6 +154,8 @@ func fillExcel(excel *excelize.File, mode Mode, all bool) {
 	writeDataFile2Sheet(excel, wgsDmdSheetName, *lumpy, mode, updateLumpy)
 	// DMD-nator
 	writeDataFile2Sheet(excel, wgsDmdSheetName, *nator, mode, updateNator)
+	// 补充实验
+	go WriteAe(excel, aeSheetName, *dipinResult, *smaResult, mode, writeAeChan)
 	// drug, no use
 	writeDataFile2Sheet(excel, drugSheetName, *drugResult, mode, updateDrug)
 	// 个特

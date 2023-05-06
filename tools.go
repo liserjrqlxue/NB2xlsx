@@ -512,9 +512,6 @@ func readsPicture(item map[string]string) {
 }
 
 func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string, subFlag bool) {
-	if item["filterAvd"] != "Y" {
-		return
-	}
 	var info, ok = geneInfo[item["Gene Symbol"]]
 	if !ok {
 		info = new(GeneInfo).new(item)
