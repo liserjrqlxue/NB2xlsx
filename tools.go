@@ -157,24 +157,24 @@ func loadDb(mode Mode) {
 			}
 		}
 
-		for _, s := range textUtil.File2Array(top1kGeneList) {
+		for _, s := range textUtil.File2Array(geneListTOP1K) {
 			top1kGene[s] = true
 		}
 	}
 
 	// load gene sub list
-	var geneSubs, _ = textUtil.File2MapArray(filepath.Join(etcPath, "gene.sub.list.txt"), "\t", nil)
+	var geneSubs, _ = textUtil.File2MapArray(geneListSub, "\t", nil)
 	for _, item := range geneSubs {
 		geneSubListMap[item["基因"]] = true
 	}
 	// load deafness gene list
-	var deafnessGenes, _ = textUtil.File2MapArray(filepath.Join(etcPath, "耳聋24基因.xlsx.Sheet1.txt"), "\t", nil)
+	var deafnessGenes, _ = textUtil.File2MapArray(geneListDeafness, "\t", nil)
 	for _, gene := range deafnessGenes {
 		deafnessGeneList[gene["基因"]] = true
 	}
 
 	// load gene exclude list
-	for _, key := range textUtil.File2Array(filepath.Join(etcPath, "gene.exclude.list.txt")) {
+	for _, key := range textUtil.File2Array(geneListExclude) {
 		geneExcludeListMap[key] = true
 	}
 	// load function exclude list
@@ -209,7 +209,7 @@ func loadDb(mode Mode) {
 
 	// load tag7 gene list
 	log.Println("Load Tag7 Gene List")
-	for _, gene := range textUtil.File2Array(tag7geneTxt) {
+	for _, gene := range textUtil.File2Array(geneListTag7) {
 		tag7gene[gene] = true
 	}
 

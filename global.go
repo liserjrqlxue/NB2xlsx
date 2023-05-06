@@ -50,9 +50,21 @@ var (
 	geneList = filepath.Join(etcPath, "gene.list.txt")
 	// gene list to filter for WGSNB
 	geneListWGS = filepath.Join(etcPath, "gene.list.wgs.txt")
+	// sub gene list
+	geneListSub = filepath.Join(etcPath, "gene.list.sub.txt")
+	// deafness gene list
+	geneListDeafness = filepath.Join(etcPath, "耳聋24基因.xlsx.Sheet1.txt")
+	// exclude gene list
+	geneListExclude = filepath.Join(etcPath, "gene.list.exclude.txt")
+
+	// tag7 gene list
+	geneListTag7 = filepath.Join(etcPath, "gene.list.tag7.txt")
+	// top1k gene list
+	geneListTOP1K = filepath.Join(etcPath, "gene.list.top1k.txt")
 
 	// gene info : Transcript and EntrezID
 	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
+
 	// exclude function list
 	functionExclude = filepath.Join(etcPath, "function.exclude.txt")
 	// i18n.txt
@@ -74,11 +86,6 @@ var (
 	regionRepeat = filepath.Join(etcPath, "region.repeat.txt")
 	// homologous region for WGSCS
 	regionHomologous = filepath.Join(etcPath, "region.homologous.txt")
-
-	// tag7geneTxt
-	tag7geneTxt = filepath.Join(etcPath, "tag7.gene.txt")
-	// top1k gene list
-	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
 )
 
 var (
