@@ -408,7 +408,7 @@ func updateAf(item map[string]string) {
 	}
 }
 
-func annoLocaDb(item map[string]string, varDb map[string]map[string]string, subFlag bool, mode Mode) {
+func annoLocalDb(item map[string]string, varDb map[string]map[string]string, subFlag bool, mode Mode) {
 	var (
 		transcript = item["Transcript"]
 		c          = item["cHGVS"]

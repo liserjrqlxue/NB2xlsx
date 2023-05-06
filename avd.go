@@ -207,10 +207,10 @@ func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode)
 	}
 	switch mode {
 	case NBSP:
-		annoLocaDb(item, localDb, subFlag, mode)
+		annoLocalDb(item, localDb, subFlag, mode)
 		updateABC(item, sampleID)
 	case NBSIM:
-		annoLocaDb(item, localDb, subFlag, mode)
+		annoLocalDb(item, localDb, subFlag, mode)
 		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
 		item["pHGVS"] = item["pHGVS3"]
 		updateInfo(item, sampleID, mode)
@@ -219,6 +219,7 @@ func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode)
 			item[k] = getI18n(item[k], k)
 		}
 	case WGSNB:
+		annoLocalDb(item, localDb, subFlag, mode)
 		updateInfo(item, sampleID, mode)
 	case WGSCS:
 		updateInfo(item, sampleID, mode)
@@ -285,7 +286,7 @@ func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode)
 		item["报告类别-原始"] = item["报告类别"]
 		item["遗传模式"] = strings.Replace(item["遗传模式"], "[n]", ",", -1)
 	default:
-		annoLocaDb(item, localDb, subFlag, mode)
+		annoLocalDb(item, localDb, subFlag, mode)
 	}
 	item["exonCount"] = exonCount[item["Transcript"]]
 	item["引物设计"] = anno.PrimerDesign(item)
