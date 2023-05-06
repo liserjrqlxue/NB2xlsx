@@ -66,6 +66,10 @@ func main() {
 	// sampleDetail for subFlag
 	// imInfo for parseProductCode, updateInfo, updateQC
 	limsInfo, sampleDetail, imInfo = loadSamplesInfo(*lims, *detail, *info)
+	if modeType == NBSIM {
+		parseProductCode()
+	}
+	loadDiseaseDb(i18n, modeType)
 
 	var (
 		// un-block channel bool
@@ -75,11 +79,6 @@ func main() {
 
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
 	useBatchCNV(*batchCNV, "Sheet1", modeType, saveBatchCnvChan)
-
-	if modeType == NBSIM {
-		parseProductCode()
-	}
-	loadDiseaseDb(i18n, modeType)
 
 	go createMainExcel(*prefix+".xlsx", modeType, *all, saveMainChan)
 
