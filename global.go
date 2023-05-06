@@ -33,34 +33,52 @@ var (
 	acmgDbList = filepath.Join(etcPath, "acmg.db.list.txt")
 	// samples' all snv Excel sheet title
 	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
+	// RGB color
+	rgb = filepath.Join(etcPath, "RGB.txt")
+
 	// disease db
-	diseaseTxt    = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
-	diseaseTxtEN  = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
+	diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
+	// disease db for NBSIM EN
+	diseaseTxtEN = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
+	// disease db for WGSNB
 	diseaseTxtWGS = filepath.Join(etcPath, "新生儿疾病库.wgs.xlsx.Sheet2.txt")
+
 	// drop list for main excel
 	dropList = filepath.Join(etcPath, "drop.list.txt")
+
 	// gene list to filter
-	geneList    = filepath.Join(etcPath, "gene.list.txt")
+	geneList = filepath.Join(etcPath, "gene.list.txt")
+	// gene list to filter for WGSNB
 	geneListWGS = filepath.Join(etcPath, "gene.list.wgs.txt")
+
 	// gene info : Transcript and EntrezID
 	geneInfoList = filepath.Join(etcPath, "gene.info.txt")
 	// exclude function list
 	functionExclude = filepath.Join(etcPath, "function.exclude.txt")
 	// i18n.txt
 	i18nTxt = filepath.Join(etcPath, "i18n.txt")
+
 	// variant db
-	jsonAes    = filepath.Join(etcPath, "已解读数据库.json.aes")
-	jsonAesIM  = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	jsonAes = filepath.Join(etcPath, "已解读数据库.json.aes")
+	// variant db for NBSIM
+	jsonAesIM = filepath.Join(etcPath, "已解读数据库.IM.json.aes")
+	// variant db for WGSNB
 	jsonAesWGS = filepath.Join(etcPath, "已解读数据库.wgs.json.aes")
+
 	// lims header
 	limsHeader = filepath.Join(etcPath, "lims.info.header.txt")
 	// product
 	productTxt = filepath.Join(etcPath, "product.txt")
+
+	// repeat region for WGSCS
+	regionRepeat = filepath.Join(etcPath, "region.repeat.txt")
+	// homologous region for WGSCS
+	regionHomologous = filepath.Join(etcPath, "region.homologous.txt")
+
 	// tag7geneTxt
 	tag7geneTxt = filepath.Join(etcPath, "tag7.gene.txt")
 	// top1k gene list
 	top1kGeneList = filepath.Join(etcPath, "TOP1K.BB.gene.name.txt")
-	//
 )
 
 var (
@@ -94,23 +112,15 @@ var (
 	sheetTitle    = make(map[string][]string)
 	sheetTitleMap = make(map[string]map[string]string)
 
-	formalStyleID, supplementaryStyleID int
+	// style
+	formalStyleID        int
+	supplementaryStyleID int
 	//checkStyleID int
 	formalCheckStyleID, supplementaryCheckStyleID int
 )
 
 var sampleDetail = make(map[string]map[string]string)
 var sampleInfos = make(map[string]SampleInfo)
-
-var colorRGB map[string]string
-var (
-	// 验证位点
-	checkColor string
-	// 正式报告
-	formalRreportColor string
-	// 补充报告
-	supplementaryReportColor string
-)
 
 var codeKey = "c3d112d6a47a0a04aad2b9d2d2cad266"
 

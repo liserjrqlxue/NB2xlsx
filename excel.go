@@ -56,14 +56,21 @@ func newExcelIM(sheetNames []string) *excelize.File {
 	return excel
 }
 
+// init style
 func styleInit(excel *excelize.File) {
-	colorRGB = simpleUtil.HandleError(textUtil.File2Map(filepath.Join(etcPath, "color.RGB.tsv"), "\t", false)).(map[string]string)
-	checkColor = colorRGB["red"]
-	formalRreportColor = colorRGB["corn flower blue"]
-	supplementaryReportColor = colorRGB["yellow green"]
-	var checkFont = `"font":{"color":"` + checkColor + `"}`
-	var formalFill = `"fill":{"type":"pattern","pattern":1,"color":["` + formalRreportColor + `"]}`
-	var supplementaryFill = `"fill":{"type":"pattern","pattern":1,"color":["` + supplementaryReportColor + `"]}`
+	var (
+		colorRGB = simpleUtil.HandleError(textUtil.File2Map(rgb, "\t", false)).(map[string]string)
+		// 验证位点
+		checkColor = colorRGB["red"]
+		// 正式报告
+		formalRreportColor = colorRGB["corn flower blue"]
+		// 补充报告
+		supplementaryReportColor = colorRGB["yellow green"]
+		// style
+		checkFont         = `"font":{"color":"` + checkColor + `"}`
+		formalFill        = `"fill":{"type":"pattern","pattern":1,"color":["` + formalRreportColor + `"]}`
+		supplementaryFill = `"fill":{"type":"pattern","pattern":1,"color":["` + supplementaryReportColor + `"]}`
+	)
 	formalStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + formalFill + `}`)).(int)
 	supplementaryStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + supplementaryFill + `}`)).(int)
 	//checkStyleID = simpleUtil.HandleError(excel.NewStyle(`{` + checkFont + `}`)).(int)

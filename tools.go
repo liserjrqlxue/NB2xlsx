@@ -135,7 +135,7 @@ func loadDb(mode Mode) {
 		}
 	case WGSCS:
 		var region *Region
-		var repeatRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "repeat.txt"), "\t", nil)
+		var repeatRegionArray, _ = textUtil.File2MapArray(regionRepeat, "\t", nil)
 		for _, m := range repeatRegionArray {
 			region = &Region{
 				chr:   "",
@@ -145,7 +145,7 @@ func loadDb(mode Mode) {
 			}
 			repeatRegion = append(repeatRegion, region)
 		}
-		var homologousRegionArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "homologous.regions.txt"), "\t", nil)
+		var homologousRegionArray, _ = textUtil.File2MapArray(regionHomologous, "\t", nil)
 		for _, m := range homologousRegionArray {
 			region = newRegion(m["目标区域（疑似有同源区域）"])
 			if region != nil {
