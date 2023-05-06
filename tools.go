@@ -953,29 +953,27 @@ func writeTitle(excel *excelize.File, sheetName string, title []string) {
 	}
 }
 
-func useBatchCNV(cnv, sheetName string, mode Mode, throttle chan<- bool) {
-	var db []map[string]string
+func useBatchCNV(cnv, excelName, sheetName string, mode Mode) {
+	var (
+		db      []map[string]string
+		bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
+	)
+
 	if cnv == "" {
 		log.Println("Skip Load BatchCNV for no cnv input")
 	} else {
-		db, _ = textUtil.File2MapArray(*batchCNV, "\t", nil)
+		db, _ = textUtil.File2MapArray(cnv, "\t", nil)
 	}
 
-	batchCNV2SampleGeneInfo(db)
-
-	// batchCNV.xlsx
-	go goWriteBatchCnv(sheetName, mode, db, throttle)
-
-	return
-}
-
-func batchCNV2SampleGeneInfo(batchCnvDb []map[string]string) {
-	for _, item := range batchCnvDb {
+	for _, item := range db {
 		var sampleID = item["sample"]
 		var cn, err = strconv.Atoi(item["copyNumber"])
 		simpleUtil.CheckErr(err, item["sample"]+" "+item["chr"]+":"+item["start"]+"-"+item["end"])
 		updateSampleGeneInfo(float64(cn), sampleID, strings.Split(item["gene"], ",")...)
 	}
+	writeData2Sheet(bcExcel, sheetName, mode, db, updateBatchCNV)
+	simpleUtil.CheckErr(bcExcel.SaveAs(excelName), "bcExcel.SaveAs Error!")
+
 	return
 }
 

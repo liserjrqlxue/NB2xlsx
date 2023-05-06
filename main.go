@@ -73,17 +73,16 @@ func main() {
 
 	var (
 		// un-block channel bool
-		saveMainChan     = make(chan bool, 1)
-		saveBatchCnvChan = make(chan bool, 1)
+		saveMainChan = make(chan bool, 1)
 	)
 
 	// batchCNV -> SampleGeneInfo,batchCNV.xlsx
-	useBatchCNV(*batchCNV, "Sheet1", modeType, saveBatchCnvChan)
+	useBatchCNV(*batchCNV, *prefix+".batchCNV.xlsx", "Sheet1", modeType)
 
 	go createMainExcel(*prefix+".xlsx", modeType, *all, saveMainChan)
 
 	// waite excel write done
-	waitChan(saveMainChan, saveBatchCnvChan)
+	waitChan(saveMainChan)
 	log.Println("All Done")
 }
 

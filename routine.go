@@ -169,13 +169,3 @@ var (
 	//	"遗传模式",
 	//}
 )
-
-func goWriteBatchCnv(sheetName string, mode Mode, batchCnvDb []map[string]string, throttle chan<- bool) {
-	var bcExcel = simpleUtil.HandleError(excelize.OpenFile(bcTemplate)).(*excelize.File)
-
-	writeData2Sheet(bcExcel, sheetName, mode, batchCnvDb, updateBatchCNV)
-
-	simpleUtil.CheckErr(bcExcel.SaveAs(*prefix+".batchCNV.xlsx"), "bcExcel.SaveAs Error!")
-
-	holdChan(throttle)
-}
