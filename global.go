@@ -31,6 +31,10 @@ var (
 	acmgDbList = filepath.Join(etcPath, "acmg.db.list.txt")
 	// samples' all snv Excel sheet title
 	allColumns = filepath.Join(etcPath, "avd.all.columns.txt")
+	// disease db
+	diseaseTxt    = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
+	diseaseTxtEN  = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
+	diseaseTxtWGS = filepath.Join(etcPath, "新生儿疾病库.wgs.xlsx.Sheet2.txt")
 	// drop list for main excel
 	dropList = filepath.Join(etcPath, "drop.list.txt")
 	// gene list to filter

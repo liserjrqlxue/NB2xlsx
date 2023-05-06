@@ -60,27 +60,48 @@ func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, 
 func loadDiseaseDb(i18n string, mode Mode) {
 	// load disease database
 	log.Println("Load Disease Start")
-	var diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.xlsx.Sheet2.txt")
-	if i18n == "EN" {
-		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.EN.xlsx.新生儿疾病库V2-英文版.txt")
-	} else if mode == WGSNB {
-		diseaseTxt = filepath.Join(etcPath, "新生儿疾病库.wgs.xlsx.Sheet2.txt")
-	}
-	var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-		diseaseTxt,
-		"\t", nil,
-	)
-	if i18n == "EN" {
-		buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
+	switch mode {
+	case NBSP:
+		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+			diseaseTxt,
+			"\t", nil,
+		)
+		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
 		for gene, m := range diseaseDb {
-			m["疾病"] = m["Condition Name"]
-			m["疾病简介"] = m["Disease Generalization"]
-			m["包装疾病分类"] = m["Condition Category"]
-			m["遗传模式"] = m["Inherited Mode"]
 			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
 			geneInheritance[gene] = m["遗传模式"]
 		}
-	} else {
+	case NBSIM:
+		if i18n == "EN" {
+			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+				diseaseTxtEN,
+				"\t", nil,
+			)
+			buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
+			for gene, m := range diseaseDb {
+				m["疾病"] = m["Condition Name"]
+				m["疾病简介"] = m["Disease Generalization"]
+				m["包装疾病分类"] = m["Condition Category"]
+				m["遗传模式"] = m["Inherited Mode"]
+				m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+				geneInheritance[gene] = m["遗传模式"]
+			}
+		} else {
+			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+				diseaseTxt,
+				"\t", nil,
+			)
+			buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
+			for gene, m := range diseaseDb {
+				m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+				geneInheritance[gene] = m["遗传模式"]
+			}
+		}
+	case WGSNB:
+		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
+			diseaseTxtWGS,
+			"\t", nil,
+		)
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
 		for gene, m := range diseaseDb {
 			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
