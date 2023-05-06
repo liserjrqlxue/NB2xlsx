@@ -177,13 +177,14 @@ func writeData2Sheet(excel *excelize.File, sheetName string, mode Mode, db []map
 	for _, item := range db {
 		rIdx++
 		fn(item, mode)
+		var sampleID = item["sampleID"]
 		switch mode {
 		case NBSIM:
-			updateInfo(item, item["sampleID"], mode)
+			updateInfo(item, sampleID, mode)
 			updateColumns(item, sheetTitleMap[sheetName])
 		case WGSNB:
-			updateInfo(item, item["sampleID"], mode)
-			updateGender(item, item["sampleID"])
+			updateInfo(item, sampleID, mode)
+			updateGender(item, sampleID)
 		}
 		writeRow(excel, sheetName, item, title, rIdx, mode)
 	}
