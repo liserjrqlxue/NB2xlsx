@@ -1,10 +1,5 @@
 package main
 
-import (
-	"github.com/liserjrqlxue/goUtil/textUtil"
-	"path/filepath"
-)
-
 func isPLP(item map[string]string) bool {
 	if item["Definition"] == "P" || item["Definition"] == "LP" {
 		return true
@@ -184,12 +179,6 @@ func 标签6(item map[string]string) string {
 		return "6"
 	}
 	return ""
-}
-
-func init() {
-	for _, gene := range textUtil.File2Array(filepath.Join(etcPath, "tag7.gene.txt")) {
-		tag7gene[gene] = true
-	}
 }
 
 func 标签7(item map[string]string, info *GeneInfo) string {

@@ -194,7 +194,7 @@ func loadDb(mode Mode) {
 	thalNameMap, _ = textUtil.File2MapMap(filepath.Join(etcPath, "地贫标准写法.xlsx.Sheet1.txt"), "目前流程", "\t", nil)
 
 	// load CNV database
-	log.Println("Load CNV database Start")
+	log.Println("Load CNV database")
 	var cnvDbArray, _ = textUtil.File2MapArray(filepath.Join(etcPath, "CNV配置文件.xlsx.CNV库配置文件.txt"), "\t", nil)
 	for _, m := range cnvDbArray {
 		var key = m["Gene Symbol"] + " " + m["Function"]
@@ -202,9 +202,15 @@ func loadDb(mode Mode) {
 	}
 
 	// load drop list
-	log.Println("Load DropList Start")
+	log.Println("Load DropList")
 	for k, v := range simpleUtil.HandleError(textUtil.File2Map(dropList, "\t", false)).(map[string]string) {
 		dropListMap[k] = strings.Split(v, ",")
+	}
+
+	// load tag7 gene list
+	log.Println("Load Tag7 Gene List")
+	for _, gene := range textUtil.File2Array(tag7geneTxt) {
+		tag7gene[gene] = true
 	}
 
 	updateSheetTitleMap()
