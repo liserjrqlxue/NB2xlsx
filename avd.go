@@ -154,11 +154,11 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 		filterData = data
 	}
 
-	dbChan <- filterData
-
 	if all {
 		writeSampleAvd(allExcelPath, sheetName, mode, allTitle, data)
 	}
+
+	dbChan <- filterData
 
 	// release threads
 	waitChan(throttle)
