@@ -127,6 +127,15 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 		switch mode {
 		case WGSCS:
 			anno.InheritCheck(item, inheritDb)
+		}
+	}
+
+	// cycle 2
+	for _, item := range data {
+		switch mode {
+		case WGSCS:
+			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
+			filterData = append(filterData, item)
 		default:
 			if item["filterAvd"] == "Y" {
 				var info, ok = geneInfo[item["Gene Symbol"]]
@@ -144,14 +153,6 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 				filterData = append(filterData, item)
 			}
 		}
-	}
-
-	// cycle 2
-	if mode == WGSCS {
-		for _, item := range data {
-			item["遗传相符"] = anno.InheritCoincide(item, inheritDb, false)
-		}
-		filterData = data
 	}
 
 	if all {
