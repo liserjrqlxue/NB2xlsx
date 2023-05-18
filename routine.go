@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/liserjrqlxue/goUtil/simpleUtil"
@@ -39,31 +38,8 @@ func loadDmd(excel *excelize.File, sheetName string, mode Mode, dmdArray []strin
 		var dmd, _ = textUtil.File2MapArray(fileName, "\t", nil)
 		for _, item := range dmd {
 			rIdx++
-			updateDmd(item)
-			var (
-				sampleID = item["#Sample"]
-				gene     = item["gene"]
-				CN       = strings.Split(item["CopyNum"], ";")[0]
-				cn       float64
-				err      error
-			)
-			if CN == ">4" {
-				cn = 5
-				log.Printf("treat CopyNum[%s] as 5\n", item["CopyNum"])
-			} else {
-				cn, err = strconv.ParseFloat(strings.Split(item["CopyNum"], ";")[0], 64)
-				if err != nil {
-					cn = 3
-					log.Printf("treat CopyNum[%s] as 3:%+v\n", item["CopyNum"], err)
-				}
-			}
-			updateSampleGeneInfo(cn, sampleID, gene)
-			addDiseases2Cnv(item, multiDiseaseSep, gene)
-			if mode == NBSIM {
-				addDatabase2Cnv(item)
-			}
+			updateDmd(item, mode)
 			dmdResult = append(dmdResult, item)
-			//writeRow(excel, sheetName, item, title, rIdx)
 		}
 	}
 	return

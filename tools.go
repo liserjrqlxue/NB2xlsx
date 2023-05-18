@@ -605,8 +605,14 @@ func UpdateGeneHash(geneHash, item map[string]string, gender string, subFlag boo
 	}
 }
 
-func updateDmd(item map[string]string) {
-	var sampleID = item["#Sample"]
+func updateDmd(item map[string]string, mode Mode) {
+	var (
+		sampleID = item["#Sample"]
+		gene     = item["gene"]
+		CN       = strings.Split(item["CopyNum"], ";")[0]
+		cn       float64
+		err      error
+	)
 	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
 	item["#sample"] = sampleID
@@ -627,6 +633,24 @@ func updateDmd(item map[string]string) {
 	// primerDesign
 	item["primerDesign"] = dmdPrimerDesign(item)
 	updateDMDHyperlLink(item)
+
+	if CN == ">4" {
+		cn = 5
+		log.Printf("treat CopyNum[%s] as 5\n", item["CopyNum"])
+	} else {
+		cn, err = strconv.ParseFloat(strings.Split(item["CopyNum"], ";")[0], 64)
+		if err != nil {
+			cn = 3
+			log.Printf("treat CopyNum[%s] as 3:%+v\n", item["CopyNum"], err)
+		}
+	}
+
+	updateSampleGeneInfo(cn, sampleID, gene)
+	addDiseases2Cnv(item, multiDiseaseSep, gene)
+
+	if mode == NBSIM {
+		addDatabase2Cnv(item)
+	}
 }
 
 func dmdPrimerDesign(item map[string]string) string {
