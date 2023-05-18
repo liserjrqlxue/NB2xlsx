@@ -29,7 +29,8 @@ func mergeSep(str, sep string) string {
 
 }
 
-func buildDiseaseDb(diseaseMapArray []map[string]string, diseaseTitle []string, key string) {
+func buildDiseaseDb(path, key string) {
+	var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(path, "\t", nil)
 	for _, item := range diseaseMapArray {
 		if item["报告逻辑"] != "" {
 			item["报告逻辑"] = item["报告逻辑"] + "（" + item["疾病"] + "）"
@@ -62,12 +63,10 @@ func loadDiseaseDb(i18n string, mode Mode) {
 	log.Println("Load Disease Start")
 	switch mode {
 	case NBSP:
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxt, "\t", nil)
-		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
+		buildDiseaseDb(diseaseTxt, "基因")
 	case NBSIM:
 		if i18n == "EN" {
-			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxtEN, "\t", nil)
-			buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
+			buildDiseaseDb(diseaseTxtEN, "Gene")
 			for _, m := range diseaseDb {
 				m["疾病"] = m["Condition Name"]
 				m["疾病简介"] = m["Disease Generalization"]
@@ -75,12 +74,10 @@ func loadDiseaseDb(i18n string, mode Mode) {
 				m["遗传模式"] = m["Inherited Mode"]
 			}
 		} else {
-			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxt, "\t", nil)
-			buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
+			buildDiseaseDb(diseaseTxt, "基因")
 		}
 	case WGSNB:
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxtWGS, "\t", nil)
-		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
+		buildDiseaseDb(diseaseTxtWGS, "基因")
 	}
 	for gene, m := range diseaseDb {
 		m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
