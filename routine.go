@@ -59,7 +59,6 @@ func loadDmd(excel *excelize.File, sheetName string, mode Mode, dmdArray []strin
 			}
 			updateSampleGeneInfo(cn, sampleID, gene)
 			addDiseases2Cnv(item, multiDiseaseSep, gene)
-			updateINDEX(item, "D", rIdx)
 			if mode == NBSIM {
 				addDatabase2Cnv(item)
 			}

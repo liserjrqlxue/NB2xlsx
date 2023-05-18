@@ -191,6 +191,7 @@ func writeData2Sheet(excel *excelize.File, sheetName string, mode Mode, db []map
 			updateInfo(item, sampleID, mode)
 			updateGender(item, sampleID)
 		}
+		updateINDEX(item, "D", rIdx)
 		writeRow(excel, sheetName, item, title, rIdx, mode)
 	}
 }
