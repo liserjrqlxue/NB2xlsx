@@ -62,51 +62,29 @@ func loadDiseaseDb(i18n string, mode Mode) {
 	log.Println("Load Disease Start")
 	switch mode {
 	case NBSP:
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-			diseaseTxt,
-			"\t", nil,
-		)
+		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxt, "\t", nil)
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
-		for gene, m := range diseaseDb {
-			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
-			geneInheritance[gene] = m["遗传模式"]
-		}
 	case NBSIM:
 		if i18n == "EN" {
-			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-				diseaseTxtEN,
-				"\t", nil,
-			)
+			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxtEN, "\t", nil)
 			buildDiseaseDb(diseaseMapArray, diseaseTitle, "Gene")
-			for gene, m := range diseaseDb {
+			for _, m := range diseaseDb {
 				m["疾病"] = m["Condition Name"]
 				m["疾病简介"] = m["Disease Generalization"]
 				m["包装疾病分类"] = m["Condition Category"]
 				m["遗传模式"] = m["Inherited Mode"]
-				m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
-				geneInheritance[gene] = m["遗传模式"]
 			}
 		} else {
-			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-				diseaseTxt,
-				"\t", nil,
-			)
+			var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxt, "\t", nil)
 			buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
-			for gene, m := range diseaseDb {
-				m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
-				geneInheritance[gene] = m["遗传模式"]
-			}
 		}
 	case WGSNB:
-		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(
-			diseaseTxtWGS,
-			"\t", nil,
-		)
+		var diseaseMapArray, diseaseTitle = textUtil.File2MapArray(diseaseTxtWGS, "\t", nil)
 		buildDiseaseDb(diseaseMapArray, diseaseTitle, "基因")
-		for gene, m := range diseaseDb {
-			m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
-			geneInheritance[gene] = m["遗传模式"]
-		}
+	}
+	for gene, m := range diseaseDb {
+		m["遗传模式merge"] = mergeSep(m["遗传模式"], diseaseSep)
+		geneInheritance[gene] = m["遗传模式merge"]
 	}
 	log.Println("Load Database Done")
 }
@@ -512,10 +490,11 @@ func readsPicture(item map[string]string) {
 }
 
 func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneInfo, sampleID string, subFlag bool) {
-	var info, ok = geneInfo[item["Gene Symbol"]]
+	var gene = item["Gene Symbol"]
+	var info, ok = geneInfo[gene]
 	if !ok {
 		info = new(GeneInfo).new(item)
-		geneInfo[item["Gene Symbol"]] = info
+		geneInfo[gene] = info
 	}
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
@@ -529,7 +508,7 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 	if item["filterAvd"] == "Y" {
 		info.count(item)
 	}
-	geneInfo[item["Gene Symbol"]] = info
+	geneInfo[gene] = info
 }
 
 func updateGeneHashAD(item map[string]string) string {
