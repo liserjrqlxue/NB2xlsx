@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/liserjrqlxue/goUtil/stringsUtil"
 	"log"
 	"path/filepath"
@@ -608,8 +609,9 @@ func updateDmd(item map[string]string) {
 	var sampleID = item["#Sample"]
 	item["sampleID"] = sampleID
 	item["SampleID"] = sampleID
+	item["#sample"] = sampleID
+
 	updateABC(item, sampleID)
-	item["#sample"] = item["#Sample"]
 	item["OMIM"] = item["Disease"]
 	if item["Significant"] != "YES" {
 		item["Significant"] = "NO"
@@ -623,32 +625,45 @@ func updateDmd(item map[string]string) {
 		item["omimWebsite"]=omimWebsite
 	*/
 	// primerDesign
-	var exID = item["exon"]
-	var cdsID = item["exon"]
-	var ratioVal, err = strconv.ParseFloat(item["Mean_Ratio"], 64)
+	item["primerDesign"] = dmdPrimerDesign(item)
+	updateDMDHyperlLink(item)
+}
+
+func dmdPrimerDesign(item map[string]string) string {
+	var (
+		exID          = item["exon"]
+		cdsID         = item["exon"]
+		ratioVal, err = strconv.ParseFloat(item["Mean_Ratio"], 64)
+		cnType        string
+		hetType       string
+	)
 	if err != nil {
 		ratioVal = 0
 	}
 	if ratioVal >= 1.3 && ratioVal < 1.8 {
-		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Het"
+		cnType = "DUP"
+		hetType = "Het"
 	} else if ratioVal >= 1.8 {
+		cnType = "DUP"
 		if item["chr"] == "chrX" {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Hemi"
+			hetType = "Hemi"
 		} else {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DUP; - ;" + exID + "; " + cdsID + "; Hom"
+			hetType = "Hom"
 		}
 	} else if ratioVal >= 0.2 && ratioVal <= 0.75 {
-		item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Het"
+		cnType = "DEL"
+		hetType = "Het"
 	} else if ratioVal < 0.2 {
+		cnType = "DEL"
 		if item["chr"] == "chrX" {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Hemi"
+			hetType = "Hemi"
 		} else {
-			item["primerDesign"] = item["gene"] + "; " + item["NM"] + "; " + exID + " DEL; - ;" + exID + "; " + cdsID + "; Hom"
+			hetType = "Hom"
 		}
 	} else {
-		item["primerDesign"] = "-"
+		return "-"
 	}
-	updateDMDHyperlLink(item)
+	return fmt.Sprintf("%s; %s; %s %s; - ;%s; %s; %s", item["gene"], item["NM"], exID, cnType, exID, cdsID, hetType)
 }
 
 func updateP(item map[string]string, k, v, suffix string) {
