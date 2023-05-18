@@ -339,7 +339,20 @@ func addDatabase2Cnv(item map[string]string) {
 	var db, ok = cnvDb[key]
 	if ok {
 		item["新生儿一体机包装变异"] = db["新生儿一体机包装变异"]
-		item["中文-突变判定"] = db["中文-突变判定"]
+		switch db["中文-突变判定"] {
+		case "致病变异":
+			item["中文-突变判定"] = "P"
+		case "疑似致病变异":
+			item["中文-突变判定"] = "LP"
+		case "意义未明":
+			item["中文-突变判定"] = "VUS"
+		case "疑似良性":
+			item["中文-突变判定"] = "LB"
+		case "良性":
+			item["中文-突变判定"] = "B"
+		default:
+			item["中文-突变判定"] = db["中文-突变判定"]
+		}
 	}
 	if item["新生儿一体机包装变异"] == "" {
 		item["新生儿一体机包装变异"] = "否"
