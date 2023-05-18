@@ -344,11 +344,11 @@ func addDatabase2Cnv(item map[string]string) {
 			item["中文-突变判定"] = "P"
 		case "疑似致病变异":
 			item["中文-突变判定"] = "LP"
-		case "意义未明":
+		case "意义未明变异":
 			item["中文-突变判定"] = "VUS"
-		case "疑似良性":
+		case "疑似良性变异":
 			item["中文-突变判定"] = "LB"
-		case "良性":
+		case "良性变异":
 			item["中文-突变判定"] = "B"
 		default:
 			item["中文-突变判定"] = db["中文-突变判定"]
