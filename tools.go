@@ -517,7 +517,6 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 		info = new(GeneInfo).new(item)
 		geneInfo[item["Gene Symbol"]] = info
 	}
-	info.count(item)
 	if *gender == "M" || genderMap[sampleID] == "M" {
 		item["Sex"] = "M"
 		info.gender = "M"
@@ -526,6 +525,9 @@ func updateFromAvd(item, geneHash map[string]string, geneInfo map[string]*GeneIn
 		item["Sex"] = "F"
 		info.gender = "F"
 		UpdateGeneHash(geneHash, item, "F", subFlag)
+	}
+	if item["filterAvd"] == "Y" {
+		info.count(item)
 	}
 	geneInfo[item["Gene Symbol"]] = info
 }
