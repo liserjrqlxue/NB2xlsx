@@ -330,7 +330,7 @@ func updateDisease(item map[string]string, mode Mode) {
 	}
 }
 
-func addDatabase2Cnv(item map[string]string) {
+func annotateDmdDb(item map[string]string) {
 	var gene = item["gene"]
 	var mut = item["核苷酸变化"]
 	var key = gene + " " + mut
@@ -649,7 +649,9 @@ func updateDmd(item map[string]string, mode Mode) {
 	addDiseases2Cnv(item, multiDiseaseSep, gene)
 
 	if mode == NBSIM {
-		addDatabase2Cnv(item)
+		annotateDmdDb(item)
+		var het = item["杂合性"]
+		item["杂合性"] = strings.ToUpper(het[:1]) + het[1:]
 	}
 }
 
