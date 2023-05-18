@@ -62,7 +62,6 @@ func loadDmd(excel *excelize.File, sheetName string, mode Mode, dmdArray []strin
 			updateINDEX(item, "D", rIdx)
 			if mode == NBSIM {
 				addDatabase2Cnv(item)
-				updateColumns(item, sheetTitleMap[sheetName])
 			}
 			dmdResult = append(dmdResult, item)
 			//writeRow(excel, sheetName, item, title, rIdx)
