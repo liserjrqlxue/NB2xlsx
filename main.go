@@ -69,6 +69,7 @@ func main() {
 	if modeType == NBSIM {
 		parseProductCode()
 	}
+	updateSheetTitleMap()
 	loadDiseaseDb(i18n, modeType)
 
 	createMainExcel(*prefix+".xlsx", modeType, *all)

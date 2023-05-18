@@ -182,9 +182,6 @@ func loadDb(mode Mode) {
 	for _, gene := range textUtil.File2Array(geneListTag7) {
 		tag7gene[gene] = true
 	}
-
-	updateSheetTitleMap()
-
 }
 
 func loadLocalDb(aes string) {
