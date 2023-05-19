@@ -78,8 +78,13 @@ func (info *GeneInfo) isAD() bool {
 }
 
 func (info *GeneInfo) isAR() bool {
-	if info.inheritance == "AR" || info.inheritance == "AR;AR" || (info.inheritance == "XLR" && info.gender == "F") {
+	switch info.inheritance {
+	case "AR":
 		return true
+	case "XLR":
+		if info.gender == "F" {
+			return true
+		}
 	}
 	return false
 

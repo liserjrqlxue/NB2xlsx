@@ -20,13 +20,16 @@ import (
 func mergeSep(str, sep string) string {
 	var strMap = make(map[string]string)
 	for _, s := range strings.Split(str, sep) {
-		strMap[s] = s
+		for _, s2 := range strings.Split(s, ",") {
+			strMap[s2] = s2
+		}
 	}
 	var strs []string
 	for s := range strMap {
 		strs = append(strs, s)
 	}
-	return strings.Join(strs, sep)
+	sort.Strings(strs)
+	return strings.Join(strs, ",")
 
 }
 
