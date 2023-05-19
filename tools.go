@@ -87,7 +87,8 @@ func loadDiseaseDb(i18n string, mode Mode) {
 	log.Println("Load Database Done")
 }
 
-func loadDb(mode Mode) {
+// 读取数据库和配置文件
+func loadDbAndCfg(mode Mode) {
 	log.Println("Load Database Start")
 	// load gene info list
 	geneInfoMap, _ = textUtil.File2MapMap(geneInfoList, "Gene Symbol", "\t", nil)
@@ -110,10 +111,17 @@ func loadDb(mode Mode) {
 			geneListMap[key] = true
 		}
 	case WGSCS:
-		var region *Region
-		var repeatRegionArray, _ = textUtil.File2MapArray(regionRepeat, "\t", nil)
+		for _, s := range textUtil.File2Array(geneListTOP1K) {
+			top1kGene[s] = true
+		}
+
+		var (
+			repeatRegionArray, _     = textUtil.File2MapArray(regionRepeat, "\t", nil)
+			homologousRegionArray, _ = textUtil.File2MapArray(regionHomologous, "\t", nil)
+		)
+		// 重复区域
 		for _, m := range repeatRegionArray {
-			region = &Region{
+			var region = &Region{
 				chr:   "",
 				start: stringsUtil.Atoi(m["Start"]),
 				end:   stringsUtil.Atoi(m["Stop"]),
@@ -121,9 +129,9 @@ func loadDb(mode Mode) {
 			}
 			repeatRegion = append(repeatRegion, region)
 		}
-		var homologousRegionArray, _ = textUtil.File2MapArray(regionHomologous, "\t", nil)
+		// 同源区域
 		for _, m := range homologousRegionArray {
-			region = newRegion(m["目标区域（疑似有同源区域）"])
+			var region = newRegion(m["目标区域（疑似有同源区域）"])
 			if region != nil {
 				homologousRegion = append(homologousRegion, region)
 			}
@@ -131,10 +139,6 @@ func loadDb(mode Mode) {
 			if region != nil {
 				homologousRegion = append(homologousRegion, region)
 			}
-		}
-
-		for _, s := range textUtil.File2Array(geneListTOP1K) {
-			top1kGene[s] = true
 		}
 	}
 

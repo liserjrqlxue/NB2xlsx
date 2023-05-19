@@ -13,6 +13,7 @@ import (
 )
 
 func init() {
+	// log version
 	version.LogVersion()
 	// flag
 	flag.Parse()
@@ -26,6 +27,7 @@ func init() {
 		}
 	}
 
+	// -type 字符串转换枚举类型
 	modeType = ModeMap[*mode]
 
 	// acmg2015 init
@@ -41,7 +43,7 @@ func init() {
 
 	I18n, _ = textUtil.File2MapMap(i18nTxt, "CN", "\t", nil)
 
-	// load local db
+	// load local mut db
 	switch modeType {
 	case NBSP:
 		loadLocalDb(jsonAes)
@@ -51,7 +53,8 @@ func init() {
 		loadLocalDb(jsonAesWGS)
 	}
 
-	loadDb(modeType)
+	// load other db
+	loadDbAndCfg(modeType)
 
 	log.Println("init done")
 }
