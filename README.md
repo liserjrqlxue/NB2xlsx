@@ -100,7 +100,7 @@ go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要�
 
 1. 修改 `generate.go` 内 `c3d112d6a47a0a04aad2b9d2d2cad266` 为实际使用的AES密钥
 2. 安装 `vb` 或者将 `generate.go` 内 `vb -ldflags "-w -s"` 改成 `go build`
-  1. `go install github.com/liserjrqlxue/version/vb@latest`
+   1. `go install github.com/liserjrqlxue/version/vb@latest`
 3. 运行 `go generate`
 
 ### 注意
