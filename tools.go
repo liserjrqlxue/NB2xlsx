@@ -734,10 +734,10 @@ func updateDipin(item map[string]string, db map[string]map[string]string, mode M
 		}
 
 		if aResult == "." {
-			aResult = "灰区"
+			aResult = "阴性"
 		}
 		if bResult == "." {
-			bResult = "灰区"
+			bResult = "阴性"
 		}
 		var (
 			alphaName, betaName string
@@ -1289,7 +1289,7 @@ func updateDMDHyperlLink(item map[string]string) {
 		updateP(item, "P2", info.p2, pngSuffix)
 		updateP(item, "P3", info.p3, pngSuffix)
 	} else {
-		log.Printf("can not find info of [%s] from %s", sampleID, *qc)
+		log.Printf("can not find info of [%s] from qc[%s]", sampleID, *qc)
 	}
 }
 
