@@ -96,6 +96,13 @@ cd NB2xlsx
 go build -ldflags "-X 'main.codeKey=c3d112d6a47a0a04aad2b9d2d2cad266'" # 需要替换对应AES密钥
 ```
 
+### 另一种方式
+
+1. 修改 `generate.go` 内 `c3d112d6a47a0a04aad2b9d2d2cad266` 为实际使用的AES密钥
+2. 安装 `vb` 或者将 `generate.go` 内 `vb -ldflags "-w -s"` 改成 `go build`
+  1. `go install github.com/liserjrqlxue/version/vb@latest`
+3. 运行 `go generate`
+
 ### 注意
 
 部分数据库文件不在`git repo`内，需要拷贝到对应位置
