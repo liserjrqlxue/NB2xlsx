@@ -104,11 +104,16 @@ func main() {
 		liteDb[mainKey] = liteItem
 
 		if *extract != "" {
-			var strArray []string
+			var (
+				strArray []string
+				line     string
+			)
 			for _, col := range extractCols {
 				strArray = append(strArray, item[col])
 			}
-			fmtUtil.FprintStringArray(extractFile, strArray, "\t")
+			line = strings.Join(strArray, "\t")
+			line = strings.ReplaceAll(line, "\n", "<br/>")
+			fmtUtil.Fprintln(extractFile, line)
 		}
 	}
 
