@@ -151,6 +151,12 @@ func loadAvd(fileName, sheetName string, mode Mode, dbChan chan<- []map[string]s
 					item["报告类别-原始"] = "补充报告"
 				}
 				filterData = append(filterData, item)
+				if mode == NBSIM {
+					updateColumns(item, sheetTitleMap["SNV&INDEL"])
+					for _, k := range sheetTitle["SNV&INDEL"] {
+						item[k] = getI18n(item[k], k)
+					}
+				}
 			}
 		}
 	}
@@ -215,10 +221,6 @@ func updateAvd(item map[string]string, sampleID string, subFlag bool, mode Mode)
 		item["cHGVS"] = anno.CHgvsAlt(item["cHGVS"])
 		item["pHGVS"] = item["pHGVS3"]
 		updateInfo(item, sampleID, mode)
-		updateColumns(item, sheetTitleMap["SNV&INDEL"])
-		for _, k := range sheetTitle["SNV&INDEL"] {
-			item[k] = getI18n(item[k], k)
-		}
 	case WGSNB:
 		annoLocalDb(item, localDb, subFlag, mode)
 		updateInfo(item, sampleID, mode)
